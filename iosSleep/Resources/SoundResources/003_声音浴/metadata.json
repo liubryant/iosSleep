@@ -1,0 +1,49 @@
+{
+  "index": 3,
+  "id": "69dc8f7093a53319a20a91b2",
+  "name": {
+    "en": "Sound Bath ",
+    "zh-Hans": "声音浴",
+    "zh-Hant": "聲音浴"
+  },
+  "sub_title": {
+    "en": "A gentle return to stillness",
+    "zh-Hans": "在一呼一吸间共振",
+    "zh-Hant": "在一呼一吸間共振"
+  },
+  "image_url": "https://pics.tide.moreless.io/scenes/lkl7CSMlSyttpTz4u3xLtWrjAKZw/shots",
+  "sound_url": "https://pics.tide.moreless.io/scenes/FjYNaS2kmr3Lh16sfvYG2A21T2al",
+  "low_quality_sound_url": "",
+  "resource": {
+    "guid": "838dfdf6-6ba6-4eb7-a928-400e4213c9d9",
+    "name": "",
+    "demo_sound_url": "https://pics.tide.moreless.io/scenes/FjYNaS2kmr3Lh16sfvYG2A21T2al",
+    "demo_multichannel_url": "",
+    "demo_dolby_url": "",
+    "hash": "lofwuc2O0O_FYA5BukQ-answ_5RY",
+    "hash_key": "scenes/lofwuc2O0O_FYA5BukQ-answ_5RY",
+    "low_quality_hash": "",
+    "low_quality_hash_key": "",
+    "multichannel_hash": "",
+    "multichannel_hash_key": "",
+    "dolby_hash": "",
+    "dolby_hash_key": "",
+    "loop_hash": "",
+    "loop_hash_key": "",
+    "human_voice_hash": "",
+    "human_voice_hash_key": "",
+    "max_volume_per": 70,
+    "duration": 0,
+    "size_in_bytes": 21455524,
+    "status": "",
+    "has_white_noise": false,
+    "has_human_voice": false,
+    "is_default_duration": false,
+    "tail_scene_id": "",
+    "tail_scene_vol_pct": 0,
+    "tail_recommend_scene_ids": null,
+    "tail_has_mute_option": false,
+    "updated_at": 17760623095073914,
+    "created_at": 0
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "index": 163,
+  "id": "62ac511aff065a0001c3a48b",
+  "name": {
+    "zh-Hans": "微光",
+    "zh-Hant": "微光"
+  },
+  "sub_title": {
+    "zh-Hans": "穿越风沙暗道，开启光的旅程",
+    "zh-Hant": "穿越風沙暗道，開啟光的旅程"
+  },
+  "image_url": "https://pics.tide.moreless.io/scenes/lhQOqRPLEeAW__5sUr-lEv2vNifW/shots",
+  "sound_url": "https://pics.tide.moreless.io/demo_sounds/Fiul8EGJjz_wFCpy6VmX900uWf_N",
+  "low_quality_sound_url": "https://pics.tide.moreless.io/demo_sounds/low_quality_Fiul8EGJjz_wFCpy6VmX900uWf_N",
+  "resource": {
+    "guid": "69ad9a16-242c-4c5b-b9ac-a7db320db063",
+    "name": "",
+    "demo_sound_url": "https://pics.tide.moreless.io/demo_sounds/Fiul8EGJjz_wFCpy6VmX900uWf_N",
+    "demo_low_quality_url": "https://pics.tide.moreless.io/demo_sounds/low_quality_Fiul8EGJjz_wFCpy6VmX900uWf_N",
+    "demo_multichannel_url": "",
+    "demo_dolby_url": "",
+    "hash": "lqe0IhpCFxF5kdWte0LVWFYYDajS",
+    "hash_key": "sounds/lqe0IhpCFxF5kdWte0LVWFYYDajS",
+    "low_quality_hash": "low_quality_lqe0IhpCFxF5kdWte0LVWFYYDajS",
+    "low_quality_hash_key": "sounds/low_quality_lqe0IhpCFxF5kdWte0LVWFYYDajS",
+    "multichannel_hash": "",
+    "multichannel_hash_key": "",
+    "dolby_hash": "",
+    "dolby_hash_key": "",
+    "loop_hash": "",
+    "loop_hash_key": "",
+    "human_voice_hash": "",
+    "human_voice_hash_key": "",
+    "max_volume_per": 70,
+    "duration": 0,
+    "size_in_bytes": 15126016,
+    "status": "",
+    "has_white_noise": false,
+    "has_human_voice": false,
+    "is_default_duration": false,
+    "tail_scene_id": "",
+    "tail_scene_vol_pct": 0,
+    "tail_recommend_scene_ids": [],
+    "tail_has_mute_option": false,
+    "updated_at": 16554600905004004,
+    "created_at": 0
+  }
+}

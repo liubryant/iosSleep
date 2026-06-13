@@ -1,0 +1,48 @@
+{
+  "index": 167,
+  "id": "62ac5b98ff065a0001c3a490",
+  "name": {
+    "zh-Hans": "火花",
+    "zh-Hant": "火花"
+  },
+  "sub_title": {
+    "zh-Hans": "请投币，游戏开场",
+    "zh-Hant": "請投幣，遊戲開場"
+  },
+  "image_url": "https://pics.tide.moreless.io/scenes/lp3UNJn3Aw66xDvZNSD55WC9ALpJ/shots",
+  "sound_url": "https://pics.tide.moreless.io/demo_sounds/Fp8yzXLgYfQ0ToRCf6PMvKYkFZwU",
+  "low_quality_sound_url": "https://pics.tide.moreless.io/demo_sounds/low_quality_Fp8yzXLgYfQ0ToRCf6PMvKYkFZwU",
+  "resource": {
+    "guid": "cc6621c5-4602-4bd0-8b74-3996eef65303",
+    "name": "",
+    "demo_sound_url": "https://pics.tide.moreless.io/demo_sounds/Fp8yzXLgYfQ0ToRCf6PMvKYkFZwU",
+    "demo_low_quality_url": "https://pics.tide.moreless.io/demo_sounds/low_quality_Fp8yzXLgYfQ0ToRCf6PMvKYkFZwU",
+    "demo_multichannel_url": "",
+    "demo_dolby_url": "",
+    "hash": "ll2I9Cn36SoWUINtMH3-6ww0iXgv",
+    "hash_key": "sounds/ll2I9Cn36SoWUINtMH3-6ww0iXgv",
+    "low_quality_hash": "low_quality_ll2I9Cn36SoWUINtMH3-6ww0iXgv",
+    "low_quality_hash_key": "sounds/low_quality_ll2I9Cn36SoWUINtMH3-6ww0iXgv",
+    "multichannel_hash": "",
+    "multichannel_hash_key": "",
+    "dolby_hash": "",
+    "dolby_hash_key": "",
+    "loop_hash": "",
+    "loop_hash_key": "",
+    "human_voice_hash": "",
+    "human_voice_hash_key": "",
+    "max_volume_per": 70,
+    "duration": 0,
+    "size_in_bytes": 17925376,
+    "status": "",
+    "has_white_noise": false,
+    "has_human_voice": false,
+    "is_default_duration": false,
+    "tail_scene_id": "",
+    "tail_scene_vol_pct": 0,
+    "tail_recommend_scene_ids": [],
+    "tail_has_mute_option": false,
+    "updated_at": 16554627794001568,
+    "created_at": 0
+  }
+}

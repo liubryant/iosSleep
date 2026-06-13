@@ -1,0 +1,48 @@
+{
+  "index": 165,
+  "id": "62ac5a76ff065a0001c3a48e",
+  "name": {
+    "zh-Hans": "涌冻",
+    "zh-Hant": "湧凍"
+  },
+  "sub_title": {
+    "zh-Hans": "听，极寒之地的脉搏跳动",
+    "zh-Hant": "聽，極寒之地的脈搏跳動"
+  },
+  "image_url": "https://pics.tide.moreless.io/scenes/lt-GmaKoiUkGH5D7_pMVHDJ3NdyR/shots",
+  "sound_url": "https://pics.tide.moreless.io/demo_sounds/FucfTPg84dqY4VnxtIgHXgDEZLyp",
+  "low_quality_sound_url": "https://pics.tide.moreless.io/demo_sounds/low_quality_FucfTPg84dqY4VnxtIgHXgDEZLyp",
+  "resource": {
+    "guid": "0b12279d-e62a-4713-8f35-56f60386d3f4",
+    "name": "",
+    "demo_sound_url": "https://pics.tide.moreless.io/demo_sounds/FucfTPg84dqY4VnxtIgHXgDEZLyp",
+    "demo_low_quality_url": "https://pics.tide.moreless.io/demo_sounds/low_quality_FucfTPg84dqY4VnxtIgHXgDEZLyp",
+    "demo_multichannel_url": "",
+    "demo_dolby_url": "",
+    "hash": "lk4l-YC2F7r7ZHNet1pYJ3WPCxCa",
+    "hash_key": "sounds/lk4l-YC2F7r7ZHNet1pYJ3WPCxCa",
+    "low_quality_hash": "low_quality_lk4l-YC2F7r7ZHNet1pYJ3WPCxCa",
+    "low_quality_hash_key": "sounds/low_quality_lk4l-YC2F7r7ZHNet1pYJ3WPCxCa",
+    "multichannel_hash": "",
+    "multichannel_hash_key": "",
+    "dolby_hash": "",
+    "dolby_hash_key": "",
+    "loop_hash": "",
+    "loop_hash_key": "",
+    "human_voice_hash": "",
+    "human_voice_hash_key": "",
+    "max_volume_per": 70,
+    "duration": 0,
+    "size_in_bytes": 16806016,
+    "status": "",
+    "has_white_noise": false,
+    "has_human_voice": false,
+    "is_default_duration": false,
+    "tail_scene_id": "",
+    "tail_scene_vol_pct": 0,
+    "tail_recommend_scene_ids": [],
+    "tail_has_mute_option": false,
+    "updated_at": 16554623177503874,
+    "created_at": 0
+  }
+}

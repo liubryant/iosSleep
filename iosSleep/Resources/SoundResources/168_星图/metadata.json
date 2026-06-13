@@ -1,0 +1,49 @@
+{
+  "index": 168,
+  "id": "62ac5bddff065a0001c3a491",
+  "name": {
+    "en": "Atlas",
+    "zh-Hans": "星图",
+    "zh-Hant": "星圖"
+  },
+  "sub_title": {
+    "zh-Hans": "高能预警，金色能量即将涌现",
+    "zh-Hant": "高能預警，金色能量即將湧現"
+  },
+  "image_url": "https://pics.tide.moreless.io/scenes/FipyBCBxwjATzz-DgrxMeJaoVa7I/shots",
+  "sound_url": "https://pics.tide.moreless.io/demo_sounds/Fn63eshhqzFTeOzqmDtVEMOe8JPb",
+  "low_quality_sound_url": "https://pics.tide.moreless.io/demo_sounds/low_quality_Fn63eshhqzFTeOzqmDtVEMOe8JPb",
+  "resource": {
+    "guid": "a38426e4-e508-4c8a-b5d1-0f5ab6a2301e",
+    "name": "",
+    "demo_sound_url": "https://pics.tide.moreless.io/demo_sounds/Fn63eshhqzFTeOzqmDtVEMOe8JPb",
+    "demo_low_quality_url": "https://pics.tide.moreless.io/demo_sounds/low_quality_Fn63eshhqzFTeOzqmDtVEMOe8JPb",
+    "demo_multichannel_url": "",
+    "demo_dolby_url": "",
+    "hash": "liIiyIUDMzolrBWTSkf1zfvwST2U",
+    "hash_key": "sounds/liIiyIUDMzolrBWTSkf1zfvwST2U",
+    "low_quality_hash": "low_quality_liIiyIUDMzolrBWTSkf1zfvwST2U",
+    "low_quality_hash_key": "sounds/low_quality_liIiyIUDMzolrBWTSkf1zfvwST2U",
+    "multichannel_hash": "",
+    "multichannel_hash_key": "",
+    "dolby_hash": "",
+    "dolby_hash_key": "",
+    "loop_hash": "",
+    "loop_hash_key": "",
+    "human_voice_hash": "",
+    "human_voice_hash_key": "",
+    "max_volume_per": 70,
+    "duration": 0,
+    "size_in_bytes": 13271296,
+    "status": "",
+    "has_white_noise": false,
+    "has_human_voice": false,
+    "is_default_duration": false,
+    "tail_scene_id": "",
+    "tail_scene_vol_pct": 0,
+    "tail_recommend_scene_ids": [],
+    "tail_has_mute_option": false,
+    "updated_at": 16554628705499656,
+    "created_at": 0
+  }
+}

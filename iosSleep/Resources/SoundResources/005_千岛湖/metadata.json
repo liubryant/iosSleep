@@ -1,0 +1,49 @@
+{
+  "index": 5,
+  "id": "69f074e62f58edf4f3b36cdf",
+  "name": {
+    "en": "Qiandao Lake",
+    "zh-Hans": "千岛湖",
+    "zh-Hant": "千島湖"
+  },
+  "sub_title": {
+    "en": "The lake rippled in the breeze",
+    "zh-Hans": "人间天上一湖水",
+    "zh-Hant": "人間天上一湖水"
+  },
+  "image_url": "https://pics.tide.moreless.io/scenes/Fu0JG0o7QKH_285mPlSM6vrEFdmL",
+  "sound_url": "https://pics.tide.moreless.io/scenes/FjloZ8lp893YJ6zxnoHc8M17DFvP",
+  "low_quality_sound_url": "",
+  "resource": {
+    "guid": "d851b8b2-b895-4aba-8793-557a0e2504f4",
+    "name": "",
+    "demo_sound_url": "https://pics.tide.moreless.io/scenes/FjloZ8lp893YJ6zxnoHc8M17DFvP",
+    "demo_multichannel_url": "",
+    "demo_dolby_url": "",
+    "hash": "lrj-oygNn6hS37aLUBnqRnxuvZzF",
+    "hash_key": "scenes/lrj-oygNn6hS37aLUBnqRnxuvZzF",
+    "low_quality_hash": "",
+    "low_quality_hash_key": "",
+    "multichannel_hash": "",
+    "multichannel_hash_key": "",
+    "dolby_hash": "",
+    "dolby_hash_key": "",
+    "loop_hash": "",
+    "loop_hash_key": "",
+    "human_voice_hash": "",
+    "human_voice_hash_key": "",
+    "max_volume_per": 70,
+    "duration": 0,
+    "size_in_bytes": 6689376,
+    "status": "",
+    "has_white_noise": false,
+    "has_human_voice": false,
+    "is_default_duration": false,
+    "tail_scene_id": "",
+    "tail_scene_vol_pct": 0,
+    "tail_recommend_scene_ids": null,
+    "tail_has_mute_option": false,
+    "updated_at": 17773662760025372,
+    "created_at": 0
+  }
+}

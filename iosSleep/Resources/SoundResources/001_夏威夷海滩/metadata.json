@@ -1,0 +1,52 @@
+{
+  "index": 1,
+  "id": "67c90f71d815a7000117d3e6",
+  "name": {
+    "en": "Hawaiian Beach",
+    "zh-Hans": "夏威夷海滩",
+    "zh-Hant": "夏威夷海灘",
+    "ja": "ハワイビーチ"
+  },
+  "sub_title": {
+    "en": "Sink into the Serene Sea",
+    "zh-Hans": "拥抱温柔的海",
+    "zh-Hant": "擁抱溫柔的海",
+    "ja": "穏やかな海を抱きしめて"
+  },
+  "image_url": "https://pics.tide.moreless.io/scenes/lulxwQdJMu07t7i3rM6frTKPM8jo/shots",
+  "sound_url": "https://pics.tide.moreless.io/scenes/FkpeFsPx1SWIqUeiuNwmGO4cCNPJ",
+  "low_quality_sound_url": "https://pics.tide.moreless.io/scenes/low_quality_FkpeFsPx1SWIqUeiuNwmGO4cCNPJ",
+  "resource": {
+    "guid": "0c81fd06-5888-49e0-8564-5d4e740b2335",
+    "name": "",
+    "demo_sound_url": "https://pics.tide.moreless.io/scenes/FkpeFsPx1SWIqUeiuNwmGO4cCNPJ",
+    "demo_low_quality_url": "https://pics.tide.moreless.io/scenes/low_quality_FkpeFsPx1SWIqUeiuNwmGO4cCNPJ",
+    "demo_multichannel_url": "",
+    "demo_dolby_url": "",
+    "hash": "llVf6PlMTru2Q1FX85HJI93d2OfE",
+    "hash_key": "scenes/llVf6PlMTru2Q1FX85HJI93d2OfE",
+    "low_quality_hash": "low_quality_llVf6PlMTru2Q1FX85HJI93d2OfE",
+    "low_quality_hash_key": "scenes/low_quality_llVf6PlMTru2Q1FX85HJI93d2OfE",
+    "multichannel_hash": "",
+    "multichannel_hash_key": "",
+    "dolby_hash": "",
+    "dolby_hash_key": "",
+    "loop_hash": "",
+    "loop_hash_key": "",
+    "human_voice_hash": "",
+    "human_voice_hash_key": "",
+    "max_volume_per": 70,
+    "duration": 0,
+    "size_in_bytes": 5288038,
+    "status": "",
+    "has_white_noise": false,
+    "has_human_voice": false,
+    "is_default_duration": false,
+    "tail_scene_id": "",
+    "tail_scene_vol_pct": 0,
+    "tail_recommend_scene_ids": [],
+    "tail_has_mute_option": false,
+    "updated_at": 17411574026646196,
+    "created_at": 0
+  }
+}

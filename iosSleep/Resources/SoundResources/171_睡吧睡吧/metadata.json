@@ -1,0 +1,48 @@
+{
+  "index": 171,
+  "id": "6791f166ddceed00011df509",
+  "name": {
+    "zh-Hans": "睡吧睡吧",
+    "zh-Hant": "睡吧睡吧"
+  },
+  "sub_title": {
+    "zh-Hans": "陈婧霏 演唱",
+    "zh-Hant": "陳婧霏 演唱"
+  },
+  "image_url": "https://pics.tide.moreless.io/scenes/ljAA80HA9cf9veR4mdJ4IMIiP0CC/shots",
+  "sound_url": "https://pics.tide.moreless.io/scenes/Fvvk1S2ZrQD1CT-GjD1nn2oKP1R0",
+  "low_quality_sound_url": "https://pics.tide.moreless.io/scenes/low_quality_Fvvk1S2ZrQD1CT-GjD1nn2oKP1R0",
+  "resource": {
+    "guid": "48d1129d-127a-4f67-9b81-9f0550f04509",
+    "name": "",
+    "demo_sound_url": "https://pics.tide.moreless.io/scenes/Fvvk1S2ZrQD1CT-GjD1nn2oKP1R0",
+    "demo_low_quality_url": "https://pics.tide.moreless.io/scenes/low_quality_Fvvk1S2ZrQD1CT-GjD1nn2oKP1R0",
+    "demo_multichannel_url": "",
+    "demo_dolby_url": "",
+    "hash": "Fvvk1S2ZrQD1CT-GjD1nn2oKP1R0",
+    "hash_key": "scenes/Fvvk1S2ZrQD1CT-GjD1nn2oKP1R0",
+    "low_quality_hash": "low_quality_Fvvk1S2ZrQD1CT-GjD1nn2oKP1R0",
+    "low_quality_hash_key": "scenes/low_quality_Fvvk1S2ZrQD1CT-GjD1nn2oKP1R0",
+    "multichannel_hash": "",
+    "multichannel_hash_key": "",
+    "dolby_hash": "",
+    "dolby_hash_key": "",
+    "loop_hash": "",
+    "loop_hash_key": "",
+    "human_voice_hash": "",
+    "human_voice_hash_key": "",
+    "max_volume_per": 70,
+    "duration": 0,
+    "size_in_bytes": 1205904,
+    "status": "",
+    "has_white_noise": false,
+    "has_human_voice": false,
+    "is_default_duration": false,
+    "tail_scene_id": "",
+    "tail_scene_vol_pct": 0,
+    "tail_recommend_scene_ids": [],
+    "tail_has_mute_option": false,
+    "updated_at": 17376178353333096,
+    "created_at": 0
+  }
+}

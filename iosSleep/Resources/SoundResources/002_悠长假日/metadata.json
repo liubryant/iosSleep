@@ -1,0 +1,49 @@
+{
+  "index": 2,
+  "id": "68abd7a8c3d3d7000100868d",
+  "name": {
+    "en": "Endless Summer",
+    "zh-Hans": "悠长假日",
+    "zh-Hant": "悠長假日"
+  },
+  "sub_title": {
+    "en": "A lazy holiday afternoon",
+    "zh-Hans": "慵懒的假日午后",
+    "zh-Hant": "慵懶的假日午後"
+  },
+  "image_url": "https://pics.tide.moreless.io/scenes/ljYbbkOtfLrRoYTrULNXUHqhWTgB/shots",
+  "sound_url": "https://pics.tide.moreless.io/scenes/FqBVK2984orQlpLIOGOqYVBNSFLO",
+  "low_quality_sound_url": "",
+  "resource": {
+    "guid": "883d1b43-91e2-4a92-a538-54c47f70ec67",
+    "name": "",
+    "demo_sound_url": "https://pics.tide.moreless.io/scenes/FqBVK2984orQlpLIOGOqYVBNSFLO",
+    "demo_multichannel_url": "",
+    "demo_dolby_url": "",
+    "hash": "llXpv0CAA3S5t2lqcvfujoDX2Bym",
+    "hash_key": "scenes/llXpv0CAA3S5t2lqcvfujoDX2Bym",
+    "low_quality_hash": "",
+    "low_quality_hash_key": "",
+    "multichannel_hash": "",
+    "multichannel_hash_key": "",
+    "dolby_hash": "",
+    "dolby_hash_key": "",
+    "loop_hash": "",
+    "loop_hash_key": "",
+    "human_voice_hash": "",
+    "human_voice_hash_key": "",
+    "max_volume_per": 70,
+    "duration": 0,
+    "size_in_bytes": 6357499,
+    "status": "",
+    "has_white_noise": false,
+    "has_human_voice": false,
+    "is_default_duration": false,
+    "tail_scene_id": "",
+    "tail_scene_vol_pct": 0,
+    "tail_recommend_scene_ids": [],
+    "tail_has_mute_option": false,
+    "updated_at": 17558600370127344,
+    "created_at": 0
+  }
+}

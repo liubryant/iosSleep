@@ -1,0 +1,49 @@
+{
+  "index": 4,
+  "id": "69f063522f58edf4f3b36cde",
+  "name": {
+    "en": "Shitennoji",
+    "zh-Hans": "四天王寺",
+    "zh-Hant": "四天王寺"
+  },
+  "sub_title": {
+    "en": "Bells from a distant temple",
+    "zh-Hans": "古寺钟鸣，余音袅袅",
+    "zh-Hant": "古寺鐘鳴，餘音嫋嫋"
+  },
+  "image_url": "https://pics.tide.moreless.io/scenes/lnUEJjguqum9V8A_BmcEMlQbVHRn",
+  "sound_url": "https://pics.tide.moreless.io/scenes/FisxIcMfNYfnSHXJySY_jibr1dx_",
+  "low_quality_sound_url": "",
+  "resource": {
+    "guid": "1e659d1b-78cd-4d4e-b98d-fe1c3485fa0a",
+    "name": "",
+    "demo_sound_url": "https://pics.tide.moreless.io/scenes/FisxIcMfNYfnSHXJySY_jibr1dx_",
+    "demo_multichannel_url": "",
+    "demo_dolby_url": "",
+    "hash": "lk_EnnI5Q5eoXdofRPUo-U-0k1ng",
+    "hash_key": "scenes/lk_EnnI5Q5eoXdofRPUo-U-0k1ng",
+    "low_quality_hash": "",
+    "low_quality_hash_key": "",
+    "multichannel_hash": "",
+    "multichannel_hash_key": "",
+    "dolby_hash": "",
+    "dolby_hash_key": "",
+    "loop_hash": "",
+    "loop_hash_key": "",
+    "human_voice_hash": "",
+    "human_voice_hash_key": "",
+    "max_volume_per": 70,
+    "duration": 0,
+    "size_in_bytes": 7803967,
+    "status": "",
+    "has_white_noise": false,
+    "has_human_voice": false,
+    "is_default_duration": false,
+    "tail_scene_id": "",
+    "tail_scene_vol_pct": 0,
+    "tail_recommend_scene_ids": null,
+    "tail_has_mute_option": false,
+    "updated_at": 17773617273286480,
+    "created_at": 0
+  }
+}

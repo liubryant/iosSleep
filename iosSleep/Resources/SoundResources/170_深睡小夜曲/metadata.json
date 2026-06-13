@@ -1,0 +1,48 @@
+{
+  "index": 170,
+  "id": "6791f09dddceed00011df505",
+  "name": {
+    "zh-Hans": "深睡小夜曲",
+    "zh-Hant": "深睡小夜曲"
+  },
+  "sub_title": {
+    "zh-Hans": "陈婧霏 演唱",
+    "zh-Hant": "陳婧霏 演唱"
+  },
+  "image_url": "https://pics.tide.moreless.io/scenes/ljAA80HA9cf9veR4mdJ4IMIiP0CC/shots",
+  "sound_url": "https://pics.tide.moreless.io/scenes/lkTAIRRNpAodqY7bmTCxSVF1HPSk",
+  "low_quality_sound_url": "https://pics.tide.moreless.io/scenes/low_quality_lkTAIRRNpAodqY7bmTCxSVF1HPSk",
+  "resource": {
+    "guid": "53067ee6-c35a-4f13-8d42-dbc1d2b3e9fa",
+    "name": "",
+    "demo_sound_url": "https://pics.tide.moreless.io/scenes/lkTAIRRNpAodqY7bmTCxSVF1HPSk",
+    "demo_low_quality_url": "https://pics.tide.moreless.io/scenes/low_quality_lkTAIRRNpAodqY7bmTCxSVF1HPSk",
+    "demo_multichannel_url": "",
+    "demo_dolby_url": "",
+    "hash": "lkTAIRRNpAodqY7bmTCxSVF1HPSk",
+    "hash_key": "scenes/lkTAIRRNpAodqY7bmTCxSVF1HPSk",
+    "low_quality_hash": "low_quality_lkTAIRRNpAodqY7bmTCxSVF1HPSk",
+    "low_quality_hash_key": "scenes/low_quality_lkTAIRRNpAodqY7bmTCxSVF1HPSk",
+    "multichannel_hash": "",
+    "multichannel_hash_key": "",
+    "dolby_hash": "",
+    "dolby_hash_key": "",
+    "loop_hash": "",
+    "loop_hash_key": "",
+    "human_voice_hash": "",
+    "human_voice_hash_key": "",
+    "max_volume_per": 70,
+    "duration": 0,
+    "size_in_bytes": 4226580,
+    "status": "",
+    "has_white_noise": false,
+    "has_human_voice": false,
+    "is_default_duration": false,
+    "tail_scene_id": "",
+    "tail_scene_vol_pct": 0,
+    "tail_recommend_scene_ids": [],
+    "tail_has_mute_option": false,
+    "updated_at": 17376175563790244,
+    "created_at": 0
+  }
+}

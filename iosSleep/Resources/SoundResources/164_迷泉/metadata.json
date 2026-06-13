@@ -1,0 +1,48 @@
+{
+  "index": 164,
+  "id": "62ac5933ff065a0001c3a48d",
+  "name": {
+    "zh-Hans": "迷泉",
+    "zh-Hant": "迷泉"
+  },
+  "sub_title": {
+    "zh-Hans": "水雾散去，沉睡丛林即将苏醒",
+    "zh-Hant": "水霧散去，沉睡叢林即將甦醒"
+  },
+  "image_url": "https://pics.tide.moreless.io/scenes/lh7QEslQ0zs2kXswoIt2UHiQig1e/shots",
+  "sound_url": "https://pics.tide.moreless.io/demo_sounds/FvuHKh4ueMk_XEl4OQivRNqfxt9r",
+  "low_quality_sound_url": "https://pics.tide.moreless.io/demo_sounds/low_quality_FvuHKh4ueMk_XEl4OQivRNqfxt9r",
+  "resource": {
+    "guid": "eb432117-758f-4adf-896a-4f31513ae284",
+    "name": "",
+    "demo_sound_url": "https://pics.tide.moreless.io/demo_sounds/FvuHKh4ueMk_XEl4OQivRNqfxt9r",
+    "demo_low_quality_url": "https://pics.tide.moreless.io/demo_sounds/low_quality_FvuHKh4ueMk_XEl4OQivRNqfxt9r",
+    "demo_multichannel_url": "",
+    "demo_dolby_url": "",
+    "hash": "liOwRMgI4T0wHYVNuhhjpTyXgg4p",
+    "hash_key": "sounds/liOwRMgI4T0wHYVNuhhjpTyXgg4p",
+    "low_quality_hash": "low_quality_liOwRMgI4T0wHYVNuhhjpTyXgg4p",
+    "low_quality_hash_key": "sounds/low_quality_liOwRMgI4T0wHYVNuhhjpTyXgg4p",
+    "multichannel_hash": "",
+    "multichannel_hash_key": "",
+    "dolby_hash": "",
+    "dolby_hash_key": "",
+    "loop_hash": "",
+    "loop_hash_key": "",
+    "human_voice_hash": "",
+    "human_voice_hash_key": "",
+    "max_volume_per": 70,
+    "duration": 0,
+    "size_in_bytes": 14411776,
+    "status": "",
+    "has_white_noise": false,
+    "has_human_voice": false,
+    "is_default_duration": false,
+    "tail_scene_id": "",
+    "tail_scene_vol_pct": 0,
+    "tail_recommend_scene_ids": [],
+    "tail_has_mute_option": false,
+    "updated_at": 16554621839653260,
+    "created_at": 0
+  }
+}
