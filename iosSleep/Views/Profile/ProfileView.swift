@@ -123,7 +123,7 @@ struct ProfileView: View {
                         .foregroundStyle(.white)
 
                     VStack(alignment: .leading, spacing: 5) {
-                        Text(settings.isLoggedIn ? "已登录用户" : "未登录")
+                        Text(settings.isLoggedIn ? settings.phoneNumber : "未登录")
                             .font(.title3.weight(.semibold))
                             .foregroundStyle(.white)
                         Text(settings.isLoggedIn ? "睡眠目标：每天 8 小时" : "登录后同步睡眠记录和设置")

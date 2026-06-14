@@ -38,6 +38,7 @@
 		BF000001000000000000001D /* PangleDrawFeedAdLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF000001000000000000011F /* PangleDrawFeedAdLoader.swift */; };
 		BF000001000000000000001E /* PangleRewardedVideoAdManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF0000010000000000000124 /* PangleRewardedVideoAdManager.swift */; };
 		BF000001000000000000001F /* DrawFeedAdCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF0000010000000000000125 /* DrawFeedAdCardView.swift */; };
+		BF0000010000000000000910 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF0000010000000000000911 /* AuthService.swift */; };
 		BF0000010000000000000020 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BF0000010000000000000120 /* Assets.xcassets */; };
 		BF0000010000000000000021 /* SoundResources in Resources */ = {isa = PBXBuildFile; fileRef = BF0000010000000000000121 /* SoundResources */; };
 		BF0000010000000000000022 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BF0000010000000000000122 /* LaunchScreen.storyboard */; };
@@ -59,6 +60,7 @@
 		BF000001000000000000010A /* SleepMonitorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepMonitorService.swift; sourceTree = "<group>"; };
 		BF000001000000000000010B /* HealthKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitService.swift; sourceTree = "<group>"; };
 		BF000001000000000000010C /* CacheService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheService.swift; sourceTree = "<group>"; };
+		BF0000010000000000000911 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		BF000001000000000000010D /* SoundHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundHomeView.swift; sourceTree = "<group>"; };
 		BF000001000000000000010E /* SoundCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundCardView.swift; sourceTree = "<group>"; };
 		BF000001000000000000010F /* SleepHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepHomeView.swift; sourceTree = "<group>"; };
@@ -173,6 +175,7 @@
 				BF000001000000000000011C /* SleepSessionStore.swift */,
 				BF000001000000000000010B /* HealthKitService.swift */,
 				BF000001000000000000010C /* CacheService.swift */,
+				BF0000010000000000000911 /* AuthService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -380,6 +383,7 @@
 				BF000001000000000000000A /* SleepMonitorService.swift in Sources */,
 				BF000001000000000000000B /* HealthKitService.swift in Sources */,
 				BF000001000000000000000C /* CacheService.swift in Sources */,
+				BF0000010000000000000910 /* AuthService.swift in Sources */,
 				BF000001000000000000000D /* SoundHomeView.swift in Sources */,
 				BF000001000000000000000E /* SoundCardView.swift in Sources */,
 				BF000001000000000000000F /* SleepHomeView.swift in Sources */,
