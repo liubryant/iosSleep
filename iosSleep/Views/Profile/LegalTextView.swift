@@ -1,44 +1,188 @@
 import SwiftUI
+import WebKit
 
 struct LegalTextView: View {
     let title: String
-    let text: String
+    let url: URL
 
     var body: some View {
-        ScrollView {
-            Text(text)
-                .font(.body)
-                .lineSpacing(6)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding()
-        }
+        WebPageView(url: url)
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
     }
 }
 
-enum LegalText {
-    static let userAgreement = """
-    欢迎使用 iosSleep。
+struct WebPageView: UIViewRepresentable {
+    let url: URL
 
-    1. 本应用用于个人睡眠习惯记录与声音事件观察，不构成医学诊断。
-    2. 用户应确保在合法、合适的环境中使用麦克风监测功能。
-    3. 本应用默认在本机处理音频数据，用户可自行删除睡眠记录与缓存。
-    4. 因设备电量、系统权限、后台限制等原因，记录结果可能不完整。
-    5. 后续如接入云同步或账号系统，将在用户明确授权后进行。
-    """
+    func makeUIView(context: Context) -> WKWebView {
+        let webView = WKWebView()
+        webView.allowsBackForwardNavigationGestures = true
+        return webView
+    }
 
-    static let privacyPolicy = """
-    iosSleep 重视隐私保护。
+    func updateUIView(_ webView: WKWebView, context: Context) {
+        if webView.url != url {
+            webView.load(URLRequest(url: url))
+        }
+    }
+}
 
-    麦克风：用于夜间声音事件识别。第一版默认本地处理，不上传原始音频。
+struct PrivacyAgreementView: View {
+    @EnvironmentObject private var settings: AppSettings
+    @State private var isChecked = false
+    @State private var showMustCheckAlert = false
+    @State private var showDisagreeAlert = false
+    @State private var presentedLegal: LegalDestination?
 
-    HealthKit：用于读取和写入睡眠分析数据。应用只请求睡眠相关权限，不读取无关健康数据。
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.45)
+                .ignoresSafeArea()
 
-    声音片段：如用户开启保存识别片段，应用仅保存与睡眠事件相关的短音频片段，并提供删除能力。
+            VStack(spacing: 20) {
+                Text("个人信息保护")
+                    .font(.title3.weight(.semibold))
 
-    缓存清理：清除缓存只删除临时文件，不删除 App 内置声音资源。
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 14) {
+                        Text("欢迎使用时光睡眠。我们非常重视您的个人信息与隐私保护。请您在使用前仔细阅读以下协议，了解我们如何为您提供睡眠监测、声音播放、HealthKit 数据同步等服务。")
+                            .padding(.top, 8)
+                        HStack(spacing: 0) {
+                            Button("《用户协议》") {
+                                presentedLegal = .agreement
+                            }
+                            .foregroundStyle(.blue)
 
-    数据控制：用户可以删除本地睡眠记录、缓存和登录状态。
-    """
+                            Text(" 和 ")
+                                .foregroundStyle(.primary)
+
+                            Button("《隐私政策》") {
+                                presentedLegal = .privacy
+                            }
+                            .foregroundStyle(.blue)
+                        }
+                        .buttonStyle(.plain)
+                        Text("在您点击“同意并继续”前，我们不会主动请求麦克风、HealthKit 等敏感权限，也不会开始睡眠声音监测。")
+                        Text("您可以点击上方蓝色协议名称查看完整内容。若您不同意相关条款，将无法继续使用本应用。")
+                    }
+                    .font(.body)
+                    .foregroundStyle(.primary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .frame(minHeight: 220, maxHeight: 320)
+
+                Toggle(isOn: $isChecked) {
+                    Text("我已阅读并同意《用户协议》和《隐私政策》")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                }
+                .toggleStyle(.checkboxLike)
+
+                Button {
+                    guard isChecked else {
+                        showMustCheckAlert = true
+                        return
+                    }
+                    settings.acceptAgreement()
+                } label: {
+                    Text("同意并继续")
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+
+                Button("不同意") {
+                    showDisagreeAlert = true
+                }
+                .foregroundStyle(.secondary)
+            }
+            .padding(20)
+            .background(Color(.systemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .padding(24)
+        }
+        .sheet(item: $presentedLegal) { item in
+            NavigationStack {
+                LegalTextView(title: item.title, url: item.url)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarLeading) {
+                            Button("关闭") {
+                                presentedLegal = nil
+                            }
+                        }
+                    }
+            }
+        }
+        .alert("提示", isPresented: $showMustCheckAlert) {
+            Button("知道了", role: .cancel) {}
+        } message: {
+            Text("请先阅读并勾选同意《用户协议》和《隐私政策》。")
+        }
+        .alert("提示", isPresented: $showDisagreeAlert) {
+            Button("查看协议", role: .cancel) {
+                presentedLegal = .agreement
+            }
+            Button("退出App", role: .destructive) {
+                exit(0)
+            }
+        } message: {
+            Text("您需要同意《用户协议》和《隐私政策》后才能使用时光睡眠。")
+        }
+    }
+
+}
+
+private enum LegalDestination: Identifiable {
+    case agreement
+    case privacy
+
+    var id: String {
+        switch self {
+        case .agreement: return "agreement"
+        case .privacy: return "privacy"
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .agreement: return "用户协议"
+        case .privacy: return "隐私政策"
+        }
+    }
+
+    var url: URL {
+        switch self {
+        case .agreement: return LegalLinks.userAgreementURL
+        case .privacy: return LegalLinks.privacyPolicyURL
+        }
+    }
+}
+
+enum LegalLinks {
+    static let privacyPolicyURL = URL(string: "https://www.cjym123.cn/privacy_sleep.html")!
+    static let userAgreementURL = URL(string: "https://www.cjym123.cn/agreement_sleep.html")!
+}
+
+private struct CheckboxLikeToggleStyle: ToggleStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        Button {
+            configuration.isOn.toggle()
+        } label: {
+            HStack(alignment: .center, spacing: 8) {
+                Image(systemName: configuration.isOn ? "checkmark.square.fill" : "square")
+                    .foregroundStyle(configuration.isOn ? .indigo : .secondary)
+                configuration.label
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+private extension ToggleStyle where Self == CheckboxLikeToggleStyle {
+    static var checkboxLike: CheckboxLikeToggleStyle {
+        CheckboxLikeToggleStyle()
+    }
 }

@@ -16,6 +16,14 @@ struct iosSleepApp: App {
                 .environmentObject(sleepMonitor)
                 .environmentObject(healthKit)
                 .environmentObject(settings)
+                .fullScreenCover(isPresented: Binding(
+                    get: { !settings.agreementAccepted },
+                    set: { _ in }
+                )) {
+                    PrivacyAgreementView()
+                        .environmentObject(settings)
+                        .interactiveDismissDisabled(true)
+                }
                 .task {
                     await soundLibrary.load()
                 }

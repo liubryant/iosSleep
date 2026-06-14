@@ -83,10 +83,10 @@ struct ProfileView: View {
 
                 Section("关于") {
                     NavigationLink("用户协议") {
-                        LegalTextView(title: "用户协议", text: LegalText.userAgreement)
+                        LegalTextView(title: "用户协议", url: LegalLinks.userAgreementURL)
                     }
                     NavigationLink("隐私政策") {
-                        LegalTextView(title: "隐私政策", text: LegalText.privacyPolicy)
+                        LegalTextView(title: "隐私政策", url: LegalLinks.privacyPolicyURL)
                     }
                     HStack {
                         Text("版本")

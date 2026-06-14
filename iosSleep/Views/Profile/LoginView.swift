@@ -13,7 +13,7 @@ struct LoginView: View {
                 .padding(.top, 36)
 
             VStack(spacing: 8) {
-                Text("登录 iosSleep")
+                Text("登录时光睡眠")
                     .font(.title2.weight(.semibold))
                 Text("同步你的睡眠报告、收藏声音和监测设置")
                     .font(.subheadline)

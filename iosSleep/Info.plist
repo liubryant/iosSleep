@@ -11,7 +11,9 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>$(PRODUCT_NAME)</string>
+	<string>时光睡眠</string>
+	<key>CFBundleDisplayName</key>
+	<string>时光睡眠</string>
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
@@ -21,11 +23,11 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSHealthShareUsageDescription</key>
-	<string>iosSleep 需要读取睡眠分析数据，用于和应用记录的睡眠声音事件对齐展示。</string>
+	<string>时光睡眠需要读取睡眠分析数据，用于和应用记录的睡眠声音事件对齐展示。</string>
 	<key>NSHealthUpdateUsageDescription</key>
-	<string>iosSleep 需要写入睡眠时段，帮助你在健康 App 中统一查看睡眠记录。</string>
+	<string>时光睡眠需要写入睡眠时段，帮助你在健康 App 中统一查看睡眠记录。</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>iosSleep 需要使用麦克风在本地识别打鼾、咳嗽、梦话、磨牙和环境噪音。</string>
+	<string>时光睡眠需要使用麦克风在本地识别打鼾、咳嗽、梦话、磨牙和环境噪音。</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -35,8 +37,8 @@
 	<array>
 		<string>audio</string>
 	</array>
-	<key>UILaunchScreen</key>
-	<dict/>
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
