@@ -11,26 +11,40 @@ protocol SoundClassifying {
     func classify(buffer: AVAudioPCMBuffer, features: AudioFeatures) -> SoundClassification?
 }
 
-struct MockSoundClassifier: SoundClassifying {
+struct HybridSleepSoundClassifier: SoundClassifying {
+    private let yamNet = YAMNetSoundClassifier()
+    private let fallback = FeatureBasedSleepSoundClassifier()
+
     func classify(buffer: AVAudioPCMBuffer, features: AudioFeatures) -> SoundClassification? {
-        guard features.estimatedDecibel > 38 else { return nil }
+        yamNet.classify(buffer: buffer, features: features) ?? fallback.classify(buffer: buffer, features: features)
+    }
+}
+
+struct FeatureBasedSleepSoundClassifier: SoundClassifying {
+    func classify(buffer: AVAudioPCMBuffer, features: AudioFeatures) -> SoundClassification? {
+        guard features.estimatedDecibel > 36 else { return nil }
 
         if features.estimatedDecibel > 68 {
             return SoundClassification(type: .noise, confidence: 0.82)
         }
 
-        let second = Calendar.current.component(.second, from: Date())
-        if features.spectralCentroid < 1_100, features.rms > 0.025, second % 4 == 0 {
-            return SoundClassification(type: .snore, confidence: 0.76)
+        if features.spectralCentroid < 950, features.rms > 0.018, features.zeroCrossingRate < 0.08 {
+            let confidence = min(0.92, 0.64 + Double(features.rms * 4))
+            return SoundClassification(type: .snore, confidence: confidence)
         }
-        if features.peak > 0.22, second % 7 == 0 {
-            return SoundClassification(type: .cough, confidence: 0.72)
+
+        if features.peak > 0.2, features.rms > 0.02, features.spectralCentroid > 900, features.spectralCentroid < 2_400 {
+            let confidence = min(0.88, 0.62 + Double(features.peak))
+            return SoundClassification(type: .cough, confidence: confidence)
         }
-        if features.spectralCentroid > 2_600, second % 9 == 0 {
-            return SoundClassification(type: .bruxism, confidence: 0.68)
+
+        if features.spectralCentroid > 2_400, features.zeroCrossingRate > 0.08, features.peak > 0.08 {
+            let confidence = min(0.86, 0.58 + Double(features.zeroCrossingRate * 2))
+            return SoundClassification(type: .bruxism, confidence: confidence)
         }
-        if features.spectralCentroid > 1_200, features.spectralCentroid < 2_600, second % 11 == 0 {
-            return SoundClassification(type: .sleepTalk, confidence: 0.66)
+
+        if features.spectralCentroid > 1_000, features.spectralCentroid < 2_800, features.rms > 0.012, features.zeroCrossingRate > 0.035 {
+            return SoundClassification(type: .sleepTalk, confidence: 0.64)
         }
         return nil
     }

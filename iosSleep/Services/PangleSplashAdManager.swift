@@ -142,8 +142,6 @@ extension PangleSplashAdManager: BUMSplashAdDelegate {
 
     func splashAdDidShow(_ splashAd: BUSplashAd) {
         isLoading = false
-        completionHandler?(true, nil)
-        completionHandler = nil
     }
 
     func splashAdDidClick(_ splashAd: BUSplashAd) {}
@@ -152,6 +150,8 @@ extension PangleSplashAdManager: BUMSplashAdDelegate {
         isLoading = false
         splashAd.mediation?.destoryAd()
         self.splashAd = nil
+        completionHandler?(true, nil)
+        completionHandler = nil
     }
 
     func splashAdViewControllerDidClose(_ splashAd: BUSplashAd) {}

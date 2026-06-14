@@ -6,6 +6,8 @@ enum AppConstants {
     // MARK: - GroMore
     static let pangleAppID = "5839173"
     static let splashSlotID = "104134551"
+    static let drawFeedSlotID = "104134653"
+    static let rewardedVideoSlotID = "104134740"
     static var isAdDisabled = false
 
     // MARK: - UMeng

@@ -6,13 +6,20 @@ final class SleepMonitorService: ObservableObject {
     @Published private(set) var isMonitoring = false
     @Published private(set) var currentSession: SleepSession?
     @Published private(set) var latestSession: SleepSession?
+    @Published private(set) var sessions: [SleepSession] = []
     @Published private(set) var currentDecibel: Double = 0
     @Published private(set) var permissionDenied = false
 
     private let engine = AVAudioEngine()
-    private let classifier: SoundClassifying = MockSoundClassifier()
+    private let classifier: SoundClassifying = HybridSleepSoundClassifier()
     private var lastEventTimeByType: [SleepEventType: Date] = [:]
+    private var lastPersistTime = Date.distantPast
     private var recorder: AVAudioRecorder?
+
+    init() {
+        sessions = SleepSessionStore.loadSessions()
+        latestSession = sessions.first
+    }
 
     func start() async {
         let granted = await requestMicrophoneAccess()
@@ -23,11 +30,15 @@ final class SleepMonitorService: ObservableObject {
 
         do {
             try configureAudioSession()
-            let session = SleepSession()
+            var session = SleepSession()
+            let recordingURL = try SleepSessionStore.makeRecordingURL(sessionID: session.id)
+            session.audioFileName = recordingURL.lastPathComponent
             currentSession = session
             latestSession = session
+            sessions = SleepSessionStore.upsert(session, into: sessions)
+            persistSessions(force: true)
             lastEventTimeByType = [:]
-            try startRecorder()
+            try startRecorder(url: recordingURL)
             installTap()
             engine.prepare()
             try engine.start()
@@ -47,10 +58,19 @@ final class SleepMonitorService: ObservableObject {
 
         currentSession?.endTime = Date()
         latestSession = currentSession
+        if let latestSession {
+            sessions = SleepSessionStore.upsert(latestSession, into: sessions)
+            persistSessions(force: true)
+        }
         currentSession = nil
         isMonitoring = false
 
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+    }
+
+    func select(session: SleepSession) {
+        guard !isMonitoring else { return }
+        latestSession = session
     }
 
     func dismissPermissionAlert() {
@@ -84,10 +104,7 @@ final class SleepMonitorService: ObservableObject {
         }
     }
 
-    private func startRecorder() throws {
-        let url = FileManager.default.temporaryDirectory
-            .appendingPathComponent("iosSleep-\(UUID().uuidString)")
-            .appendingPathExtension("m4a")
+    private func startRecorder(url: URL) throws {
         let settings: [String: Any] = [
             AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
             AVSampleRateKey: 16_000,
@@ -123,10 +140,19 @@ final class SleepMonitorService: ObservableObject {
 
         currentSession = session
         latestSession = session
+        sessions = SleepSessionStore.upsert(session, into: sessions)
+        persistSessions(force: false)
     }
 
     private func canAppendEvent(type: SleepEventType, at date: Date) -> Bool {
         guard let last = lastEventTimeByType[type] else { return true }
         return date.timeIntervalSince(last) > 20
+    }
+
+    private func persistSessions(force: Bool) {
+        let now = Date()
+        guard force || now.timeIntervalSince(lastPersistTime) > 30 else { return }
+        lastPersistTime = now
+        SleepSessionStore.saveSessions(sessions)
     }
 }

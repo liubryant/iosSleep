@@ -4,6 +4,7 @@ import Charts
 struct SleepHomeView: View {
     @EnvironmentObject private var monitor: SleepMonitorService
     @EnvironmentObject private var healthKit: HealthKitService
+    @State private var trendRange: SleepTrendRange = .week
 
     var body: some View {
         NavigationStack {
@@ -11,12 +12,17 @@ struct SleepHomeView: View {
                 VStack(spacing: 16) {
                     statusPanel
                     eventSummary
+                    trendPanel
 
                     if let session = monitor.latestSession {
                         SleepReportView(session: session)
                     } else {
                         EmptyStateView(title: "还没有睡眠报告", systemImage: "moon.zzz", message: "点击开始睡眠后，应用会记录夜间声音事件。")
                             .padding(.vertical, 32)
+                    }
+
+                    if !monitor.sessions.isEmpty {
+                        recentReports
                     }
                 }
                 .padding()
@@ -101,5 +107,128 @@ struct SleepHomeView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
         }
+    }
+
+    private var trendPanel: some View {
+        let points = SleepTrendCalculator.points(from: monitor.sessions, range: trendRange)
+        return VStack(alignment: .leading, spacing: 14) {
+            HStack {
+                Text("睡眠趋势")
+                    .font(.title3.weight(.semibold))
+                Spacer()
+                Picker("范围", selection: $trendRange) {
+                    ForEach(SleepTrendRange.allCases) { range in
+                        Text(range.title).tag(range)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .frame(width: 116)
+            }
+
+            if monitor.sessions.isEmpty {
+                EmptyStateView(title: "暂无趋势", systemImage: "chart.line.uptrend.xyaxis", message: "完成一次睡眠监测后，这里会显示周/月趋势。")
+                    .padding(.vertical, 8)
+            } else {
+                Chart(points) { point in
+                    BarMark(
+                        x: .value("日期", point.date, unit: .day),
+                        y: .value("睡眠时长", point.durationHours)
+                    )
+                    .foregroundStyle(.indigo.opacity(0.35))
+
+                    LineMark(
+                        x: .value("日期", point.date, unit: .day),
+                        y: .value("评分", point.score / 12)
+                    )
+                    .foregroundStyle(.green)
+                    .interpolationMethod(.catmullRom)
+                }
+                .frame(height: 180)
+                .chartYAxisLabel("小时 / 评分")
+
+                HStack(spacing: 12) {
+                    trendMetric(title: "平均评分", value: averageScoreText(points))
+                    trendMetric(title: "打鼾", value: "\(points.map(\.snoreCount).reduce(0, +)) 次")
+                    trendMetric(title: "磨牙", value: "\(points.map(\.bruxismCount).reduce(0, +)) 次")
+                }
+            }
+        }
+        .padding()
+        .background(Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    private func trendMetric(title: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Text(value)
+                .font(.headline)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(10)
+        .background(Color(.tertiarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    private func averageScoreText(_ points: [SleepTrendPoint]) -> String {
+        let scoredPoints = points.filter { $0.score > 0 }
+        guard !scoredPoints.isEmpty else { return "--" }
+        let average = scoredPoints.map(\.score).reduce(0, +) / Double(scoredPoints.count)
+        return "\(Int(average.rounded())) 分"
+    }
+
+    private var recentReports: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("历史报告")
+                .font(.title3.weight(.semibold))
+
+            VStack(spacing: 0) {
+                ForEach(monitor.sessions.prefix(10)) { session in
+                    Button {
+                        monitor.select(session: session)
+                    } label: {
+                        HStack(spacing: 12) {
+                            Image(systemName: "doc.text.magnifyingglass")
+                                .foregroundStyle(.indigo)
+                                .frame(width: 28)
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(session.startTime.formatted(date: .abbreviated, time: .shortened))
+                                    .font(.subheadline.weight(.medium))
+                                Text("\(durationText(for: session)) · \(session.events.count) 个事件 · 平均 \(Int(session.averageNoise)) dB")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+
+                            Spacer()
+
+                            if monitor.latestSession?.id == session.id {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundStyle(.indigo)
+                            }
+                        }
+                        .contentShape(Rectangle())
+                        .padding(.vertical, 10)
+                    }
+                    .buttonStyle(.plain)
+
+                    if session.id != monitor.sessions.prefix(10).last?.id {
+                        Divider()
+                    }
+                }
+            }
+        }
+        .padding()
+        .background(Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    private func durationText(for session: SleepSession) -> String {
+        let minutes = Int(session.duration / 60)
+        return minutes < 60 ? "\(minutes) 分钟" : "\(minutes / 60) 小时 \(minutes % 60) 分"
     }
 }

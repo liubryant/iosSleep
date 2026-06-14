@@ -10,16 +10,25 @@ final class AppSDKManager: ObservableObject {
     private init() {}
 
     /// 启动三方 SDK。合规要求：只能在用户同意《用户协议》《隐私政策》后调用。
-    func startIfAllowed(showSplash: Bool = true) {
-        guard ConsentStore.agreementAccepted else { return }
-        guard !didStartSDKFlow else { return }
+    func startIfAllowed(showSplash: Bool = true, completion: (() -> Void)? = nil) {
+        guard ConsentStore.agreementAccepted else {
+            completion?()
+            return
+        }
+        guard !didStartSDKFlow else {
+            completion?()
+            return
+        }
         didStartSDKFlow = true
 
         requestTrackingAuthorizationIfNeeded { [weak self] in
             guard self != nil else { return }
             UMengAnalytics.shared.initialize()
             PangleAdManager.shared.initialize { success in
-                guard showSplash, success else { return }
+                guard showSplash, success else {
+                    completion?()
+                    return
+                }
                 DispatchQueue.main.async {
                     PangleSplashAdManager.shared.loadAndShowDefaultSplashAd { shown, error in
                         if let error {
@@ -27,6 +36,7 @@ final class AppSDKManager: ObservableObject {
                         } else {
                             print("Splash ad shown: \(shown)")
                         }
+                        completion?()
                     }
                 }
             }

@@ -32,6 +32,12 @@
 		BF0000010000000000000017 /* PangleSplashAdManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF0000010000000000000119 /* PangleSplashAdManager.swift */; };
 		BF0000010000000000000018 /* AppSDKManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF000001000000000000011A /* AppSDKManager.swift */; };
 		BF0000010000000000000019 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF000001000000000000011B /* EmptyStateView.swift */; };
+		BF000001000000000000001A /* SleepSessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF000001000000000000011C /* SleepSessionStore.swift */; };
+		BF000001000000000000001B /* StartupGateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF000001000000000000011D /* StartupGateView.swift */; };
+		BF000001000000000000001C /* PangleAdRootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF000001000000000000011E /* PangleAdRootViewController.swift */; };
+		BF000001000000000000001D /* PangleDrawFeedAdLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF000001000000000000011F /* PangleDrawFeedAdLoader.swift */; };
+		BF000001000000000000001E /* PangleRewardedVideoAdManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF0000010000000000000124 /* PangleRewardedVideoAdManager.swift */; };
+		BF000001000000000000001F /* DrawFeedAdCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF0000010000000000000125 /* DrawFeedAdCardView.swift */; };
 		BF0000010000000000000020 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BF0000010000000000000120 /* Assets.xcassets */; };
 		BF0000010000000000000021 /* SoundResources in Resources */ = {isa = PBXBuildFile; fileRef = BF0000010000000000000121 /* SoundResources */; };
 		BF0000010000000000000022 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BF0000010000000000000122 /* LaunchScreen.storyboard */; };
@@ -68,10 +74,16 @@
 		BF0000010000000000000119 /* PangleSplashAdManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PangleSplashAdManager.swift; sourceTree = "<group>"; };
 		BF000001000000000000011A /* AppSDKManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSDKManager.swift; sourceTree = "<group>"; };
 		BF000001000000000000011B /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
+		BF000001000000000000011C /* SleepSessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepSessionStore.swift; sourceTree = "<group>"; };
+		BF000001000000000000011D /* StartupGateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartupGateView.swift; sourceTree = "<group>"; };
+		BF000001000000000000011E /* PangleAdRootViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PangleAdRootViewController.swift; sourceTree = "<group>"; };
+		BF000001000000000000011F /* PangleDrawFeedAdLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PangleDrawFeedAdLoader.swift; sourceTree = "<group>"; };
 		BF0000010000000000000120 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BF0000010000000000000121 /* SoundResources */ = {isa = PBXFileReference; lastKnownFileType = folder; path = SoundResources; sourceTree = "<group>"; };
 		BF0000010000000000000122 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		BF0000010000000000000123 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		BF0000010000000000000124 /* PangleRewardedVideoAdManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PangleRewardedVideoAdManager.swift; sourceTree = "<group>"; };
+		BF0000010000000000000125 /* DrawFeedAdCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawFeedAdCardView.swift; sourceTree = "<group>"; };
 		BF0000010000000000000200 /* 时光睡眠.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "时光睡眠.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB4888F22A5EFF6BE04549E0 /* Pods-iosSleep.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-iosSleep.release.xcconfig"; path = "Target Support Files/Pods-iosSleep/Pods-iosSleep.release.xcconfig"; sourceTree = "<group>"; };
 		FE2385BF3AD04433671E7D6C /* Pods_iosSleep.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_iosSleep.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -127,6 +139,7 @@
 			children = (
 				BF0000010000000000000101 /* iosSleepApp.swift */,
 				BF0000010000000000000102 /* MainTabView.swift */,
+				BF000001000000000000011D /* StartupGateView.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -150,10 +163,14 @@
 				BF0000010000000000000117 /* UMengAnalytics.swift */,
 				BF0000010000000000000118 /* PangleAdManager.swift */,
 				BF0000010000000000000119 /* PangleSplashAdManager.swift */,
+				BF000001000000000000011E /* PangleAdRootViewController.swift */,
+				BF000001000000000000011F /* PangleDrawFeedAdLoader.swift */,
+				BF0000010000000000000124 /* PangleRewardedVideoAdManager.swift */,
 				BF0000010000000000000107 /* AudioPlayerService.swift */,
 				BF0000010000000000000108 /* AudioFeatureExtractor.swift */,
 				BF0000010000000000000109 /* SoundClassifier.swift */,
 				BF000001000000000000010A /* SleepMonitorService.swift */,
+				BF000001000000000000011C /* SleepSessionStore.swift */,
 				BF000001000000000000010B /* HealthKitService.swift */,
 				BF000001000000000000010C /* CacheService.swift */,
 			);
@@ -176,6 +193,7 @@
 			children = (
 				BF000001000000000000010D /* SoundHomeView.swift */,
 				BF000001000000000000010E /* SoundCardView.swift */,
+				BF0000010000000000000125 /* DrawFeedAdCardView.swift */,
 			);
 			path = Sounds;
 			sourceTree = "<group>";
@@ -375,6 +393,12 @@
 				BF0000010000000000000017 /* PangleSplashAdManager.swift in Sources */,
 				BF0000010000000000000018 /* AppSDKManager.swift in Sources */,
 				BF0000010000000000000019 /* EmptyStateView.swift in Sources */,
+				BF000001000000000000001A /* SleepSessionStore.swift in Sources */,
+				BF000001000000000000001B /* StartupGateView.swift in Sources */,
+				BF000001000000000000001C /* PangleAdRootViewController.swift in Sources */,
+				BF000001000000000000001D /* PangleDrawFeedAdLoader.swift in Sources */,
+				BF000001000000000000001E /* PangleRewardedVideoAdManager.swift in Sources */,
+				BF000001000000000000001F /* DrawFeedAdCardView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

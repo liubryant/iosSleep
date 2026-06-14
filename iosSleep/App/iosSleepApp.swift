@@ -11,33 +11,13 @@ struct iosSleepApp: App {
 
     var body: some Scene {
         WindowGroup {
-            MainTabView()
+            StartupGateView()
                 .environmentObject(soundLibrary)
                 .environmentObject(player)
                 .environmentObject(sleepMonitor)
                 .environmentObject(healthKit)
                 .environmentObject(settings)
                 .environmentObject(sdkManager)
-                .fullScreenCover(isPresented: Binding(
-                    get: { !settings.agreementAccepted },
-                    set: { _ in }
-                )) {
-                    PrivacyAgreementView()
-                        .environmentObject(settings)
-                        .interactiveDismissDisabled(true)
-                }
-                .task {
-                    await soundLibrary.load()
-                    sdkManager.startIfAllowed()
-                }
-                .onChange(of: settings.agreementAccepted) { accepted in
-                    if accepted {
-                        Task { @MainActor in
-                            try? await Task.sleep(nanoseconds: 500_000_000)
-                            sdkManager.startIfAllowed()
-                        }
-                    }
-                }
         }
     }
 }

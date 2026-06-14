@@ -13,13 +13,29 @@ struct SoundHomeView: View {
         showFavoritesOnly ? library.filteredScenes.filter { library.isFavorite($0) } : library.filteredScenes
     }
 
+    private var gridItems: [SoundHomeGridItem] {
+        var items: [SoundHomeGridItem] = []
+        for (index, scene) in displayedScenes.enumerated() {
+            items.append(.scene(scene))
+            if (index + 1) % 4 == 0 {
+                items.append(.ad(index: (index + 1) / 4))
+            }
+        }
+        return items
+    }
+
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottom) {
                 ScrollView {
                     LazyVGrid(columns: columns, spacing: 16) {
-                        ForEach(displayedScenes) { scene in
-                            SoundCardView(scene: scene)
+                        ForEach(gridItems) { item in
+                            switch item {
+                            case .scene(let scene):
+                                SoundCardView(scene: scene)
+                            case .ad:
+                                DrawFeedAdCardView()
+                            }
                         }
                     }
                     .padding()
@@ -60,6 +76,20 @@ struct SoundHomeView: View {
                     EmptyStateView(title: "没有匹配的声音", systemImage: "magnifyingglass", message: "换个关键词或查看全部声音。")
                 }
             }
+        }
+    }
+}
+
+private enum SoundHomeGridItem: Identifiable {
+    case scene(SoundScene)
+    case ad(index: Int)
+
+    var id: String {
+        switch self {
+        case .scene(let scene):
+            return "scene-\(scene.id)"
+        case .ad(let index):
+            return "draw-ad-\(index)"
         }
     }
 }

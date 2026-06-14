@@ -7,6 +7,7 @@ struct AudioFeatures {
     let peak: Float
     let estimatedDecibel: Double
     let spectralCentroid: Float
+    let zeroCrossingRate: Float
 }
 
 enum AudioFeatureExtractor {
@@ -24,7 +25,8 @@ enum AudioFeatureExtractor {
 
         let db = max(-80, 20 * log10(Double(max(rms, 0.000_001))) + 90)
         let centroid = estimateSpectralCentroid(samples: channel, count: count, sampleRate: Float(buffer.format.sampleRate))
-        return AudioFeatures(rms: rms, peak: peak, estimatedDecibel: db, spectralCentroid: centroid)
+        let zeroCrossingRate = estimateZeroCrossingRate(samples: channel, count: count)
+        return AudioFeatures(rms: rms, peak: peak, estimatedDecibel: db, spectralCentroid: centroid, zeroCrossingRate: zeroCrossingRate)
     }
 
     // Lightweight placeholder for the Mel Spectrogram stage. It keeps the public shape
@@ -58,5 +60,20 @@ enum AudioFeatureExtractor {
         }
 
         return total > 0 ? weighted / total : 0
+    }
+
+    private static func estimateZeroCrossingRate(samples: UnsafePointer<Float>, count: Int) -> Float {
+        guard count > 1 else { return 0 }
+        var crossings = 0
+
+        for index in 1..<count {
+            let previous = samples[index - 1]
+            let current = samples[index]
+            if (previous >= 0 && current < 0) || (previous < 0 && current >= 0) {
+                crossings += 1
+            }
+        }
+
+        return Float(crossings) / Float(count - 1)
     }
 }
