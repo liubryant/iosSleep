@@ -93,9 +93,9 @@ struct ProfileView: View {
     }
 
     private var profileHeader: some View {
-        ZStack(alignment: .bottomLeading) {
+        ZStack(alignment: .leading) {
             TropicalRainforestCover()
-                .frame(height: 210)
+                .frame(height: 170)
                 .frame(maxWidth: .infinity)
                 .clipped()
 
@@ -104,17 +104,6 @@ struct ProfileView: View {
                 startPoint: .top,
                 endPoint: .bottom
             )
-
-            VStack {
-                HStack {
-                    Text("我的")
-                        .font(.largeTitle.weight(.bold))
-                        .foregroundStyle(.white)
-                    Spacer()
-                }
-                Spacer()
-            }
-            .padding(22)
 
             VStack(alignment: .leading, spacing: 14) {
                 HStack(spacing: 14) {
@@ -135,18 +124,33 @@ struct ProfileView: View {
                 }
 
                 if settings.isLoggedIn {
-                    Button(role: .destructive) {
-                        settings.logout()
-                    } label: {
-                        Text("退出登录")
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 8)
-                            .background(.white.opacity(0.18))
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    HStack(spacing: 10) {
+                        Button(role: .destructive) {
+                            settings.logout()
+                        } label: {
+                            Text("退出登录")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 8)
+                                .background(.white.opacity(0.18))
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                        .buttonStyle(.plain)
+
+                        NavigationLink {
+                            SetPasswordView()
+                        } label: {
+                            Text("修改密码")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 8)
+                                .background(.white.opacity(0.18))
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                 } else {
                     NavigationLink {
                         LoginView()

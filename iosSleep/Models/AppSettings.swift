@@ -22,28 +22,21 @@ final class AppSettings: ObservableObject {
         didSet { UserDefaults.standard.set(phoneNumber, forKey: Keys.phoneNumber) }
     }
 
-    @Published var authToken: String? {
-        didSet { UserDefaults.standard.set(authToken, forKey: Keys.authToken) }
-    }
-
     init() {
         isLoggedIn = UserDefaults.standard.bool(forKey: Keys.isLoggedIn)
         saveAudioClips = UserDefaults.standard.object(forKey: Keys.saveAudioClips) as? Bool ?? true
         sensitivity = UserDefaults.standard.object(forKey: Keys.sensitivity) as? Double ?? 0.65
         agreementAccepted = UserDefaults.standard.bool(forKey: Keys.agreementAccepted)
         phoneNumber = UserDefaults.standard.string(forKey: Keys.phoneNumber) ?? ""
-        authToken = UserDefaults.standard.string(forKey: Keys.authToken)
     }
 
-    func login(phone: String, token: String) {
+    func login(phone: String) {
         phoneNumber = phone
-        authToken = token
         isLoggedIn = true
     }
 
     func logout() {
         isLoggedIn = false
-        authToken = nil
     }
 
     func acceptAgreement() {
@@ -57,5 +50,4 @@ private enum Keys {
     static let sensitivity = "settings.sensitivity"
     static let agreementAccepted = "agreement_accepted"
     static let phoneNumber = "profile.phoneNumber"
-    static let authToken = "profile.authToken"
 }
