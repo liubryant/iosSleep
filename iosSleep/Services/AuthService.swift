@@ -20,7 +20,7 @@ struct AppUserLoginResult: Decodable {
 
 /// 手机号验证码 / 密码登录相关接口。
 enum AuthAPI {
-    static let baseURL = URL(string: "http://192.168.1.38:8066")!
+    static let baseURL = URL(string: "https://www.cjym123.cn")!
 
     /// 请求后台发送短信验证码，返回验证码有效期（秒）。
     @discardableResult

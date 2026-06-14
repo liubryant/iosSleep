@@ -27,6 +27,31 @@ struct SoundCardView: View {
                             .clipShape(Circle())
                     }
                     .padding(8)
+
+                    if let progress = player.downloadProgress[scene.id] {
+                        VStack(spacing: 6) {
+                            ProgressView(value: progress)
+                                .tint(.white)
+                            Text("\(Int(progress * 100))%")
+                                .font(.caption2.weight(.semibold))
+                                .foregroundStyle(.white)
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 8)
+                        .background(.black.opacity(0.45))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .padding(8)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+                    } else if !scene.isBundledAudio, !player.cachedAudioExists(for: scene) {
+                        Image(systemName: "arrow.down.circle.fill")
+                            .font(.title3)
+                            .foregroundStyle(.white)
+                            .padding(8)
+                            .background(.black.opacity(0.35))
+                            .clipShape(Circle())
+                            .padding(8)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                    }
                 }
 
                 VStack(alignment: .leading, spacing: 4) {

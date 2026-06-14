@@ -36,6 +36,10 @@ struct SoundScene: Codable, Identifiable, Hashable {
     var audioSubdirectory: String {
         "SoundResources/\(directory)"
     }
+
+    var isBundledAudio: Bool {
+        index <= 20
+    }
 }
 
 private extension String {
