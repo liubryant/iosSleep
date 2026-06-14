@@ -7,6 +7,7 @@ struct iosSleepApp: App {
     @StateObject private var sleepMonitor = SleepMonitorService()
     @StateObject private var healthKit = HealthKitService()
     @StateObject private var settings = AppSettings()
+    @StateObject private var sdkManager = AppSDKManager.shared
 
     var body: some Scene {
         WindowGroup {
@@ -16,6 +17,7 @@ struct iosSleepApp: App {
                 .environmentObject(sleepMonitor)
                 .environmentObject(healthKit)
                 .environmentObject(settings)
+                .environmentObject(sdkManager)
                 .fullScreenCover(isPresented: Binding(
                     get: { !settings.agreementAccepted },
                     set: { _ in }
@@ -26,6 +28,15 @@ struct iosSleepApp: App {
                 }
                 .task {
                     await soundLibrary.load()
+                    sdkManager.startIfAllowed()
+                }
+                .onChange(of: settings.agreementAccepted) { accepted in
+                    if accepted {
+                        Task { @MainActor in
+                            try? await Task.sleep(nanoseconds: 500_000_000)
+                            sdkManager.startIfAllowed()
+                        }
+                    }
                 }
         }
     }

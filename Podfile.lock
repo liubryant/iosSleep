@@ -1,0 +1,26 @@
+PODS:
+  - Ads-CN-Beta/BUAdSDK (7.6.0.3)
+  - Ads-CN-Beta/CSJMediation-Only (7.6.0.3):
+    - Ads-CN-Beta/BUAdSDK
+  - UMCommon (7.5.11):
+    - UMDevice
+  - UMDevice (3.6.0)
+
+DEPENDENCIES:
+  - Ads-CN-Beta/CSJMediation-Only (= 7.6.0.3)
+  - UMCommon
+
+SPEC REPOS:
+  trunk:
+    - Ads-CN-Beta
+    - UMCommon
+    - UMDevice
+
+SPEC CHECKSUMS:
+  Ads-CN-Beta: 870e3cb16f5fcd8c6ab3296210fc8c4b43e9d752
+  UMCommon: d652b3b372a801b36db203f5b546ab3e15676898
+  UMDevice: 20b7b3c37a36b2c5c7ca8b5a54386ff9ed2b3b19
+
+PODFILE CHECKSUM: 731c53c04bed9edf55146f65903b150d43ffcc1b
+
+COCOAPODS: 1.16.2

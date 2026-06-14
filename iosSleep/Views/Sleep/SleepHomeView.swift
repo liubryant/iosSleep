@@ -15,7 +15,7 @@ struct SleepHomeView: View {
                     if let session = monitor.latestSession {
                         SleepReportView(session: session)
                     } else {
-                        ContentUnavailableView("还没有睡眠报告", systemImage: "moon.zzz", description: Text("点击开始睡眠后，应用会记录夜间声音事件。"))
+                        EmptyStateView(title: "还没有睡眠报告", systemImage: "moon.zzz", message: "点击开始睡眠后，应用会记录夜间声音事件。")
                             .padding(.vertical, 32)
                     }
                 }

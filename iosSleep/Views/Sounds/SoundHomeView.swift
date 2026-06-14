@@ -55,9 +55,9 @@ struct SoundHomeView: View {
             }
             .overlay {
                 if library.scenes.isEmpty {
-                    ContentUnavailableView("暂无声音资源", systemImage: "waveform", description: Text("请确认 SoundResources 已导入。"))
+                    EmptyStateView(title: "暂无声音资源", systemImage: "waveform", message: "请确认 SoundResources 已导入。")
                 } else if displayedScenes.isEmpty {
-                    ContentUnavailableView("没有匹配的声音", systemImage: "magnifyingglass", description: Text("换个关键词或查看全部声音。"))
+                    EmptyStateView(title: "没有匹配的声音", systemImage: "magnifyingglass", message: "换个关键词或查看全部声音。")
                 }
             }
         }
