@@ -10,30 +10,7 @@ struct ProfileView: View {
         NavigationStack {
             List {
                 Section {
-                    HStack(spacing: 14) {
-                        Image(systemName: settings.isLoggedIn ? "person.crop.circle.fill" : "person.crop.circle")
-                            .font(.system(size: 48))
-                            .foregroundStyle(.indigo)
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(settings.isLoggedIn ? "已登录用户" : "未登录")
-                                .font(.headline)
-                            Text(settings.isLoggedIn ? "睡眠目标：每天 8 小时" : "登录后同步睡眠记录和设置")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        Spacer()
-                    }
-                    .padding(.vertical, 8)
-
-                    if settings.isLoggedIn {
-                        Button("退出登录", role: .destructive) {
-                            settings.logout()
-                        }
-                    } else {
-                        NavigationLink("登录 / 注册") {
-                            LoginView()
-                        }
-                    }
+                    profileHeader
                 }
 
                 Section("权限") {
@@ -96,7 +73,8 @@ struct ProfileView: View {
                     }
                 }
             }
-            .navigationTitle("我的")
+            .navigationTitle("")
+            .navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 cacheSize = CacheService.formattedSize(CacheService.cacheSize())
             }
@@ -109,6 +87,105 @@ struct ProfileView: View {
             } message: {
                 Text("只会清理临时文件和缓存目录，不会删除内置声音资源。")
             }
+        }
+    }
+
+    private var profileHeader: some View {
+        ZStack(alignment: .bottomLeading) {
+            TropicalRainforestCover()
+                .frame(height: 210)
+                .frame(maxWidth: .infinity)
+                .clipped()
+
+            LinearGradient(
+                colors: [.black.opacity(0.05), .black.opacity(0.58)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+
+            VStack {
+                HStack {
+                    Text("我的")
+                        .font(.largeTitle.weight(.bold))
+                        .foregroundStyle(.white)
+                    Spacer()
+                }
+                Spacer()
+            }
+            .padding(22)
+
+            VStack(alignment: .leading, spacing: 14) {
+                HStack(spacing: 14) {
+                    Image(systemName: settings.isLoggedIn ? "person.crop.circle.fill" : "person.crop.circle")
+                        .font(.system(size: 50))
+                        .foregroundStyle(.white)
+
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text(settings.isLoggedIn ? "已登录用户" : "未登录")
+                            .font(.title3.weight(.semibold))
+                            .foregroundStyle(.white)
+                        Text(settings.isLoggedIn ? "睡眠目标：每天 8 小时" : "登录后同步睡眠记录和设置")
+                            .font(.caption)
+                            .foregroundStyle(.white.opacity(0.86))
+                    }
+
+                    Spacer()
+                }
+
+                if settings.isLoggedIn {
+                    Button(role: .destructive) {
+                        settings.logout()
+                    } label: {
+                        Text("退出登录")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 8)
+                            .background(.white.opacity(0.18))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    NavigationLink {
+                        LoginView()
+                    } label: {
+                        Text("登录 / 注册")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 8)
+                            .background(.white.opacity(0.18))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(22)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+        .listRowBackground(Color.clear)
+    }
+}
+
+private struct TropicalRainforestCover: View {
+    var body: some View {
+        if let url = Bundle.main.url(
+            forResource: "cover",
+            withExtension: "jpg",
+            subdirectory: "SoundResources/010_热带雨林"
+        ),
+           let data = try? Data(contentsOf: url),
+           let image = UIImage(data: data) {
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFill()
+        } else {
+            LinearGradient(
+                colors: [.green.opacity(0.75), .cyan.opacity(0.45)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
         }
     }
 }

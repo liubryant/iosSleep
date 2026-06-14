@@ -74,36 +74,46 @@ struct SleepReportView: View {
     }
 
     private var recordingControl: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "waveform")
-                .foregroundStyle(.indigo)
-                .frame(width: 28)
+        VStack(spacing: 10) {
+            HStack(spacing: 12) {
+                Image(systemName: "waveform")
+                    .font(.title3)
+                    .foregroundStyle(.indigo)
+                    .frame(width: 34)
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text("睡眠录音")
-                    .font(.subheadline.weight(.medium))
-                Text(recordingAvailabilityText)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            Spacer()
-
-            Button {
-                requestRecordingPlayback()
-            } label: {
-                if isLoadingRewardAd {
-                    ProgressView()
-                        .frame(width: 34, height: 34)
-                } else {
-                    Image(systemName: isPlayingRecording ? "stop.fill" : "play.fill")
-                        .frame(width: 34, height: 34)
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("睡眠录音")
+                        .font(.headline.weight(.semibold))
+                    Text(recordingAvailabilityText)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
                 }
+
+                Spacer()
+
+                Button {
+                    requestRecordingPlayback()
+                } label: {
+                    if isLoadingRewardAd {
+                        ProgressView()
+                            .frame(width: 42, height: 42)
+                    } else {
+                        Image(systemName: isPlayingRecording ? "stop.fill" : "play.fill")
+                            .font(.headline)
+                            .frame(width: 42, height: 42)
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(recordingURL == nil || isLoadingRewardAd)
             }
-            .buttonStyle(.borderedProminent)
-            .disabled(recordingURL == nil || isLoadingRewardAd)
+
+            if isPlayingRecording {
+                RecordingWaveformView()
+                    .frame(height: 38)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+            }
         }
-        .padding(10)
+        .padding(14)
         .background(Color(.tertiarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .alert("暂时无法播放录音", isPresented: $showRewardFailedAlert) {
@@ -254,5 +264,30 @@ struct SleepReportView: View {
         if session.sleepScore >= 70 { return .indigo }
         if session.sleepScore >= 55 { return .orange }
         return .red
+    }
+}
+
+private struct RecordingWaveformView: View {
+    private let barCount = 18
+
+    var body: some View {
+        TimelineView(.animation) { timeline in
+            let time = timeline.date.timeIntervalSinceReferenceDate
+            HStack(alignment: .center, spacing: 4) {
+                ForEach(0..<barCount, id: \.self) { index in
+                    Capsule()
+                        .fill(Color.indigo.opacity(0.72))
+                        .frame(width: 4, height: barHeight(index: index, time: time))
+                }
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .accessibilityLabel("睡眠录音正在播放")
+    }
+
+    private func barHeight(index: Int, time: TimeInterval) -> CGFloat {
+        let phase = time * 5 + Double(index) * 0.55
+        let value = (sin(phase) + 1) / 2
+        return 8 + CGFloat(value) * 20
     }
 }

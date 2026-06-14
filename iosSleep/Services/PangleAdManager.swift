@@ -46,6 +46,7 @@ final class PangleAdManager {
         #endif
 
         print("csjad sdk_start appID=\(AppConstants.pangleAppID), useMediation=true")
+        BUAdSDKManager.allowModifyAudioSessionSetting(false)
         BUAdSDKManager.start(asyncCompletionHandler: { [weak self] success, error in
             if success {
                 self?.isInitialized = true

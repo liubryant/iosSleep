@@ -36,7 +36,7 @@ struct DrawFeedAdCardView: View {
                         loader.loadIfNeeded(width: max(proxy.size.width, 150))
                     }
                 }
-                .aspectRatio(1, contentMode: .fit)
+                .aspectRatio(1.52, contentMode: .fit)
             }
         }
     }

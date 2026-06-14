@@ -5,38 +5,37 @@ struct SleepHomeView: View {
     @EnvironmentObject private var monitor: SleepMonitorService
     @EnvironmentObject private var healthKit: HealthKitService
     @State private var trendRange: SleepTrendRange = .week
+    @State private var selectedPage: SleepHomePage = .start
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 16) {
-                    statusPanel
-                    eventSummary
-                    trendPanel
+            VStack(spacing: 0) {
+                sleepTopBar
 
-                    if let session = monitor.latestSession {
-                        SleepReportView(session: session)
-                    } else {
-                        EmptyStateView(title: "还没有睡眠报告", systemImage: "moon.zzz", message: "点击开始睡眠后，应用会记录夜间声音事件。")
-                            .padding(.vertical, 32)
+                TabView(selection: $selectedPage) {
+                    ScrollView {
+                        VStack(spacing: 16) {
+                            statusPanel
+                                .padding(.horizontal, 4)
+                            eventSummary
+                            reportContent
+                        }
+                        .padding()
                     }
+                    .tag(SleepHomePage.start)
 
-                    if !monitor.sessions.isEmpty {
-                        recentReports
+                    ScrollView {
+                        VStack(spacing: 16) {
+                            reportContent
+                        }
+                        .padding()
                     }
+                    .tag(SleepHomePage.report)
                 }
-                .padding()
+                .tabViewStyle(.page(indexDisplayMode: .never))
             }
-            .navigationTitle("睡眠")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        Task { await healthKit.requestAuthorization() }
-                    } label: {
-                        Image(systemName: healthKit.isAuthorized ? "heart.fill" : "heart")
-                    }
-                }
-            }
+            .navigationTitle("")
+            .navigationBarTitleDisplayMode(.inline)
             .alert("需要麦克风权限", isPresented: Binding(
                 get: { monitor.permissionDenied },
                 set: { _ in monitor.dismissPermissionAlert() }
@@ -50,41 +49,134 @@ struct SleepHomeView: View {
         }
     }
 
-    private var statusPanel: some View {
-        VStack(alignment: .leading, spacing: 16) {
+    private var sleepTopBar: some View {
+        ZStack {
+            sleepPageTabs
+
             HStack {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(monitor.isMonitoring ? "正在监测" : "今晚睡眠")
-                        .font(.title2.weight(.semibold))
-                    Text(monitor.isMonitoring ? "环境音量 \(Int(monitor.currentDecibel)) dB" : "开始后会在本地识别打鼾、咳嗽、梦话、磨牙和噪音")
-                        .foregroundStyle(.secondary)
-                }
                 Spacer()
-                Image(systemName: monitor.isMonitoring ? "record.circle.fill" : "moon.stars.fill")
-                    .font(.system(size: 44))
-                    .foregroundStyle(monitor.isMonitoring ? .red : .indigo)
+                Button {
+                    Task { await healthKit.requestAuthorization() }
+                } label: {
+                    Image(systemName: healthKit.isAuthorized ? "heart.fill" : "heart")
+                        .font(.title3)
+                        .frame(width: 38, height: 38)
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.indigo)
+            }
+            .padding(.trailing)
+        }
+        .padding(.top, 8)
+        .padding(.bottom, 12)
+    }
+
+    private var sleepPageTabs: some View {
+        HStack(spacing: 28) {
+            ForEach(SleepHomePage.allCases) { page in
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        selectedPage = page
+                    }
+                } label: {
+                    VStack(spacing: 9) {
+                        Text(page.title)
+                            .font(selectedPage == page ? .title2 : .title3)
+                            .fontWeight(selectedPage == page ? .semibold : .regular)
+                            .foregroundStyle(selectedPage == page ? .primary : .secondary)
+
+                        Rectangle()
+                            .fill(selectedPage == page ? Color.indigo : Color.clear)
+                            .frame(width: underlineWidth(for: page))
+                            .frame(height: 3)
+                            .clipShape(Capsule())
+                    }
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private func underlineWidth(for page: SleepHomePage) -> CGFloat {
+        switch page {
+        case .start:
+            return 44
+        case .report:
+            return 44
+        }
+    }
+
+    private var reportContent: some View {
+        Group {
+            trendPanel
+
+            if let session = monitor.latestSession {
+                SleepReportView(session: session)
+            } else {
+                EmptyStateView(title: "还没有睡眠报告", systemImage: "moon.zzz", message: "点击开始睡眠后，应用会记录夜间声音事件。")
+                    .padding(.vertical, 32)
             }
 
-            Button {
-                if monitor.isMonitoring {
-                    monitor.stop()
-                    if let session = monitor.latestSession {
-                        Task { await healthKit.save(session: session) }
-                    }
-                } else {
-                    Task { await monitor.start() }
-                }
-            } label: {
-                Label(monitor.isMonitoring ? "结束睡眠" : "开始睡眠", systemImage: monitor.isMonitoring ? "stop.fill" : "play.fill")
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 8)
+            if !monitor.sessions.isEmpty {
+                recentReports
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
         }
-        .padding()
-        .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    private var statusPanel: some View {
+        ZStack {
+            HolidayCover()
+                .scaledToFill()
+                .frame(height: 210)
+                .frame(maxWidth: .infinity)
+                .clipped()
+                .clipShape(RoundedRectangle(cornerRadius: 14))
+
+            LinearGradient(
+                colors: [.black.opacity(0.14), .black.opacity(0.58)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+
+            VStack(alignment: .leading, spacing: 16) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(monitor.isMonitoring ? "正在监测" : "今晚睡眠")
+                            .font(.title2.weight(.semibold))
+                            .foregroundStyle(.white)
+                        Text(monitor.isMonitoring ? "环境音量 \(Int(monitor.currentDecibel)) dB" : "开始后会在本地识别打鼾、咳嗽、梦话、磨牙和噪音")
+                            .foregroundStyle(.white.opacity(0.86))
+                    }
+                    Spacer()
+                    Image(systemName: monitor.isMonitoring ? "record.circle.fill" : "moon.stars.fill")
+                        .font(.system(size: 44))
+                        .foregroundStyle(monitor.isMonitoring ? .red : .white)
+                }
+
+                Button {
+                    if monitor.isMonitoring {
+                        monitor.stop()
+                        if let session = monitor.latestSession {
+                            Task { await healthKit.save(session: session) }
+                        }
+                    } else {
+                        Task { await monitor.start() }
+                    }
+                } label: {
+                    Label(monitor.isMonitoring ? "结束睡眠" : "开始睡眠", systemImage: monitor.isMonitoring ? "stop.fill" : "play.fill")
+                        .font(.subheadline.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 7)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.regular)
+            }
+            .padding(22)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .padding(.vertical, 6)
     }
 
     private var eventSummary: some View {
@@ -230,5 +322,40 @@ struct SleepHomeView: View {
     private func durationText(for session: SleepSession) -> String {
         let minutes = Int(session.duration / 60)
         return minutes < 60 ? "\(minutes) 分钟" : "\(minutes / 60) 小时 \(minutes % 60) 分"
+    }
+}
+
+private enum SleepHomePage: String, CaseIterable, Identifiable {
+    case start
+    case report
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .start: return "开始睡眠"
+        case .report: return "睡眠报告"
+        }
+    }
+}
+
+private struct HolidayCover: View {
+    var body: some View {
+        if let url = Bundle.main.url(
+            forResource: "cover",
+            withExtension: "jpg",
+            subdirectory: "SoundResources/011_春雨"
+        ),
+           let data = try? Data(contentsOf: url),
+           let image = UIImage(data: data) {
+            Image(uiImage: image)
+                .resizable()
+        } else {
+            LinearGradient(
+                colors: [.indigo.opacity(0.6), .cyan.opacity(0.45)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
     }
 }
