@@ -3,6 +3,7 @@ import SwiftUI
 struct ProfileView: View {
     @EnvironmentObject private var settings: AppSettings
     @EnvironmentObject private var healthKit: HealthKitService
+    @EnvironmentObject private var sleepMonitor: SleepMonitorService
     @State private var cacheSize = CacheService.formattedSize(CacheService.cacheSize())
     @State private var showingClearAlert = false
 
@@ -46,7 +47,7 @@ struct ProfileView: View {
 
                 Section("数据") {
                     HStack {
-                        Label("缓存大小", systemImage: "internaldrive")
+                        Label("数据大小", systemImage: "internaldrive")
                         Spacer()
                         Text(cacheSize)
                             .foregroundStyle(.secondary)
@@ -54,7 +55,7 @@ struct ProfileView: View {
                     Button(role: .destructive) {
                         showingClearAlert = true
                     } label: {
-                        Label("清除缓存", systemImage: "trash")
+                        Label("清除数据", systemImage: "trash")
                     }
                 }
 
@@ -78,14 +79,15 @@ struct ProfileView: View {
             .onAppear {
                 cacheSize = CacheService.formattedSize(CacheService.cacheSize())
             }
-            .alert("清除缓存？", isPresented: $showingClearAlert) {
+            .alert("清除数据？", isPresented: $showingClearAlert) {
                 Button("取消", role: .cancel) {}
                 Button("清除", role: .destructive) {
                     CacheService.clearCache()
+                    sleepMonitor.clearAllData()
                     cacheSize = CacheService.formattedSize(CacheService.cacheSize())
                 }
             } message: {
-                Text("只会清理临时文件和缓存目录，不会删除内置声音资源。")
+                Text("将删除所有睡眠监测保存的录音声音数据，以及临时缓存文件，不会删除内置声音资源。此操作不可恢复。")
             }
         }
     }

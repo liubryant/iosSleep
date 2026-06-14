@@ -56,6 +56,17 @@ enum SleepSessionStore {
         return recordingURL(fileName: "\(sessionID.uuidString).m4a")
     }
 
+    static func recordingsDirectoryURL() -> URL {
+        recordingDirectory()
+    }
+
+    static func clearRecordings() {
+        guard let files = try? FileManager.default.contentsOfDirectory(at: recordingDirectory(), includingPropertiesForKeys: nil) else { return }
+        for file in files {
+            try? FileManager.default.removeItem(at: file)
+        }
+    }
+
     private static func storeURL() -> URL {
         storeDirectory().appendingPathComponent(fileName)
     }

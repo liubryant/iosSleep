@@ -6,6 +6,10 @@ enum SleepEventType: String, CaseIterable, Codable, Identifiable {
     case sleepTalk
     case bruxism
     case noise
+    case heavyBreathing
+    case nasalCongestion
+    case fart
+    case breathHolding
 
     var id: String { rawValue }
 
@@ -16,6 +20,10 @@ enum SleepEventType: String, CaseIterable, Codable, Identifiable {
         case .sleepTalk: return "说梦话"
         case .bruxism: return "磨牙"
         case .noise: return "环境噪音"
+        case .heavyBreathing: return "大口呼吸"
+        case .nasalCongestion: return "鼻塞"
+        case .fart: return "放屁"
+        case .breathHolding: return "憋气"
         }
     }
 
@@ -26,6 +34,10 @@ enum SleepEventType: String, CaseIterable, Codable, Identifiable {
         case .sleepTalk: return "bubble.left.and.bubble.right.fill"
         case .bruxism: return "mouth.fill"
         case .noise: return "speaker.wave.3.fill"
+        case .heavyBreathing: return "wind"
+        case .nasalCongestion: return "nose.fill"
+        case .fart: return "aqi.medium"
+        case .breathHolding: return "pause.circle.fill"
         }
     }
 }
@@ -105,9 +117,40 @@ struct SleepSession: Identifiable, Codable, Hashable {
 
         let noisePenalty = min(max(averageNoise - 38, 0) * 0.7, 22)
         let eventPenalty = min(Double(events.count) * 1.8, 28)
-        let severeEventPenalty = min(Double(eventCount(for: .snore) + eventCount(for: .bruxism)) * 2.2, 18)
+        let severeEventCount = eventCount(for: .snore) + eventCount(for: .bruxism) + eventCount(for: .heavyBreathing)
+            + eventCount(for: .breathHolding) * 2
+        let severeEventPenalty = min(Double(severeEventCount) * 2.2, 18)
         let score = 100 - durationPenalty - noisePenalty - eventPenalty - severeEventPenalty
-        return min(100, max(0, Int(score.rounded())))
+        return min(100, max(60, Int(score.rounded())))
+    }
+
+    /// 睡眠分布：将本次睡眠按声音特征划分为深睡/浅睡/做梦/觉醒区间。
+    var sleepDistribution: SleepDistribution {
+        SleepStageAnalyzer.analyze(session: self)
+    }
+
+    /// 睡眠效率 = 实际睡眠时长 / 在床时长，百分比。
+    var sleepEfficiency: Double {
+        let distribution = sleepDistribution
+        guard distribution.totalDuration > 0 else { return 0 }
+        return min(100, max(0, distribution.sleepDuration / distribution.totalDuration * 100))
+    }
+
+    /// 睡眠年龄：综合睡眠评分、深睡比例、睡眠效率和呼吸/磨牙事件估算的参考年龄。
+    var sleepAge: Int {
+        let distribution = sleepDistribution
+        let sleepDuration = distribution.sleepDuration
+        let deepRatio = sleepDuration > 0 ? distribution.duration(for: .deep) / sleepDuration : 0
+
+        var age = 28.0
+        age += Double(75 - sleepScore) * 0.35
+        age += max(0, 0.22 - deepRatio) * 160
+        age += max(0, 85 - sleepEfficiency) * 0.3
+        let disruptiveEvents = eventCount(for: .snore) + eventCount(for: .bruxism)
+            + eventCount(for: .heavyBreathing) + eventCount(for: .breathHolding)
+        age += Double(disruptiveEvents) * 0.6
+
+        return Int(min(60, max(16, age.rounded())))
     }
 
     func eventCount(for type: SleepEventType) -> Int {
@@ -119,6 +162,120 @@ struct SleepSession: Identifiable, Codable, Hashable {
             .filter { $0.type == type }
             .map { max(0, $0.endTime.timeIntervalSince($0.startTime)) }
             .reduce(0, +)
+    }
+}
+
+enum SleepStage: String, CaseIterable, Identifiable, Hashable {
+    case deep
+    case light
+    case rem
+    case awake
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .deep: return "深度睡眠"
+        case .light: return "浅睡眠"
+        case .rem: return "做梦"
+        case .awake: return "睡中觉醒"
+        }
+    }
+}
+
+struct SleepStageSegment: Identifiable, Hashable {
+    let id = UUID()
+    let stage: SleepStage
+    let startTime: Date
+    let endTime: Date
+
+    var duration: TimeInterval {
+        max(0, endTime.timeIntervalSince(startTime))
+    }
+}
+
+struct SleepDistribution {
+    let segments: [SleepStageSegment]
+    let fallAsleepTime: Date?
+    let wakeTime: Date?
+
+    var totalDuration: TimeInterval {
+        segments.map(\.duration).reduce(0, +)
+    }
+
+    /// 总睡眠时长（不含睡中觉醒时段）。
+    var sleepDuration: TimeInterval {
+        totalDuration - duration(for: .awake)
+    }
+
+    func duration(for stage: SleepStage) -> TimeInterval {
+        segments.filter { $0.stage == stage }.map(\.duration).reduce(0, +)
+    }
+
+    func percentage(for stage: SleepStage) -> Double {
+        guard totalDuration > 0 else { return 0 }
+        return duration(for: stage) / totalDuration * 100
+    }
+}
+
+/// 基于环境噪音水平与识别事件，将一次睡眠会话划分为深睡/浅睡/做梦/觉醒区间。
+/// 这是一种启发式估算，用于在没有专用生理传感器的情况下给出可解释的睡眠分布参考。
+enum SleepStageAnalyzer {
+    private static let windowSize: TimeInterval = 5 * 60
+    private static let disruptiveTypes: Set<SleepEventType> = [
+        .snore, .bruxism, .cough, .heavyBreathing, .nasalCongestion, .fart, .noise, .breathHolding
+    ]
+
+    static func analyze(session: SleepSession) -> SleepDistribution {
+        guard let endTime = session.endTime, endTime > session.startTime else {
+            return SleepDistribution(segments: [], fallAsleepTime: nil, wakeTime: nil)
+        }
+
+        let baselineNoise = session.averageNoise
+        var segments: [SleepStageSegment] = []
+        var cursor = session.startTime
+
+        while cursor < endTime {
+            let windowEnd = min(cursor.addingTimeInterval(windowSize), endTime)
+            let stage = stage(for: session, from: cursor, to: windowEnd, baselineNoise: baselineNoise)
+
+            if let last = segments.last, last.stage == stage {
+                segments[segments.count - 1] = SleepStageSegment(stage: stage, startTime: last.startTime, endTime: windowEnd)
+            } else {
+                segments.append(SleepStageSegment(stage: stage, startTime: cursor, endTime: windowEnd))
+            }
+
+            cursor = windowEnd
+        }
+
+        var fallAsleepTime = session.startTime
+        if let first = segments.first, first.stage == .awake {
+            fallAsleepTime = first.endTime
+        }
+
+        return SleepDistribution(segments: segments, fallAsleepTime: fallAsleepTime, wakeTime: endTime)
+    }
+
+    private static func stage(for session: SleepSession, from start: Date, to end: Date, baselineNoise: Double) -> SleepStage {
+        let samples = session.noiseSamples.filter { $0.time >= start && $0.time < end }
+        let averageDecibel = samples.isEmpty
+            ? baselineNoise
+            : samples.map(\.decibel).reduce(0, +) / Double(samples.count)
+
+        let events = session.events.filter { $0.startTime < end && $0.endTime > start }
+        let disruptiveCount = events.filter { disruptiveTypes.contains($0.type) }.count
+        let sleepTalkCount = events.filter { $0.type == .sleepTalk }.count
+
+        if averageDecibel > baselineNoise + 12 || disruptiveCount >= 3 {
+            return .awake
+        }
+        if sleepTalkCount >= 1 || (averageDecibel > baselineNoise + 4 && disruptiveCount >= 1) {
+            return .rem
+        }
+        if averageDecibel < baselineNoise - 3 && disruptiveCount == 0 {
+            return .deep
+        }
+        return .light
     }
 }
 

@@ -15,6 +15,12 @@ final class SleepMonitorService: ObservableObject {
     private var lastEventTimeByType: [SleepEventType: Date] = [:]
     private var lastPersistTime = Date.distantPast
     private var recorder: AVAudioRecorder?
+    private var silenceStart: Date?
+    private var wasBreathingAudible = false
+
+    private let breathingAudibleThreshold: Double = 30
+    private let silenceThreshold: Double = 24
+    private let breathHoldingMinDuration: TimeInterval = 8
 
     init() {
         sessions = SleepSessionStore.loadSessions()
@@ -38,6 +44,8 @@ final class SleepMonitorService: ObservableObject {
             sessions = SleepSessionStore.upsert(session, into: sessions)
             persistSessions(force: true)
             lastEventTimeByType = [:]
+            silenceStart = nil
+            wasBreathingAudible = false
             try startRecorder(url: recordingURL)
             installTap()
             engine.prepare()
@@ -66,6 +74,17 @@ final class SleepMonitorService: ObservableObject {
         isMonitoring = false
 
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+    }
+
+    /// 清除所有已保存的睡眠报告、事件数据和录音文件。
+    func clearAllData() {
+        if isMonitoring {
+            stop()
+        }
+        sessions = []
+        latestSession = nil
+        SleepSessionStore.saveSessions(sessions)
+        SleepSessionStore.clearRecordings()
     }
 
     func select(session: SleepSession) {
@@ -138,10 +157,43 @@ final class SleepMonitorService: ObservableObject {
             lastEventTimeByType[result.type] = now
         }
 
+        detectBreathHolding(decibel: features.estimatedDecibel, now: now, session: &session)
+
         currentSession = session
         latestSession = session
         sessions = SleepSessionStore.upsert(session, into: sessions)
         persistSessions(force: false)
+    }
+
+    /// 在持续可听到呼吸声之后出现一段明显静音，视为一次憋气/呼吸暂停事件。
+    private func detectBreathHolding(decibel: Double, now: Date, session: inout SleepSession) {
+        if decibel < silenceThreshold {
+            if wasBreathingAudible, silenceStart == nil {
+                silenceStart = now
+            }
+            return
+        }
+
+        if let start = silenceStart {
+            let holdDuration = now.timeIntervalSince(start)
+            if holdDuration >= breathHoldingMinDuration, canAppendEvent(type: .breathHolding, at: now) {
+                let confidence = min(0.92, 0.5 + holdDuration / 30)
+                let event = SleepEvent(
+                    type: .breathHolding,
+                    startTime: start,
+                    endTime: now,
+                    confidence: confidence,
+                    peakDecibel: decibel
+                )
+                session.events.append(event)
+                lastEventTimeByType[.breathHolding] = now
+            }
+            silenceStart = nil
+        }
+
+        if decibel > breathingAudibleThreshold {
+            wasBreathingAudible = true
+        }
     }
 
     private func canAppendEvent(type: SleepEventType, at date: Date) -> Bool {

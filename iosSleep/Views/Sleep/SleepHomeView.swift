@@ -289,7 +289,7 @@ struct SleepHomeView: View {
                                 .frame(width: 28)
 
                             VStack(alignment: .leading, spacing: 4) {
-                                Text(session.startTime.formatted(date: .abbreviated, time: .shortened))
+                                Text(Self.reportDateFormatter.string(from: session.startTime))
                                     .font(.subheadline.weight(.medium))
                                 Text("\(durationText(for: session)) · \(session.events.count) 个事件 · 平均 \(Int(session.averageNoise)) dB")
                                     .font(.caption)
@@ -323,6 +323,13 @@ struct SleepHomeView: View {
         let minutes = Int(session.duration / 60)
         return minutes < 60 ? "\(minutes) 分钟" : "\(minutes / 60) 小时 \(minutes % 60) 分"
     }
+
+    private static let reportDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "zh_CN")
+        formatter.dateFormat = "M月d日 HH:mm"
+        return formatter
+    }()
 }
 
 private enum SleepHomePage: String, CaseIterable, Identifiable {

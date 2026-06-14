@@ -2,7 +2,7 @@ import Foundation
 
 enum CacheService {
     static func cacheSize() -> Int64 {
-        [FileManager.default.temporaryDirectory, cachesDirectory].reduce(0) { total, url in
+        [FileManager.default.temporaryDirectory, cachesDirectory, SleepSessionStore.recordingsDirectoryURL()].reduce(0) { total, url in
             total + folderSize(url)
         }
     }
