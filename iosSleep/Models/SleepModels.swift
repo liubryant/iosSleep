@@ -311,6 +311,49 @@ struct SleepTrendPoint: Identifiable, Hashable {
     let averageNoise: Double
 }
 
+extension SleepSession {
+    /// 当用户还没有任何睡眠记录时，用于展示的示例「优秀」睡眠报告。
+    /// 数据经过设计，呈现 8 小时睡眠、低噪音环境与较少干扰事件下的详细分析效果。
+    static var sample: SleepSession {
+        let calendar = Calendar.current
+        let now = Date()
+        // 结束时间取最近一次的早上 7:00（如果当前时间早于 7:00，则取昨天的 7:00），
+        // 呈现「23:00 入睡 - 次日 7:00 起床」的正常夜间睡眠时段。
+        var endComponents = calendar.dateComponents([.year, .month, .day], from: now)
+        endComponents.hour = 7
+        endComponents.minute = 0
+        endComponents.second = 0
+        var endTime = calendar.date(from: endComponents) ?? now
+        if endTime > now {
+            endTime = calendar.date(byAdding: .day, value: -1, to: endTime) ?? endTime
+        }
+        let startTime = endTime.addingTimeInterval(-8 * 3_600)
+
+        var noiseSamples: [NoiseSample] = []
+        let totalMinutes = 480
+        for minute in 0..<totalMinutes {
+            let t = Double(minute)
+            let decibel = 31
+                + 5 * sin(2 * Double.pi * t / 90)
+                + 1.5 * sin(2 * Double.pi * t / 23)
+            noiseSamples.append(NoiseSample(time: startTime.addingTimeInterval(t * 60), decibel: decibel))
+        }
+
+        func eventTime(_ minute: Double) -> Date {
+            startTime.addingTimeInterval(minute * 60)
+        }
+
+        let events: [SleepEvent] = [
+            SleepEvent(type: .cough, startTime: eventTime(46), endTime: eventTime(46).addingTimeInterval(2), confidence: 0.86, peakDecibel: 41),
+            SleepEvent(type: .snore, startTime: eventTime(132), endTime: eventTime(132).addingTimeInterval(6), confidence: 0.78, peakDecibel: 38),
+            SleepEvent(type: .sleepTalk, startTime: eventTime(214), endTime: eventTime(214).addingTimeInterval(4), confidence: 0.81, peakDecibel: 40),
+            SleepEvent(type: .sleepTalk, startTime: eventTime(362), endTime: eventTime(362).addingTimeInterval(3), confidence: 0.83, peakDecibel: 39)
+        ]
+
+        return SleepSession(startTime: startTime, endTime: endTime, events: events, noiseSamples: noiseSamples, audioFileName: nil)
+    }
+}
+
 enum SleepTrendCalculator {
     static func points(from sessions: [SleepSession], range: SleepTrendRange, calendar: Calendar = .current) -> [SleepTrendPoint] {
         let today = calendar.startOfDay(for: Date())

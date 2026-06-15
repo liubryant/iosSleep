@@ -47,6 +47,16 @@ enum SleepSessionStore {
         return Array(result.prefix(maxSessionCount))
     }
 
+    /// 从会话列表中移除指定会话（例如睡眠时长不足，不生成报告时）。
+    static func remove(_ session: SleepSession, from sessions: [SleepSession]) -> [SleepSession] {
+        sessions.filter { $0.id != session.id }
+    }
+
+    /// 删除指定的录音文件。
+    static func deleteRecording(fileName: String) {
+        try? FileManager.default.removeItem(at: recordingURL(fileName: fileName))
+    }
+
     static func recordingURL(fileName: String) -> URL {
         recordingDirectory().appendingPathComponent(fileName)
     }

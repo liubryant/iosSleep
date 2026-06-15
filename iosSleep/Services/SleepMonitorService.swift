@@ -9,6 +9,7 @@ final class SleepMonitorService: ObservableObject {
     @Published private(set) var sessions: [SleepSession] = []
     @Published private(set) var currentDecibel: Double = 0
     @Published private(set) var permissionDenied = false
+    @Published private(set) var reportTooShort = false
 
     private let engine = AVAudioEngine()
     private let classifier: SoundClassifying = HybridSleepSoundClassifier()
@@ -21,6 +22,9 @@ final class SleepMonitorService: ObservableObject {
     private let breathingAudibleThreshold: Double = 30
     private let silenceThreshold: Double = 24
     private let breathHoldingMinDuration: TimeInterval = 8
+
+    /// 睡眠时长不超过该阈值时，不生成睡眠报告。
+    private let minimumReportDuration: TimeInterval = 2 * 3_600
 
     init() {
         sessions = SleepSessionStore.loadSessions()
@@ -64,10 +68,20 @@ final class SleepMonitorService: ObservableObject {
         recorder?.stop()
         recorder = nil
 
-        currentSession?.endTime = Date()
-        latestSession = currentSession
-        if let latestSession {
-            sessions = SleepSessionStore.upsert(latestSession, into: sessions)
+        if var session = currentSession {
+            session.endTime = Date()
+            if session.duration > minimumReportDuration {
+                latestSession = session
+                sessions = SleepSessionStore.upsert(session, into: sessions)
+            } else {
+                // 睡眠时长不超过 2 小时，不生成睡眠报告，丢弃本次记录与录音。
+                sessions = SleepSessionStore.remove(session, from: sessions)
+                if let audioFileName = session.audioFileName {
+                    SleepSessionStore.deleteRecording(fileName: audioFileName)
+                }
+                latestSession = sessions.first
+                reportTooShort = true
+            }
             persistSessions(force: true)
         }
         currentSession = nil
@@ -94,6 +108,10 @@ final class SleepMonitorService: ObservableObject {
 
     func dismissPermissionAlert() {
         permissionDenied = false
+    }
+
+    func dismissReportTooShortAlert() {
+        reportTooShort = false
     }
 
     private func requestMicrophoneAccess() async -> Bool {

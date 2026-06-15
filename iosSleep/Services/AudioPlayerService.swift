@@ -1,5 +1,7 @@
 import AVFoundation
 import Foundation
+import MediaPlayer
+import UIKit
 
 @MainActor
 final class AudioPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegate {
@@ -17,6 +19,12 @@ final class AudioPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegat
     private var player: AVAudioPlayer?
     private var sleepTimerTask: Task<Void, Never>?
     private var playTask: Task<Void, Never>?
+
+    override init() {
+        super.init()
+        UIApplication.shared.beginReceivingRemoteControlEvents()
+        configureRemoteCommandCenter()
+    }
 
     func toggle(scene: SoundScene) {
         if currentScene?.id == scene.id, isPlaying {
@@ -44,6 +52,7 @@ final class AudioPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegat
             player?.play()
             currentScene = scene
             isPlaying = true
+            updateNowPlayingInfo()
         } catch {
             print("Failed to play \(scene.title): \(error)")
         }
@@ -52,6 +61,7 @@ final class AudioPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegat
     func pause() {
         player?.pause()
         isPlaying = false
+        updateNowPlayingInfo()
     }
 
     func stop() {
@@ -62,6 +72,8 @@ final class AudioPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegat
         currentScene = nil
         isPlaying = false
         cancelSleepTimer()
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
+        MPNowPlayingInfoCenter.default().playbackState = .stopped
     }
 
     func setSleepTimer(minutes: Int) {
@@ -77,6 +89,8 @@ final class AudioPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegat
                 self?.isPlaying = false
                 self?.sleepTimerText = nil
                 self?.sleepTimerTask = nil
+                MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
+                MPNowPlayingInfoCenter.default().playbackState = .stopped
             }
         }
     }
@@ -90,7 +104,80 @@ final class AudioPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegat
     nonisolated func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         Task { @MainActor in
             isPlaying = false
+            updateNowPlayingInfo()
         }
+    }
+
+    /// 配置锁屏与控制中心的远程播放控制，使播放助眠声音时可在锁屏页/后台显示并控制播放状态。
+    private func configureRemoteCommandCenter() {
+        let commandCenter = MPRemoteCommandCenter.shared()
+
+        commandCenter.playCommand.isEnabled = true
+        commandCenter.pauseCommand.isEnabled = true
+        commandCenter.togglePlayPauseCommand.isEnabled = true
+        commandCenter.stopCommand.isEnabled = true
+
+        commandCenter.playCommand.addTarget { [weak self] _ in
+            guard let self, let player = self.player else { return .commandFailed }
+            player.play()
+            self.isPlaying = true
+            self.updateNowPlayingInfo()
+            return .success
+        }
+
+        commandCenter.pauseCommand.addTarget { [weak self] _ in
+            guard let self, self.player != nil else { return .commandFailed }
+            self.pause()
+            return .success
+        }
+
+        commandCenter.togglePlayPauseCommand.addTarget { [weak self] _ in
+            guard let self, let scene = self.currentScene else { return .commandFailed }
+            self.toggle(scene: scene)
+            return .success
+        }
+
+        commandCenter.stopCommand.addTarget { [weak self] _ in
+            self?.stop()
+            return .success
+        }
+    }
+
+    /// 更新锁屏与控制中心展示的当前播放信息（标题、专辑、播放状态与封面）。
+    private func updateNowPlayingInfo() {
+        guard let scene = currentScene else {
+            MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
+            MPNowPlayingInfoCenter.default().playbackState = .stopped
+            return
+        }
+
+        var info: [String: Any] = [
+            MPMediaItemPropertyTitle: scene.title,
+            MPMediaItemPropertyArtist: AppConstants.appName,
+            MPMediaItemPropertyAlbumTitle: scene.subtitle,
+            MPNowPlayingInfoPropertyMediaType: MPNowPlayingInfoMediaType.audio.rawValue,
+            MPNowPlayingInfoPropertyPlaybackRate: isPlaying ? 1.0 : 0.0,
+            MPNowPlayingInfoPropertyElapsedPlaybackTime: player?.currentTime ?? 0
+        ]
+
+        if let duration = player?.duration, duration > 0 {
+            info[MPMediaItemPropertyPlaybackDuration] = duration
+        }
+
+        if let image = coverImage(for: scene) {
+            info[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: image.size) { _ in image }
+        }
+
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = info
+        MPNowPlayingInfoCenter.default().playbackState = isPlaying ? .playing : .paused
+    }
+
+    private func coverImage(for scene: SoundScene) -> UIImage? {
+        let coverName = (scene.coverFile as NSString).deletingPathExtension
+        let coverExtension = (scene.coverFile as NSString).pathExtension
+        guard let url = Bundle.main.url(forResource: coverName, withExtension: coverExtension, subdirectory: scene.coverSubdirectory),
+              let data = try? Data(contentsOf: url) else { return nil }
+        return UIImage(data: data)
     }
 
     func isDownloading(_ scene: SoundScene) -> Bool {

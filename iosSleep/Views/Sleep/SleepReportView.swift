@@ -4,6 +4,7 @@ import Charts
 
 struct SleepReportView: View {
     let session: SleepSession
+    var isSample: Bool = false
     @State private var audioPlayer: AVAudioPlayer?
     @State private var isPlayingRecording = false
     @State private var hasUnlockedRecordingPlayback = false
@@ -12,6 +13,16 @@ struct SleepReportView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
+            if isSample {
+                Text("示例报告 · 开始睡眠监测后将生成你的专属报告")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(Color(.tertiarySystemBackground))
+                    .clipShape(Capsule())
+            }
+
             HStack(alignment: .firstTextBaseline) {
                 Text("睡眠报告")
                     .font(.title3.weight(.semibold))
@@ -72,6 +83,13 @@ struct SleepReportView: View {
                     .padding(.vertical, 4)
                 }
             }
+
+            Text("本应用仅提供睡眠数据记录与参考分析，不提供医疗诊断、治疗或健康评估服务。如有健康问题请咨询专业医生。")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .padding()
         .background(Color(.secondarySystemBackground))

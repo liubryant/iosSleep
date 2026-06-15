@@ -46,6 +46,16 @@ struct SleepHomeView: View {
             } message: {
                 Text("请在系统设置中允许麦克风访问，才能进行睡眠声音监测。")
             }
+            .alert("未生成睡眠报告", isPresented: Binding(
+                get: { monitor.reportTooShort },
+                set: { _ in monitor.dismissReportTooShortAlert() }
+            )) {
+                Button("知道了", role: .cancel) {
+                    monitor.dismissReportTooShortAlert()
+                }
+            } message: {
+                Text("本次睡眠时长不足 2 小时，不会生成睡眠报告。")
+            }
         }
     }
 
@@ -114,8 +124,7 @@ struct SleepHomeView: View {
             if let session = monitor.latestSession {
                 SleepReportView(session: session)
             } else {
-                EmptyStateView(title: "还没有睡眠报告", systemImage: "moon.zzz", message: "点击开始睡眠后，应用会记录夜间声音事件。")
-                    .padding(.vertical, 32)
+                SleepReportView(session: .sample, isSample: true)
             }
 
             if !monitor.sessions.isEmpty {
@@ -146,6 +155,16 @@ struct SleepHomeView: View {
                         Text(monitor.isMonitoring ? "正在监测" : "今晚睡眠")
                             .font(.title2.weight(.semibold))
                             .foregroundStyle(.white)
+                        if monitor.isMonitoring, let startTime = monitor.currentSession?.startTime {
+                            HStack(spacing: 6) {
+                                Image(systemName: "timer")
+                                Text("已进行")
+                                Text(startTime, style: .timer)
+                                    .monospacedDigit()
+                            }
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(.white.opacity(0.92))
+                        }
                         Text(monitor.isMonitoring ? "环境音量 \(Int(monitor.currentDecibel)) dB" : "开始后会在本地识别打鼾、咳嗽、梦话、磨牙和噪音")
                             .foregroundStyle(.white.opacity(0.86))
                     }
