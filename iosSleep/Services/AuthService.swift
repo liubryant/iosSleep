@@ -20,6 +20,8 @@ struct AppUserLoginResult: Decodable {
 
 /// 手机号验证码 / 密码登录相关接口。
 enum AuthAPI {
+    // TODO: 本地调试用，提交审核/发布前改回 https://www.cjym123.cn
+//    static let baseURL = URL(string: "http://192.168.160.147:8066")!
     static let baseURL = URL(string: "https://www.cjym123.cn")!
 
     /// 请求后台发送短信验证码，返回验证码有效期（秒）。
