@@ -59,6 +59,17 @@ struct ProfileView: View {
                     }
                 }
 
+                if settings.isLoggedIn {
+                    Section("账号与安全") {
+                        NavigationLink {
+                            AccountDeletionView()
+                        } label: {
+                            Label("注销账号", systemImage: "person.crop.circle.badge.xmark")
+                                .foregroundStyle(.red)
+                        }
+                    }
+                }
+
                 Section("关于") {
                     NavigationLink("用户协议") {
                         LegalTextView(title: "用户协议", url: LegalLinks.userAgreementURL)

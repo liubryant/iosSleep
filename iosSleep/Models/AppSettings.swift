@@ -39,6 +39,11 @@ final class AppSettings: ObservableObject {
         isLoggedIn = false
     }
 
+    func clearAccountData() {
+        isLoggedIn = false
+        phoneNumber = ""
+    }
+
     func acceptAgreement() {
         agreementAccepted = true
     }

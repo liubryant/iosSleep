@@ -21,10 +21,10 @@ struct SoundHomeView: View {
         var startIndex = 0
 
         while startIndex < displayedScenes.count {
-            let endIndex = min(startIndex + 4, displayedScenes.count)
+            let endIndex = min(startIndex + 6, displayedScenes.count)
             let scenes = Array(displayedScenes[startIndex..<endIndex])
             sectionIndex += 1
-            sections.append(SoundHomeSection(index: sectionIndex, scenes: scenes, showsAdAfter: scenes.count == 4))
+            sections.append(SoundHomeSection(index: sectionIndex, scenes: scenes, showsAdAfter: scenes.count == 6))
             startIndex = endIndex
         }
 

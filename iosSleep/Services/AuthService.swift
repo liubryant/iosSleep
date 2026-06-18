@@ -68,6 +68,17 @@ enum AuthAPI {
         return data
     }
 
+    /// 验证短信验证码后注销账号，后台将永久删除账号及关联数据。
+    static func deleteAccount(phone: String, code: String) async throws {
+        let response: APIResponse<EmptyData> = try await post(
+            path: "im/bot/remove_account",
+            body: ["phone": phone, "code": code]
+        )
+        guard response.code == 0 else {
+            throw AuthError.server(response.msg)
+        }
+    }
+
     /// 登录时上报的设备信息：手机型号、iOS 版本、App 名称。
     private static var deviceInfo: [String: String] {
         var systemInfo = utsname()
@@ -98,6 +109,8 @@ enum AuthAPI {
     private struct SmsCodeData: Decodable {
         let expiresIn: Int
     }
+
+    private struct EmptyData: Decodable {}
 
     private static func post<T: Decodable>(path: String, body: [String: String]) async throws -> APIResponse<T> {
         var request = URLRequest(url: baseURL.appendingPathComponent(path))
