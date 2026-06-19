@@ -9,7 +9,7 @@ struct LoginView: View {
     @EnvironmentObject private var settings: AppSettings
     @Environment(\.dismiss) private var dismiss
 
-    @State private var mode: LoginMode = .code
+    @State private var mode: LoginMode = .password
     @State private var phone = ""
     @State private var code = ""
     @State private var password = ""

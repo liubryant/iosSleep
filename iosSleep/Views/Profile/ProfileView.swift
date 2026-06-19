@@ -27,7 +27,7 @@ struct ProfileView: View {
                         Text(healthKit.statusText)
                             .foregroundStyle(healthKit.isAuthorized ? .green : .secondary)
                     }
-                    Button("授权 HealthKit") {
+                    Button("继续") {
                         Task { await healthKit.requestAuthorization() }
                     }
                 }

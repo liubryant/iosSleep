@@ -230,6 +230,18 @@ struct SleepReportView: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
+
+                Link(destination: URL(string: "https://www.sleepfoundation.org/stages-of-sleep")!) {
+                    Text("参考来源：Sleep Foundation《Stages of Sleep》")
+                        .font(.caption2)
+                        .foregroundStyle(.indigo)
+                }
+
+                Link(destination: URL(string: "http://www.zgsmyjh.org/")!) {
+                    Text("参考来源：中国睡眠研究会")
+                        .font(.caption2)
+                        .foregroundStyle(.indigo)
+                }
             }
         }
         .padding(14)
