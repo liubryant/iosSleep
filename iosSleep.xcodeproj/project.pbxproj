@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		873D5390ABDECD6B12DAC0B5 /* StoryHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A38505D50A34701C02B1488D /* StoryHomeView.swift */; };
+		95EE0AF57C4C0B55373993E6 /* StoryLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8084153688101DE9E762DBE2 /* StoryLibrary.swift */; };
+		9A2402F5A8AC45D98C479ECE /* StoryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA3AC53F2B2BBA0C6DBFEE02 /* StoryItem.swift */; };
+		A2985189BBCEC9853117CDDC /* StoryPlayerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED3CF67938372D06C01B13A1 /* StoryPlayerService.swift */; };
 		BF0000010000000000000001 /* iosSleepApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF0000010000000000000101 /* iosSleepApp.swift */; };
 		BF0000010000000000000002 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF0000010000000000000102 /* MainTabView.swift */; };
 		BF0000010000000000000003 /* SoundScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF0000010000000000000103 /* SoundScene.swift */; };
@@ -45,11 +49,17 @@
 		BF0000010000000000000910 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF0000010000000000000911 /* AuthService.swift */; };
 		BF0000010000000000000912 /* SetPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF0000010000000000000913 /* SetPasswordView.swift */; };
 		BF0000010000000000000920 /* AccountDeletionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF0000010000000000000921 /* AccountDeletionView.swift */; };
+		C65358FED44CEC3E3A3BA107 /* StoryCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3C9C8E90C4327F7A8CAAA2 /* StoryCardView.swift */; };
+		D388D6D13200371F59D8F957 /* StoryPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43BA3CF4A377BC8133536DBD /* StoryPlayerView.swift */; };
+		EF8DAD8CC994E316E2A5F888 /* StoryResources in Resources */ = {isa = PBXBuildFile; fileRef = DB77A839AB736E6367097760 /* StoryResources */; };
 		F4BFE036F509DA7AF17EEA98 /* Pods_iosSleep.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE2385BF3AD04433671E7D6C /* Pods_iosSleep.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		43BA3CF4A377BC8133536DBD /* StoryPlayerView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StoryPlayerView.swift; sourceTree = "<group>"; };
 		469BC0E6C81A51369D7CE1BF /* Pods-iosSleep.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-iosSleep.debug.xcconfig"; path = "Target Support Files/Pods-iosSleep/Pods-iosSleep.debug.xcconfig"; sourceTree = "<group>"; };
+		8084153688101DE9E762DBE2 /* StoryLibrary.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StoryLibrary.swift; sourceTree = "<group>"; };
+		A38505D50A34701C02B1488D /* StoryHomeView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StoryHomeView.swift; sourceTree = "<group>"; };
 		BF0000010000000000000101 /* iosSleepApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iosSleepApp.swift; sourceTree = "<group>"; };
 		BF0000010000000000000102 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		BF0000010000000000000103 /* SoundScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundScene.swift; sourceTree = "<group>"; };
@@ -89,9 +99,13 @@
 		BF0000010000000000000125 /* DrawFeedAdCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawFeedAdCardView.swift; sourceTree = "<group>"; };
 		BF0000010000000000000200 /* 时光睡眠.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "时光睡眠.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BF0000010000000000000911 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
-		BF0000010000000000000921 /* AccountDeletionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletionView.swift; sourceTree = "<group>"; };
 		BF0000010000000000000913 /* SetPasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetPasswordView.swift; sourceTree = "<group>"; };
+		BF0000010000000000000921 /* AccountDeletionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletionView.swift; sourceTree = "<group>"; };
+		DB77A839AB736E6367097760 /* StoryResources */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder; path = StoryResources; sourceTree = "<group>"; };
 		EB4888F22A5EFF6BE04549E0 /* Pods-iosSleep.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-iosSleep.release.xcconfig"; path = "Target Support Files/Pods-iosSleep/Pods-iosSleep.release.xcconfig"; sourceTree = "<group>"; };
+		ED3CF67938372D06C01B13A1 /* StoryPlayerService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StoryPlayerService.swift; sourceTree = "<group>"; };
+		EE3C9C8E90C4327F7A8CAAA2 /* StoryCardView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StoryCardView.swift; sourceTree = "<group>"; };
+		FA3AC53F2B2BBA0C6DBFEE02 /* StoryItem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StoryItem.swift; sourceTree = "<group>"; };
 		FE2385BF3AD04433671E7D6C /* Pods_iosSleep.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_iosSleep.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -156,6 +170,7 @@
 				BF0000010000000000000103 /* SoundScene.swift */,
 				BF0000010000000000000104 /* SleepModels.swift */,
 				BF0000010000000000000105 /* AppSettings.swift */,
+				FA3AC53F2B2BBA0C6DBFEE02 /* StoryItem.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -180,6 +195,8 @@
 				BF000001000000000000010B /* HealthKitService.swift */,
 				BF000001000000000000010C /* CacheService.swift */,
 				BF0000010000000000000911 /* AuthService.swift */,
+				8084153688101DE9E762DBE2 /* StoryLibrary.swift */,
+				ED3CF67938372D06C01B13A1 /* StoryPlayerService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -191,6 +208,7 @@
 				BF0000010000000000000407 /* Sleep */,
 				BF0000010000000000000410 /* Profile */,
 				BF0000010000000000000411 /* Shared */,
+				E6A04A10B10BBFD6A92ED45B /* Stories */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -220,6 +238,7 @@
 				BF0000010000000000000120 /* Assets.xcassets */,
 				BF0000010000000000000121 /* SoundResources */,
 				BF0000010000000000000122 /* LaunchScreen.storyboard */,
+				DB77A839AB736E6367097760 /* StoryResources */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -259,6 +278,17 @@
 				EB4888F22A5EFF6BE04549E0 /* Pods-iosSleep.release.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		E6A04A10B10BBFD6A92ED45B /* Stories */ = {
+			isa = PBXGroup;
+			children = (
+				A38505D50A34701C02B1488D /* StoryHomeView.swift */,
+				EE3C9C8E90C4327F7A8CAAA2 /* StoryCardView.swift */,
+				43BA3CF4A377BC8133536DBD /* StoryPlayerView.swift */,
+			);
+			name = Stories;
+			path = Stories;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -325,6 +355,7 @@
 				BF0000010000000000000021 /* SoundResources in Resources */,
 				BF0000010000000000000022 /* LaunchScreen.storyboard in Resources */,
 				BF0000010000000000000023 /* PrivacyInfo.xcprivacy in Resources */,
+				EF8DAD8CC994E316E2A5F888 /* StoryResources in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -415,6 +446,12 @@
 				BF000001000000000000001D /* PangleDrawFeedAdLoader.swift in Sources */,
 				BF000001000000000000001E /* PangleRewardedVideoAdManager.swift in Sources */,
 				BF000001000000000000001F /* DrawFeedAdCardView.swift in Sources */,
+				9A2402F5A8AC45D98C479ECE /* StoryItem.swift in Sources */,
+				95EE0AF57C4C0B55373993E6 /* StoryLibrary.swift in Sources */,
+				A2985189BBCEC9853117CDDC /* StoryPlayerService.swift in Sources */,
+				873D5390ABDECD6B12DAC0B5 /* StoryHomeView.swift in Sources */,
+				C65358FED44CEC3E3A3BA107 /* StoryCardView.swift in Sources */,
+				D388D6D13200371F59D8F957 /* StoryPlayerView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -571,7 +608,7 @@
 				PRODUCT_NAME = "时光睡眠";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -611,7 +648,7 @@
 				PRODUCT_NAME = "时光睡眠";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

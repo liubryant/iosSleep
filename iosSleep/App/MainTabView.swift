@@ -16,6 +16,11 @@ struct MainTabView: View {
                         Label("睡眠", systemImage: "moon.zzz.fill")
                     }
 
+                StoryHomeView()
+                    .tabItem {
+                        Label("睡前故事", systemImage: "book.closed.fill")
+                    }
+
                 ProfileView()
                     .tabItem {
                         Label("我的", systemImage: "person.crop.circle")

@@ -3,6 +3,7 @@ import Foundation
 enum AppConstants {
     static let appName = "时光睡眠"
     static let soundServerBaseURL = URL(string: "https://www.cjym123.cn/api/sounds")!
+    static let storyServerBaseURL = URL(string: "https://www.cjym123.cn/api/stories")!
 
     // MARK: - GroMore
     static let pangleAppID = "5839173"

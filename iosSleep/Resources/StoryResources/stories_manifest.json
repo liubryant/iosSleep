@@ -1,0 +1,602 @@
+[
+  {
+    "id": "story_001",
+    "index": 1,
+    "directory": "001_龙舟少年",
+    "title": "龙舟少年",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_002",
+    "index": 2,
+    "directory": "002_小萝卜与大萝卜",
+    "title": "小萝卜与大萝卜",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_003",
+    "index": 3,
+    "directory": "003_怪兽餐厅",
+    "title": "怪兽餐厅",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_004",
+    "index": 4,
+    "directory": "004_没人愿意借她笔",
+    "title": "没人愿意借她笔",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_005",
+    "index": 5,
+    "directory": "005_两片小叶子",
+    "title": "两片小叶子",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_006",
+    "index": 6,
+    "directory": "006_地球保卫战",
+    "title": "地球保卫战",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_007",
+    "index": 7,
+    "directory": "007_小猫学会过马路",
+    "title": "小猫学会过马路",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_008",
+    "index": 8,
+    "directory": "008_幸福便当",
+    "title": "幸福便当",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_009",
+    "index": 9,
+    "directory": "009_千里寻药",
+    "title": "千里寻药",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_010",
+    "index": 10,
+    "directory": "010_小海狸波波的新本领",
+    "title": "小海狸波波的新本领",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_011",
+    "index": 11,
+    "directory": "011_弟弟被抓走了！",
+    "title": "弟弟被抓走了！",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_012",
+    "index": 12,
+    "directory": "012_小作家",
+    "title": "小作家",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_013",
+    "index": 13,
+    "directory": "013_弟弟消失了",
+    "title": "弟弟消失了",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_014",
+    "index": 14,
+    "directory": "014_最棒的暴龙",
+    "title": "最棒的暴龙",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_015",
+    "index": 15,
+    "directory": "015_会发电的小台风",
+    "title": "会发电的小台风",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_016",
+    "index": 16,
+    "directory": "016_变懒的机器人",
+    "title": "变懒的机器人",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_017",
+    "index": 17,
+    "directory": "017_飞到月亮的布娃娃",
+    "title": "飞到月亮的布娃娃",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_018",
+    "index": 18,
+    "directory": "018_宁静山",
+    "title": "宁静山",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_019",
+    "index": 19,
+    "directory": "019_被偷走的坚果",
+    "title": "被偷走的坚果",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_020",
+    "index": 20,
+    "directory": "020_蜜蜂爸爸生病了",
+    "title": "蜜蜂爸爸生病了",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_021",
+    "index": 21,
+    "directory": "021_种出自己的松果树",
+    "title": "种出自己的松果树",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_022",
+    "index": 22,
+    "directory": "022_虎王的继承者",
+    "title": "虎王的继承者",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_023",
+    "index": 23,
+    "directory": "023_狮王报恩",
+    "title": "狮王报恩",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_024",
+    "index": 24,
+    "directory": "024_蔬菜小超人",
+    "title": "蔬菜小超人",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_025",
+    "index": 25,
+    "directory": "025_橡皮擦的功劳",
+    "title": "橡皮擦的功劳",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_026",
+    "index": 26,
+    "directory": "026_乌龟巴士",
+    "title": "乌龟巴士",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_027",
+    "index": 27,
+    "directory": "027_黑猫队长",
+    "title": "黑猫队长",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_028",
+    "index": 28,
+    "directory": "028_勇敢说出来",
+    "title": "勇敢说出来",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_029",
+    "index": 29,
+    "directory": "029_爸爸的爱藏在哪里？",
+    "title": "爸爸的爱藏在哪里？",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_030",
+    "index": 30,
+    "directory": "030_为什么朋友都不见了？",
+    "title": "为什么朋友都不见了？",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_031",
+    "index": 31,
+    "directory": "031_不再迟到的小猪",
+    "title": "不再迟到的小猪",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_032",
+    "index": 32,
+    "directory": "032_不想做兔子的豆豆",
+    "title": "不想做兔子的豆豆",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_033",
+    "index": 33,
+    "directory": "033_被遗忘的生日",
+    "title": "被遗忘的生日",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_034",
+    "index": 34,
+    "directory": "034_爱说谎的的小松鼠",
+    "title": "爱说谎的的小松鼠",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_035",
+    "index": 35,
+    "directory": "035_没礼貌的小刺蝟",
+    "title": "没礼貌的小刺蝟",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_036",
+    "index": 36,
+    "directory": "036_我不要爸爸",
+    "title": "我不要爸爸",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_037",
+    "index": 37,
+    "directory": "037_来不及说再见",
+    "title": "来不及说再见",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_038",
+    "index": 38,
+    "directory": "038_黑色兔子",
+    "title": "黑色兔子",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_039",
+    "index": 39,
+    "directory": "039_女孩一样能做到",
+    "title": "女孩一样能做到",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_040",
+    "index": 40,
+    "directory": "040_自己也能玩得很开心",
+    "title": "自己也能玩得很开心",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_041",
+    "index": 41,
+    "directory": "041_小狐狸学会分享",
+    "title": "小狐狸学会分享",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_042",
+    "index": 42,
+    "directory": "042_妈妈的千朵蒲公英",
+    "title": "妈妈的千朵蒲公英",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_043",
+    "index": 43,
+    "directory": "043_来自天上的王子",
+    "title": "来自天上的王子",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_044",
+    "index": 44,
+    "directory": "044_贪心的狐狸",
+    "title": "贪心的狐狸",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_045",
+    "index": 45,
+    "directory": "045_许愿丝带",
+    "title": "许愿丝带",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_046",
+    "index": 46,
+    "directory": "046_小松鼠的宝物",
+    "title": "小松鼠的宝物",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_047",
+    "index": 47,
+    "directory": "047_被误会的小象",
+    "title": "被误会的小象",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_048",
+    "index": 48,
+    "directory": "048_不想输的小兔子",
+    "title": "不想输的小兔子",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_049",
+    "index": 49,
+    "directory": "049_猫咪的金鱼朋友",
+    "title": "猫咪的金鱼朋友",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_050",
+    "index": 50,
+    "directory": "050_胆小的小狮子",
+    "title": "胆小的小狮子",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_051",
+    "index": 51,
+    "directory": "051_神秘森林",
+    "title": "神秘森林",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_052",
+    "index": 52,
+    "directory": "052_贪玩的小猴子",
+    "title": "贪玩的小猴子",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.aiff",
+    "duration": null,
+    "isBundled": true
+  },
+  {
+    "id": "story_053",
+    "index": 53,
+    "directory": "053_挑食的小兔子",
+    "title": "挑食的小兔子",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_054",
+    "index": 54,
+    "directory": "054_爱吹牛的小白兔",
+    "title": "爱吹牛的小白兔",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_055",
+    "index": 55,
+    "directory": "055_谦虚的小刺蝟",
+    "title": "谦虚的小刺蝟",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_056",
+    "index": 56,
+    "directory": "056_小象的长鼻子",
+    "title": "小象的长鼻子",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_057",
+    "index": 57,
+    "directory": "057_风爷爷与两朵云",
+    "title": "风爷爷与两朵云",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_058",
+    "index": 58,
+    "directory": "058_小兔子借翅膀",
+    "title": "小兔子借翅膀",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_059",
+    "index": 59,
+    "directory": "059_送小蚂蚁回家",
+    "title": "送小蚂蚁回家",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.m4a",
+    "duration": null,
+    "isBundled": false
+  },
+  {
+    "id": "story_060",
+    "index": 60,
+    "directory": "060_小老鼠的花帽子",
+    "title": "小老鼠的花帽子",
+    "coverFile": "cover.jpg",
+    "audioFile": "audio.aiff",
+    "duration": null,
+    "isBundled": true
+  }
+]
