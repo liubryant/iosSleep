@@ -4,11 +4,15 @@ import UIKit
 struct SoundCardView: View {
     @EnvironmentObject private var library: SoundLibrary
     @EnvironmentObject private var player: AudioPlayerService
+    @EnvironmentObject private var storyPlayer: StoryPlayerService
 
     let scene: SoundScene
 
     var body: some View {
         Button {
+            if storyPlayer.currentStory != nil {
+                storyPlayer.stop()
+            }
             player.toggle(scene: scene)
         } label: {
             VStack(alignment: .leading, spacing: 10) {

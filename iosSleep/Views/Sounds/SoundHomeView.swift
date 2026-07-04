@@ -3,6 +3,7 @@ import SwiftUI
 struct SoundHomeView: View {
     @EnvironmentObject private var library: SoundLibrary
     @EnvironmentObject private var player: AudioPlayerService
+    @EnvironmentObject private var storyPlayer: StoryPlayerService
     @State private var selectedCategory: SoundCategory = .recommended
     @State private var didAutoPlayFirstScene = false
 
@@ -53,7 +54,7 @@ struct SoundHomeView: View {
                         }
                     }
                     .padding()
-                    .padding(.bottom, player.currentScene == nil ? 0 : 88)
+                    .padding(.bottom, player.currentScene == nil && storyPlayer.currentStory == nil ? 0 : 88)
                 }
             }
             .toolbar(.hidden, for: .navigationBar)
@@ -67,6 +68,7 @@ struct SoundHomeView: View {
             .task(id: library.scenes.count) {
                 guard !didAutoPlayFirstScene,
                       player.currentScene == nil,
+                      storyPlayer.currentStory == nil,
                       let firstScene = displayedScenes.first else {
                     return
                 }

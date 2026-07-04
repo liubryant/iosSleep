@@ -3,6 +3,7 @@ import SwiftUI
 struct StoryHomeView: View {
     @EnvironmentObject private var library: StoryLibrary
     @EnvironmentObject private var player: StoryPlayerService
+    @EnvironmentObject private var audioPlayer: AudioPlayerService
 
     private let columns = [
         GridItem(.flexible(), spacing: 16),
@@ -21,6 +22,7 @@ struct StoryHomeView: View {
                     }
                 }
                 .padding()
+                .padding(.bottom, player.currentStory == nil && audioPlayer.currentScene == nil ? 0 : 88)
             }
             .overlay {
                 if library.stories.isEmpty {

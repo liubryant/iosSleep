@@ -2,6 +2,7 @@ import SwiftUI
 
 struct StoryPlayerView: View {
     @EnvironmentObject private var player: StoryPlayerService
+    @EnvironmentObject private var audioPlayer: AudioPlayerService
     let story: StoryItem
 
     @State private var isSeeking = false
@@ -10,6 +11,7 @@ struct StoryPlayerView: View {
 
     private var isCurrent: Bool { player.currentStory?.id == story.id }
     private var isPlayingThis: Bool { isCurrent && player.isPlaying }
+    private var shouldUseLocalAudio: Bool { player.isBundledOrCached(story) }
     private var shouldResetCover: Bool {
         isCurrent && !player.isPlaying && player.currentTime == 0
     }
@@ -28,14 +30,11 @@ struct StoryPlayerView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.top, proxy.size.height < 600 ? 2 : 8)
 
-                ScrollView {
-                    Text(storyText.isEmpty ? "暂无故事正文" : storyText)
-                        .font(.body)
-                        .lineSpacing(7)
-                        .foregroundStyle(.primary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(16)
-                }
+                StoryPlaybackTextView(
+                    text: storyText.isEmpty ? "暂无故事正文" : storyText,
+                    currentTime: isCurrent ? player.currentTime : 0,
+                    duration: isCurrent ? player.duration : 0
+                )
                 .frame(maxHeight: .infinity)
                 .layoutPriority(1)
                 .background(Color(.secondarySystemBackground))
@@ -52,12 +51,17 @@ struct StoryPlayerView: View {
         .navigationBarTitleDisplayMode(.inline)
         .task(id: story.id) {
             loadStoryText()
+            if audioPlayer.currentScene != nil {
+                audioPlayer.stop()
+            }
             if player.currentStory?.id == story.id {
                 if !player.isPlaying {
                     player.resume()
                 }
-            } else {
+            } else if shouldUseLocalAudio {
                 await player.play(story: story)
+            } else {
+                player.playText(story: story, text: storyText)
             }
         }
     }
@@ -96,22 +100,42 @@ struct StoryPlayerView: View {
                 }
 
                 Button {
-                    player.toggle(story: story)
+                    if shouldUseLocalAudio {
+                        player.toggle(story: story)
+                    } else {
+                        player.toggleText(story: story, text: storyText)
+                    }
                 } label: {
-                    Image(systemName: isPlayingThis ? "pause.circle.fill" : "play.circle.fill")
-                        .font(.system(size: 64))
-                        .foregroundStyle(.indigo)
+                    ZStack {
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        Color.indigo.opacity(0.16),
+                                        Color.cyan.opacity(0.12),
+                                        Color.purple.opacity(0.14)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 64, height: 64)
+
+                        Image(systemName: isPlayingThis ? "pause.fill" : "play.fill")
+                            .font(.system(size: 26, weight: .bold))
+                            .foregroundStyle(.indigo)
+                            .offset(x: isPlayingThis ? 0 : 2)
+                    }
                 }
                 .buttonStyle(.plain)
-                .disabled(!player.isBundledOrCached(story) && player.downloadProgress[story.id] == nil)
             }
 
-            if let error = player.downloadErrors[story.id] {
+            if shouldUseLocalAudio, let error = player.downloadErrors[story.id] {
                 Text(error + "，该故事尚未开放下载，请稍后再试")
                     .font(.caption)
                     .foregroundStyle(.red)
-            } else if !player.isBundledOrCached(story), player.downloadProgress[story.id] == nil {
-                Text("该故事音频还未下载到本地，点击播放按钮开始下载")
+            } else if !shouldUseLocalAudio {
+                Text("正在使用系统语音朗读本地故事文本")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -144,6 +168,82 @@ struct StoryPlayerView: View {
         } else {
             storyText = trimmed
         }
+    }
+}
+
+private struct StoryPlaybackTextView: View {
+    let text: String
+    let currentTime: TimeInterval
+    let duration: TimeInterval
+
+    private var chunks: [String] {
+        splitStoryText(text)
+    }
+
+    private var activeIndex: Int {
+        guard duration > 0, chunks.isEmpty == false else { return 0 }
+        let progress = min(max(currentTime / duration, 0), 0.999)
+        return min(Int(progress * Double(chunks.count)), chunks.count - 1)
+    }
+
+    var body: some View {
+        ScrollViewReader { proxy in
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 7) {
+                    ForEach(chunks.indices, id: \.self) { index in
+                        Text(chunks[index])
+                            .font(.body)
+                            .lineSpacing(7)
+                            .foregroundStyle(.primary)
+                            .padding(.horizontal, isHighlighted(index) ? 8 : 0)
+                            .padding(.vertical, isHighlighted(index) ? 5 : 0)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(
+                                RoundedRectangle(cornerRadius: 7)
+                                    .fill(isHighlighted(index) ? Color.indigo.opacity(index == activeIndex ? 0.18 : 0.10) : Color.clear)
+                            )
+                            .id(index)
+                    }
+                }
+                .padding(16)
+            }
+            .onChange(of: activeIndex) { index in
+                withAnimation(.easeInOut(duration: 0.25)) {
+                    proxy.scrollTo(index, anchor: .center)
+                }
+            }
+        }
+    }
+
+    private func isHighlighted(_ index: Int) -> Bool {
+        index == activeIndex || index == activeIndex + 1
+    }
+
+    private func splitStoryText(_ source: String) -> [String] {
+        let normalized = source
+            .replacingOccurrences(of: "\r\n", with: "\n")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard normalized.isEmpty == false else { return ["暂无故事正文"] }
+
+        let separators = Set("，,。！？!?；;\n")
+        var result: [String] = []
+        var current = ""
+
+        for character in normalized {
+            current.append(character)
+            if separators.contains(character) {
+                appendChunk(current, to: &result)
+                current = ""
+            }
+        }
+        appendChunk(current, to: &result)
+        return result.isEmpty ? [normalized] : result
+    }
+
+    private func appendChunk(_ chunk: String, to result: inout [String]) {
+        let trimmed = chunk.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmed.isEmpty == false else { return }
+        result.append(trimmed)
     }
 }
 

@@ -30,29 +30,15 @@ struct StoryCardView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(10)
 
-            if let progress = player.downloadProgress[story.id] {
-                VStack(spacing: 5) {
-                    ProgressView(value: progress)
-                        .tint(.white)
-                    Text("\(Int(progress * 100))%")
-                        .font(.caption2.weight(.semibold))
-                        .foregroundStyle(.white)
-                }
+            Text("免费")
+                .font(.caption2.weight(.bold))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 5)
+                .background(.indigo.opacity(0.92))
+                .clipShape(Capsule())
                 .padding(8)
-                .background(.black.opacity(0.45))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .padding(8)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            } else if !player.isBundledOrCached(story) {
-                Image(systemName: "arrow.down.circle.fill")
-                    .font(.title3)
-                    .foregroundStyle(.white)
-                    .padding(8)
-                    .background(.black.opacity(0.35))
-                    .clipShape(Circle())
-                    .padding(8)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
-            }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
         }
         .aspectRatio(4.0 / 3.0, contentMode: .fit)
         .clipShape(RoundedRectangle(cornerRadius: 10))
@@ -70,7 +56,7 @@ struct StoryCardView: View {
     }
 
     private var statusText: String {
-        player.isBundledOrCached(story) ? "点击播放" : "点击下载后播放"
+        player.isBundledOrCached(story) ? "点击播放" : "免费朗读"
     }
 }
 
