@@ -3,33 +3,41 @@ import SwiftUI
 struct MainTabView: View {
     @EnvironmentObject private var player: AudioPlayerService
     @EnvironmentObject private var storyPlayer: StoryPlayerService
+    @EnvironmentObject private var storyLibrary: StoryLibrary
+    @EnvironmentObject private var settings: AppSettings
+    @State private var selectedTab = 0
+    @State private var isStoryDetailVisible = false
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            TabView {
+            TabView(selection: $selectedTab) {
                 SoundHomeView()
+                    .tag(0)
                     .tabItem {
                         Label("声音", systemImage: "waveform")
                     }
 
                 SleepHomeView()
+                    .tag(1)
                     .tabItem {
                         Label("睡眠", systemImage: "moon.zzz.fill")
                     }
 
                 StoryHomeView()
+                    .tag(2)
                     .tabItem {
                         Label("故事", systemImage: "book.closed.fill")
                     }
 
                 ProfileView()
+                    .tag(3)
                     .tabItem {
                         Label("我的", systemImage: "person.crop.circle")
                     }
             }
-            .tint(.indigo)
+            .tint(.blue)
 
-            if let story = storyPlayer.currentStory {
+            if let story = storyPlayer.currentStory, !isStoryDetailVisible {
                 GlobalStoryMiniPlayerView(story: story)
                     .padding(.horizontal)
                     .padding(.bottom, 58)
@@ -52,6 +60,20 @@ struct MainTabView: View {
         .onChange(of: storyPlayer.currentStory?.id) { id in
             guard id != nil, player.currentScene != nil else { return }
             player.stop()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: StoryNotificationService.didOpenStory)) { _ in
+            selectedTab = 2
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .storyDetailVisibilityChanged)) { notification in
+            isStoryDetailVisible = notification.object as? Bool ?? false
+        }
+        .task {
+            _ = StoryNotificationService.shared
+            if settings.storyReminderEnabled {
+                await StoryNotificationService.shared.scheduleTestNotification(
+                    stories: storyLibrary.stories
+                )
+            }
         }
     }
 }
@@ -77,7 +99,7 @@ private struct GlobalMiniPlayerView: View {
                 if let timer = player.sleepTimerText {
                     Text(timer)
                         .font(.caption2)
-                        .foregroundStyle(.indigo)
+                        .foregroundStyle(.blue)
                 }
             }
 

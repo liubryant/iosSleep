@@ -21,7 +21,7 @@ struct StoryCardView: View {
                     .font(.headline)
                     .lineLimit(1)
 
-                Text(statusText)
+                Text(story.author?.isEmpty == false ? story.author! : statusText)
                     .font(.caption)
                     .lineLimit(1)
             }
@@ -30,15 +30,17 @@ struct StoryCardView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(10)
 
-            Text("免费")
-                .font(.caption2.weight(.bold))
-                .foregroundStyle(.white)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 5)
-                .background(.indigo.opacity(0.92))
-                .clipShape(Capsule())
-                .padding(8)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+            if story.isArticle {
+                Text("散文")
+                    .font(.caption2.weight(.bold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 5)
+                    .background(.blue.opacity(0.92))
+                    .clipShape(Capsule())
+                    .padding(8)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+            }
         }
         .aspectRatio(4.0 / 3.0, contentMode: .fit)
         .clipShape(RoundedRectangle(cornerRadius: 10))
@@ -48,7 +50,7 @@ struct StoryCardView: View {
                     .font(.caption)
                     .foregroundStyle(.white)
                     .padding(8)
-                    .background(.indigo)
+                    .background(.blue)
                     .clipShape(Circle())
                     .padding(8)
             }
@@ -64,7 +66,8 @@ struct StoryCoverImage: View {
     let story: StoryItem
 
     var body: some View {
-        if let url = story.bundledResourceURL(fileName: story.coverFile),
+        if !story.coverFile.isEmpty,
+           let url = story.bundledResourceURL(fileName: story.coverFile),
            let data = try? Data(contentsOf: url),
            let uiImage = UIImage(data: data) {
             Image(uiImage: uiImage)
@@ -72,7 +75,7 @@ struct StoryCoverImage: View {
                 .scaledToFill()
         } else {
             RoundedRectangle(cornerRadius: 10)
-                .fill(.linearGradient(colors: [.indigo.opacity(0.4), .purple.opacity(0.4)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                .fill(.linearGradient(colors: [.blue.opacity(0.45), .cyan.opacity(0.35)], startPoint: .topLeading, endPoint: .bottomTrailing))
                 .overlay {
                     Image(systemName: "book.closed.fill")
                         .font(.largeTitle)

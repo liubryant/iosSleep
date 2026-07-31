@@ -4,6 +4,7 @@ struct ProfileView: View {
     @EnvironmentObject private var settings: AppSettings
     @EnvironmentObject private var healthKit: HealthKitService
     @EnvironmentObject private var sleepMonitor: SleepMonitorService
+    @EnvironmentObject private var storyLibrary: StoryLibrary
     @State private var cacheSize = CacheService.formattedSize(CacheService.cacheSize())
     @State private var showingClearAlert = false
 
@@ -45,6 +46,36 @@ struct ProfileView: View {
                     }
                 }
 
+                Section("提醒") {
+                    Toggle(isOn: Binding(
+                        get: { settings.storyReminderEnabled },
+                        set: { enabled in
+                            Task {
+                                if enabled {
+                                    settings.storyReminderAsked = true
+                                    settings.storyReminderEnabled = await StoryNotificationService.shared.enable(
+                                        stories: storyLibrary.stories
+                                    )
+                                } else {
+                                    StoryNotificationService.shared.disable()
+                                    settings.storyReminderEnabled = false
+                                }
+                            }
+                        }
+                    )) {
+                        Label {
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text("故事提醒")
+                                Text("每天 11:00、16:00、20:00 精选故事")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        } icon: {
+                            Image(systemName: "music.note")
+                        }
+                    }
+                }
+
                 Section("数据") {
                     HStack {
                         Label("数据大小", systemImage: "internaldrive")
@@ -80,7 +111,7 @@ struct ProfileView: View {
                     HStack {
                         Text("版本")
                         Spacer()
-                        Text("1.0.0")
+                        Text("1.2.0")
                             .foregroundStyle(.secondary)
                     }
                 }

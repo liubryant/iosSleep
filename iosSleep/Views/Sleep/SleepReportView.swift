@@ -66,7 +66,7 @@ struct SleepReportView: View {
                 ForEach(session.events.suffix(20).reversed()) { event in
                     HStack {
                         Image(systemName: event.type.symbolName)
-                            .foregroundStyle(.indigo)
+                            .foregroundStyle(.blue)
                             .frame(width: 28)
                         VStack(alignment: .leading) {
                             Text(event.type.title)
@@ -104,7 +104,7 @@ struct SleepReportView: View {
             HStack(spacing: 12) {
                 Image(systemName: "waveform")
                     .font(.title3)
-                    .foregroundStyle(.indigo)
+                    .foregroundStyle(.blue)
                     .frame(width: 34)
 
                 VStack(alignment: .leading, spacing: 6) {
@@ -172,7 +172,7 @@ struct SleepReportView: View {
     private func eventMetric(type: SleepEventType) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Image(systemName: type.symbolName)
-                .foregroundStyle(.indigo)
+                .foregroundStyle(.blue)
             Text("\(session.eventCount(for: type))")
                 .font(.title3.weight(.semibold))
             Text(type.title)
@@ -191,12 +191,12 @@ struct SleepReportView: View {
                 x: .value("时间", sample.time),
                 y: .value("分贝", sample.decibel)
             )
-            .foregroundStyle(.indigo)
+            .foregroundStyle(.blue)
             AreaMark(
                 x: .value("时间", sample.time),
                 y: .value("分贝", sample.decibel)
             )
-            .foregroundStyle(.indigo.opacity(0.12))
+            .foregroundStyle(.blue.opacity(0.12))
         }
         .frame(height: 160)
     }
@@ -234,13 +234,13 @@ struct SleepReportView: View {
                 Link(destination: URL(string: "https://www.sleepfoundation.org/stages-of-sleep")!) {
                     Text("参考来源：Sleep Foundation《Stages of Sleep》")
                         .font(.caption2)
-                        .foregroundStyle(.indigo)
+                        .foregroundStyle(.blue)
                 }
 
                 Link(destination: URL(string: "http://www.zgsmyjh.org/")!) {
                     Text("参考来源：中国睡眠研究会")
                         .font(.caption2)
-                        .foregroundStyle(.indigo)
+                        .foregroundStyle(.blue)
                 }
             }
         }
@@ -387,7 +387,7 @@ struct SleepReportView: View {
 
     private var scoreColor: Color {
         if session.sleepScore >= 85 { return .green }
-        if session.sleepScore >= 70 { return .indigo }
+        if session.sleepScore >= 70 { return .blue }
         if session.sleepScore >= 55 { return .orange }
         return .red
     }
@@ -402,7 +402,7 @@ private struct RecordingWaveformView: View {
             HStack(alignment: .center, spacing: 4) {
                 ForEach(0..<barCount, id: \.self) { index in
                     Capsule()
-                        .fill(Color.indigo.opacity(0.72))
+                        .fill(Color.blue.opacity(0.72))
                         .frame(width: 4, height: barHeight(index: index, time: time))
                 }
             }
@@ -457,9 +457,9 @@ private struct SleepDistributionPieChart: View {
 extension SleepStage {
     var color: Color {
         switch self {
-        case .deep: return .indigo
+        case .deep: return .blue
         case .light: return .cyan
-        case .rem: return .purple
+        case .rem: return .cyan
         case .awake: return .orange
         }
     }

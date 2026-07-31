@@ -37,7 +37,8 @@ final class StoryPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegat
     }
 
     func cachedAudioExists(for story: StoryItem) -> Bool {
-        FileManager.default.fileExists(atPath: cachedAudioURL(for: story).path)
+        guard !story.audioFile.isEmpty else { return false }
+        return FileManager.default.fileExists(atPath: cachedAudioURL(for: story).path)
     }
 
     func isDownloading(_ story: StoryItem) -> Bool {
@@ -265,6 +266,7 @@ final class StoryPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegat
     }
 
     func coverImage(for story: StoryItem) -> UIImage? {
+        guard !story.coverFile.isEmpty else { return nil }
         guard let url = story.bundledResourceURL(fileName: story.coverFile),
               let data = try? Data(contentsOf: url) else { return nil }
         return UIImage(data: data)
@@ -355,7 +357,7 @@ final class StoryPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegat
     }
 
     private func bundledAudioURL(for story: StoryItem) -> URL? {
-        guard story.isBundled else { return nil }
+        guard story.isBundled, !story.audioFile.isEmpty else { return nil }
         return story.bundledResourceURL(fileName: story.audioFile)
     }
 

@@ -18,37 +18,67 @@ struct StoryPlayerView: View {
 
     var body: some View {
         GeometryReader { proxy in
-            let coverSize = responsiveCoverSize(for: proxy.size)
+            ZStack {
+                StoryCoverImage(story: story)
+                    .frame(width: proxy.size.width, height: proxy.size.height)
+                    .scaledToFill()
+                    .scaleEffect(1.12)
+                    .blur(radius: 28)
+                    .opacity(0.9)
+                    .clipped()
 
-            VStack(spacing: proxy.size.height < 600 ? 8 : 14) {
-                RotatingStoryCover(
-                    story: story,
-                    isPlaying: isPlayingThis,
-                    shouldReset: shouldResetCover
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.03, green: 0.07, blue: 0.15).opacity(0.52),
+                        Color(red: 0.08, green: 0.09, blue: 0.19).opacity(0.78),
+                        Color(red: 0.04, green: 0.06, blue: 0.13).opacity(0.96)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
                 )
-                .frame(width: coverSize, height: coverSize)
-                .frame(maxWidth: .infinity)
-                .padding(.top, proxy.size.height < 600 ? 2 : 8)
 
-                StoryPlaybackTextView(
-                    text: storyText.isEmpty ? "暂无故事正文" : storyText,
-                    currentTime: isCurrent ? player.currentTime : 0,
-                    duration: isCurrent ? player.duration : 0
-                )
-                .frame(maxHeight: .infinity)
-                .layoutPriority(1)
-                .background(Color(.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 14))
-                .padding(.horizontal, proxy.size.width < 350 ? 12 : 20)
+                let coverSize = responsiveCoverSize(for: proxy.size)
 
-                playerControls
-                    .padding(.horizontal, proxy.size.width < 350 ? 16 : 24)
-                    .padding(.bottom, proxy.size.height < 600 ? 4 : 12)
+                VStack(spacing: proxy.size.height < 600 ? 8 : 14) {
+                    RotatingStoryCover(
+                        story: story,
+                        isPlaying: isPlayingThis,
+                        shouldReset: shouldResetCover
+                    )
+                    .frame(width: coverSize, height: coverSize)
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, proxy.size.height < 600 ? 2 : 8)
+
+                    if let author = story.author, !author.isEmpty {
+                        Text(author)
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(.white.opacity(0.82))
+                    }
+
+                    StoryPlaybackTextView(
+                        text: storyText.isEmpty ? "暂无故事正文" : storyText,
+                        currentTime: isCurrent ? player.currentTime : 0,
+                        duration: isCurrent ? player.duration : 0
+                    )
+                    .frame(maxWidth: .infinity)
+                    .frame(maxHeight: .infinity)
+                    .layoutPriority(1)
+                    .background(Color.white.opacity(0.88))
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .padding(.horizontal, proxy.size.width < 350 ? 12 : 20)
+
+                    playerControls
+                        .padding(.horizontal, proxy.size.width < 350 ? 16 : 24)
+                        .padding(.bottom, proxy.size.height < 600 ? 4 : 12)
+                }
+                .frame(width: proxy.size.width, height: proxy.size.height)
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
+            .clipped()
         }
-        .navigationTitle(story.title)
+        .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarColorScheme(.dark, for: .navigationBar)
         .task(id: story.id) {
             loadStoryText()
             if audioPlayer.currentScene != nil {
@@ -64,13 +94,19 @@ struct StoryPlayerView: View {
                 player.playText(story: story, text: storyText)
             }
         }
+        .onAppear {
+            NotificationCenter.default.post(name: .storyDetailVisibilityChanged, object: true)
+        }
+        .onDisappear {
+            NotificationCenter.default.post(name: .storyDetailVisibilityChanged, object: false)
+        }
     }
 
     private var playerControls: some View {
         VStack(spacing: 14) {
             if let progress = player.downloadProgress[story.id] {
                 ProgressView(value: progress)
-                    .tint(.indigo)
+                    .tint(.blue)
                 Text("正在下载… \(Int(progress * 100))%")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -111,9 +147,9 @@ struct StoryPlayerView: View {
                             .fill(
                                 LinearGradient(
                                     colors: [
-                                        Color.indigo.opacity(0.16),
+                                        Color.blue.opacity(0.16),
                                         Color.cyan.opacity(0.12),
-                                        Color.purple.opacity(0.14)
+                                        Color.cyan.opacity(0.14)
                                     ],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
@@ -123,7 +159,7 @@ struct StoryPlayerView: View {
 
                         Image(systemName: isPlayingThis ? "pause.fill" : "play.fill")
                             .font(.system(size: 26, weight: .bold))
-                            .foregroundStyle(.indigo)
+                            .foregroundStyle(.blue)
                             .offset(x: isPlayingThis ? 0 : 2)
                     }
                 }
@@ -155,7 +191,7 @@ struct StoryPlayerView: View {
     }
 
     private func loadStoryText() {
-        guard let url = story.bundledResourceURL(fileName: "story.txt"),
+        guard let url = story.bundledResourceURL(fileName: story.storyTextFile),
               let rawText = try? String(contentsOf: url, encoding: .utf8) else {
             storyText = ""
             return
@@ -194,13 +230,13 @@ private struct StoryPlaybackTextView: View {
                         Text(chunks[index])
                             .font(.body)
                             .lineSpacing(7)
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(.black.opacity(0.86))
                             .padding(.horizontal, isHighlighted(index) ? 8 : 0)
                             .padding(.vertical, isHighlighted(index) ? 5 : 0)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .background(
                                 RoundedRectangle(cornerRadius: 7)
-                                    .fill(isHighlighted(index) ? Color.indigo.opacity(index == activeIndex ? 0.18 : 0.10) : Color.clear)
+                                    .fill(isHighlighted(index) ? Color.blue.opacity(index == activeIndex ? 0.18 : 0.10) : Color.clear)
                             )
                             .id(index)
                     }
@@ -245,6 +281,10 @@ private struct StoryPlaybackTextView: View {
         guard trimmed.isEmpty == false else { return }
         result.append(trimmed)
     }
+}
+
+extension Notification.Name {
+    static let storyDetailVisibilityChanged = Notification.Name("StoryDetailVisibilityChanged")
 }
 
 private struct RotatingStoryCover: View {
@@ -330,14 +370,14 @@ private struct StorySeekBar: View {
                     .frame(height: 4)
 
                 Capsule()
-                    .fill(.indigo)
+                    .fill(.blue)
                     .frame(width: width * progress, height: 4)
 
                 Circle()
                     .fill(.white)
                     .frame(width: 22, height: 22)
                     .shadow(color: .black.opacity(0.2), radius: 2, y: 1)
-                    .overlay(Circle().stroke(.indigo, lineWidth: 2))
+                    .overlay(Circle().stroke(.blue, lineWidth: 2))
                     .offset(x: min(max(width * progress - 11, 0), width - 22))
             }
             .frame(maxHeight: .infinity)

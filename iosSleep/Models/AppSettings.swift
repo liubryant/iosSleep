@@ -22,12 +22,22 @@ final class AppSettings: ObservableObject {
         didSet { UserDefaults.standard.set(phoneNumber, forKey: Keys.phoneNumber) }
     }
 
+    @Published var storyReminderEnabled: Bool {
+        didSet { UserDefaults.standard.set(storyReminderEnabled, forKey: Keys.storyReminderEnabled) }
+    }
+
+    @Published var storyReminderAsked: Bool {
+        didSet { UserDefaults.standard.set(storyReminderAsked, forKey: Keys.storyReminderAsked) }
+    }
+
     init() {
         isLoggedIn = UserDefaults.standard.bool(forKey: Keys.isLoggedIn)
         saveAudioClips = UserDefaults.standard.object(forKey: Keys.saveAudioClips) as? Bool ?? true
         sensitivity = UserDefaults.standard.object(forKey: Keys.sensitivity) as? Double ?? 0.65
         agreementAccepted = UserDefaults.standard.bool(forKey: Keys.agreementAccepted)
         phoneNumber = UserDefaults.standard.string(forKey: Keys.phoneNumber) ?? ""
+        storyReminderEnabled = UserDefaults.standard.bool(forKey: Keys.storyReminderEnabled)
+        storyReminderAsked = UserDefaults.standard.bool(forKey: Keys.storyReminderAsked)
     }
 
     func login(phone: String) {
@@ -55,4 +65,6 @@ private enum Keys {
     static let sensitivity = "settings.sensitivity"
     static let agreementAccepted = "agreement_accepted"
     static let phoneNumber = "profile.phoneNumber"
+    static let storyReminderEnabled = "notifications.storyReminderEnabled"
+    static let storyReminderAsked = "notifications.storyReminderAsked"
 }

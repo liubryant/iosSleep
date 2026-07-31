@@ -36,8 +36,8 @@ struct SoundHomeView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 soundTopBar
+                soundFeatureCategories
                 soundSearchBar
-                soundCategoryBar
 
                 ScrollView {
                     LazyVStack(spacing: 16) {
@@ -78,6 +78,64 @@ struct SoundHomeView: View {
         }
     }
 
+    private var soundFeatureCategories: some View {
+        LazyVGrid(
+            columns: Array(repeating: GridItem(.flexible(), spacing: 4), count: 4),
+            spacing: 10
+        ) {
+            ForEach(SoundFeature.allCases) { feature in
+                if feature == .stories {
+                    NavigationLink {
+                        StoryHomeView()
+                    } label: {
+                        soundFeatureLabel(feature)
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    Button {
+                        if let category = feature.category {
+                            selectedCategory = category
+                        }
+                    } label: {
+                        soundFeatureLabel(feature)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.bottom, 8)
+    }
+
+    private func soundFeatureLabel(_ feature: SoundFeature) -> some View {
+        VStack(spacing: 4) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(
+                        feature.category == selectedCategory
+                            ? Color.blue.opacity(0.10)
+                            : Color.clear
+                    )
+                    .frame(width: 56, height: 54)
+                Image(systemName: feature.icon)
+                    .font(.system(size: 26, weight: .medium))
+                    .foregroundStyle(feature.color)
+                    .frame(width: 48, height: 48)
+                    .background(feature.color.opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 15))
+            }
+
+            Text(feature.title)
+                .font(.caption)
+                .fontWeight(feature.category == selectedCategory ? .semibold : .regular)
+                .foregroundStyle(feature.category == selectedCategory ? Color.blue : Color.secondary)
+                .lineLimit(1)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 72)
+        .contentShape(Rectangle())
+    }
+
     private var soundTopBar: some View {
         HStack {
             soundHeader
@@ -88,7 +146,7 @@ struct SoundHomeView: View {
         }
         .padding(.horizontal)
         .padding(.top, 10)
-        .padding(.bottom, 18)
+        .padding(.bottom, 28)
     }
 
     private var soundSearchBar: some View {
@@ -116,6 +174,7 @@ struct SoundHomeView: View {
         .background(Color(.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .padding(.horizontal)
+        .padding(.top, 14)
         .padding(.bottom, 4)
     }
 
@@ -131,7 +190,7 @@ struct SoundHomeView: View {
                             .foregroundStyle(selectedCategory == category ? .white : .primary)
                             .padding(.horizontal, 14)
                             .frame(height: 34)
-                            .background(selectedCategory == category ? Color.indigo : Color(.secondarySystemBackground))
+                            .background(selectedCategory == category ? Color.blue : Color(.secondarySystemBackground))
                             .clipShape(Capsule())
                     }
                     .buttonStyle(.plain)
@@ -279,5 +338,63 @@ private enum SoundCategory: String, CaseIterable, Identifiable {
             let text = "\(scene.title) \(scene.subtitle) \(scene.category)"
             return keywords.contains { text.localizedCaseInsensitiveContains($0) }
         }.prefix(30))
+    }
+}
+
+private enum SoundFeature: String, CaseIterable, Identifiable {
+    case whiteNoise, relax, favorites, stories, nature, focus, mindfulness, meditation
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .whiteNoise: return "白噪音"
+        case .relax: return "舒眠放松"
+        case .favorites: return "我的收藏"
+        case .stories: return "睡前故事"
+        case .nature: return "自然之声"
+        case .focus: return "沉浸学习"
+        case .mindfulness: return "自在正念"
+        case .meditation: return "冥想专题"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .whiteNoise: return "waveform"
+        case .relax: return "bed.double.fill"
+        case .favorites: return "heart.fill"
+        case .stories: return "book.closed.fill"
+        case .nature: return "leaf.fill"
+        case .focus: return "headphones"
+        case .mindfulness: return "figure.mind.and.body"
+        case .meditation: return "sparkles"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .whiteNoise: return .blue
+        case .relax: return .blue
+        case .favorites: return .pink
+        case .stories: return .orange
+        case .nature: return .green
+        case .focus: return .cyan
+        case .mindfulness: return .teal
+        case .meditation: return .blue
+        }
+    }
+
+    var category: SoundCategory? {
+        switch self {
+        case .whiteNoise: return .whiteNoise
+        case .relax: return .sleep
+        case .favorites: return .favorites
+        case .stories: return nil
+        case .nature: return .nature
+        case .focus: return .whisper
+        case .mindfulness: return .mindfulness
+        case .meditation: return .meditation
+        }
     }
 }

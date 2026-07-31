@@ -2,6 +2,7 @@ import SwiftUI
 
 struct StartupGateView: View {
     @EnvironmentObject private var soundLibrary: SoundLibrary
+    @EnvironmentObject private var storyLibrary: StoryLibrary
     @EnvironmentObject private var settings: AppSettings
     @EnvironmentObject private var sdkManager: AppSDKManager
 
@@ -26,12 +27,16 @@ struct StartupGateView: View {
         }
         .task {
             await soundLibrary.load()
+            if settings.agreementAccepted {
+                await storyLibrary.load()
+            }
             startSplashFlowIfNeeded()
         }
         .onChange(of: settings.agreementAccepted) { accepted in
             guard accepted else { return }
             Task { @MainActor in
                 try? await Task.sleep(nanoseconds: 300_000_000)
+                await storyLibrary.load()
                 startSplashFlowIfNeeded()
             }
         }

@@ -73,7 +73,7 @@ struct SleepHomeView: View {
                         .frame(width: 38, height: 38)
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(.indigo)
+                .foregroundStyle(.blue)
             }
             .padding(.trailing)
         }
@@ -96,7 +96,7 @@ struct SleepHomeView: View {
                             .foregroundStyle(selectedPage == page ? .primary : .secondary)
 
                         Rectangle()
-                            .fill(selectedPage == page ? Color.indigo : Color.clear)
+                            .fill(selectedPage == page ? Color.blue : Color.clear)
                             .frame(width: underlineWidth(for: page))
                             .frame(height: 3)
                             .clipShape(Capsule())
@@ -205,7 +205,7 @@ struct SleepHomeView: View {
                 VStack(spacing: 8) {
                     Image(systemName: type.symbolName)
                         .font(.title3)
-                        .foregroundStyle(.indigo)
+                        .foregroundStyle(.blue)
                     Text("\(session?.events.filter { $0.type == type }.count ?? 0)")
                         .font(.title2.weight(.semibold))
                     Text(type.title)
@@ -245,7 +245,7 @@ struct SleepHomeView: View {
                         x: .value("日期", point.date, unit: .day),
                         y: .value("睡眠时长", point.durationHours)
                     )
-                    .foregroundStyle(.indigo.opacity(0.35))
+                    .foregroundStyle(.blue.opacity(0.35))
 
                     LineMark(
                         x: .value("日期", point.date, unit: .day),
@@ -304,7 +304,7 @@ struct SleepHomeView: View {
                     } label: {
                         HStack(spacing: 12) {
                             Image(systemName: "doc.text.magnifyingglass")
-                                .foregroundStyle(.indigo)
+                                .foregroundStyle(.blue)
                                 .frame(width: 28)
 
                             VStack(alignment: .leading, spacing: 4) {
@@ -319,7 +319,7 @@ struct SleepHomeView: View {
 
                             if monitor.latestSession?.id == session.id {
                                 Image(systemName: "checkmark.circle.fill")
-                                    .foregroundStyle(.indigo)
+                                    .foregroundStyle(.blue)
                             }
                         }
                         .contentShape(Rectangle())
@@ -378,7 +378,7 @@ private struct HolidayCover: View {
                 .resizable()
         } else {
             LinearGradient(
-                colors: [.indigo.opacity(0.6), .cyan.opacity(0.45)],
+                colors: [.blue.opacity(0.6), .cyan.opacity(0.45)],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )

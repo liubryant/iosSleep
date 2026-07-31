@@ -80,7 +80,7 @@ struct SoundCardView: View {
                         .font(.caption)
                         .foregroundStyle(.white)
                         .padding(8)
-                        .background(.indigo)
+                        .background(.blue)
                         .clipShape(Circle())
                         .padding(14)
                 }
@@ -102,7 +102,7 @@ struct CoverImage: View {
                 .scaledToFill()
         } else {
             RoundedRectangle(cornerRadius: 8)
-                .fill(.linearGradient(colors: [.indigo.opacity(0.4), .cyan.opacity(0.4)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                .fill(.linearGradient(colors: [.blue.opacity(0.45), .cyan.opacity(0.35)], startPoint: .topLeading, endPoint: .bottomTrailing))
                 .overlay {
                     Image(systemName: "waveform")
                         .font(.largeTitle)

@@ -172,7 +172,7 @@ private struct CheckboxLikeToggleStyle: ToggleStyle {
         } label: {
             HStack(alignment: .center, spacing: 8) {
                 Image(systemName: configuration.isOn ? "checkmark.square.fill" : "square")
-                    .foregroundStyle(configuration.isOn ? .indigo : .secondary)
+                    .foregroundStyle(configuration.isOn ? .blue : .secondary)
                 configuration.label
             }
             .frame(maxWidth: .infinity, alignment: .leading)

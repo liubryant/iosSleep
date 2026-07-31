@@ -128,7 +128,7 @@ struct LoginView: View {
                     .font(.body.weight(.medium))
             }
             .buttonStyle(.plain)
-            .foregroundStyle(.indigo)
+            .foregroundStyle(.blue)
 
             Text("继续即表示你同意用户协议和隐私政策。")
                 .font(.caption)
