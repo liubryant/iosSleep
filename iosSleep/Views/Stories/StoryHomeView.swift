@@ -22,19 +22,16 @@ struct StoryHomeView: View {
         }
     }
 
-    private var bedtimeStories: [StoryItem] { filteredStories.filter { !$0.isArticle } }
-    private var articles: [StoryItem] { filteredStories.filter(\.isArticle) }
-
     var body: some View {
         NavigationStack(path: $navigationPath) {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 18) {
                     storySearchBar
 
-                    storySection(title: "睡前故事", stories: bedtimeStories)
-
                     if library.articlesEnabled {
-                        storySection(title: "作家散文", stories: articles)
+                        storySection(title: "故事推荐", stories: filteredStories)
+                    } else {
+                        storySection(title: "睡前故事", stories: filteredStories)
                     }
                 }
                 .padding(.horizontal)
@@ -73,7 +70,7 @@ struct StoryHomeView: View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(.secondary)
-            TextField("搜索故事、散文或作者", text: $searchText)
+            TextField("搜索故事、文章", text: $searchText)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
             if !searchText.isEmpty {
@@ -111,6 +108,7 @@ struct StoryHomeView: View {
                         NavigationLink(value: story) {
                             StoryCardView(story: story)
                         }
+                        .frame(maxWidth: .infinity)
                         .buttonStyle(.plain)
                     }
                 }

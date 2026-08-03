@@ -8,6 +8,9 @@ target 'iosSleep' do
 
   # 友盟统计 SDK
   pod 'UMCommon'
+
+  # 本地睡眠声音识别（YAMNet）
+  pod 'TensorFlowLiteC', '~> 2.17.0'
 end
 
 post_install do |installer|

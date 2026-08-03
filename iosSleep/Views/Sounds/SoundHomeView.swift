@@ -5,7 +5,6 @@ struct SoundHomeView: View {
     @EnvironmentObject private var player: AudioPlayerService
     @EnvironmentObject private var storyPlayer: StoryPlayerService
     @State private var selectedCategory: SoundCategory = .recommended
-    @State private var didAutoPlayFirstScene = false
 
     private let columns = [
         GridItem(.flexible(), spacing: 16),
@@ -65,15 +64,9 @@ struct SoundHomeView: View {
                     EmptyStateView(title: "没有匹配的声音", systemImage: "magnifyingglass", message: selectedCategory.emptyMessage)
                 }
             }
-            .task(id: library.scenes.count) {
-                guard !didAutoPlayFirstScene,
-                      player.currentScene == nil,
-                      storyPlayer.currentStory == nil,
-                      let firstScene = displayedScenes.first else {
-                    return
-                }
-                didAutoPlayFirstScene = true
-                player.toggle(scene: firstScene)
+            .onReceive(NotificationCenter.default.publisher(for: QuickActionService.didRequestNature)) { _ in
+                selectedCategory = .nature
+                library.searchText = ""
             }
         }
     }

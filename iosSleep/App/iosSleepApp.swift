@@ -2,6 +2,7 @@ import SwiftUI
 
 @main
 struct iosSleepApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var soundLibrary = SoundLibrary()
     @StateObject private var player = AudioPlayerService()
     @StateObject private var storyLibrary = StoryLibrary()

@@ -26,7 +26,7 @@ struct MainTabView: View {
                 StoryHomeView()
                     .tag(2)
                     .tabItem {
-                        Label("故事", systemImage: "book.closed.fill")
+                        Label("故事", image: "StoryTabIcon")
                     }
 
                 ProfileView()
@@ -67,6 +67,15 @@ struct MainTabView: View {
         .onReceive(NotificationCenter.default.publisher(for: .storyDetailVisibilityChanged)) { notification in
             isStoryDetailVisible = notification.object as? Bool ?? false
         }
+        .onReceive(NotificationCenter.default.publisher(for: QuickActionService.didRequestAction)) { notification in
+            guard let action = notification.object as? AppQuickAction else { return }
+            openQuickAction(action)
+        }
+        .onAppear {
+            if let action = QuickActionService.shared.consumePendingAction() {
+                openQuickAction(action)
+            }
+        }
         .task {
             _ = StoryNotificationService.shared
             if settings.storyReminderEnabled {
@@ -74,6 +83,18 @@ struct MainTabView: View {
                     stories: storyLibrary.stories
                 )
             }
+        }
+    }
+
+    private func openQuickAction(_ action: AppQuickAction) {
+        switch action {
+        case .nature:
+            selectedTab = 0
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: QuickActionService.didRequestNature, object: nil)
+            }
+        case .stories:
+            selectedTab = 2
         }
     }
 }

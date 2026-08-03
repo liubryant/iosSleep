@@ -15,10 +15,10 @@ final class StoryLibrary: ObservableObject {
         let enabled = await RemoteContentConfig.fetchStorySwitch() == 1
         articlesEnabled = enabled
         let articles = enabled ? (decodeResource("contemporary_articles") ?? []) : []
-        stories = (bundledStories + articles).sorted { lhs, rhs in
-            if lhs.isArticle != rhs.isArticle { return !lhs.isArticle }
-            if lhs.isBundled != rhs.isBundled { return lhs.isBundled }
-            return lhs.index < rhs.index
+        if enabled {
+            stories = (bundledStories + articles).shuffled()
+        } else {
+            stories = bundledStories.sorted { $0.index < $1.index }
         }
     }
 
@@ -83,6 +83,7 @@ final class StoryNotificationService: NSObject, ObservableObject, UNUserNotifica
         content.body = "时光睡眠为你精选，点击立即播放《\(story.title)》"
         content.sound = .default
         content.userInfo = ["storyID": story.id, "storyIndex": story.index]
+        attachCover(of: story, to: content)
         let request = UNNotificationRequest(
             identifier: "story_test_after_launch",
             content: content,
@@ -105,6 +106,7 @@ final class StoryNotificationService: NSObject, ObservableObject, UNUserNotifica
             content.body = "时光睡眠为你精选，点击立即播放《\(story.title)》"
             content.sound = .default
             content.userInfo = ["storyID": story.id, "storyIndex": story.index]
+            attachCover(of: story, to: content)
 
             let trigger = UNCalendarNotificationTrigger(
                 dateMatching: DateComponents(hour: hour, minute: 0),
@@ -117,6 +119,17 @@ final class StoryNotificationService: NSObject, ObservableObject, UNUserNotifica
             )
             try? await center.add(request)
         }
+    }
+
+    private func attachCover(of story: StoryItem, to content: UNMutableNotificationContent) {
+        guard !story.coverFile.isEmpty,
+              let coverURL = story.bundledResourceURL(fileName: story.coverFile),
+              let attachment = try? UNNotificationAttachment(
+                identifier: "story-cover-\(story.id)",
+                url: coverURL,
+                options: [UNNotificationAttachmentOptionsThumbnailHiddenKey: false]
+              ) else { return }
+        content.attachments = [attachment]
     }
 
     nonisolated func userNotificationCenter(

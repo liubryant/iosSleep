@@ -8,6 +8,8 @@ struct StoryPlayerView: View {
     @State private var isSeeking = false
     @State private var seekValue: Double = 0
     @State private var storyText = ""
+    @State private var sleepTimerTask: Task<Void, Never>?
+    @State private var sleepTimerMinutes: Int?
 
     private var isCurrent: Bool { player.currentStory?.id == story.id }
     private var isPlayingThis: Bool { isCurrent && player.isPlaying }
@@ -20,12 +22,12 @@ struct StoryPlayerView: View {
         GeometryReader { proxy in
             ZStack {
                 StoryCoverImage(story: story)
-                    .frame(width: proxy.size.width, height: proxy.size.height)
                     .scaledToFill()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .scaleEffect(1.12)
                     .blur(radius: 28)
                     .opacity(0.9)
-                    .clipped()
+                    .ignoresSafeArea()
 
                 LinearGradient(
                     colors: [
@@ -36,6 +38,7 @@ struct StoryPlayerView: View {
                     startPoint: .top,
                     endPoint: .bottom
                 )
+                .ignoresSafeArea()
 
                 let coverSize = responsiveCoverSize(for: proxy.size)
 
@@ -49,12 +52,6 @@ struct StoryPlayerView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.top, proxy.size.height < 600 ? 2 : 8)
 
-                    if let author = story.author, !author.isEmpty {
-                        Text(author)
-                            .font(.subheadline.weight(.medium))
-                            .foregroundStyle(.white.opacity(0.82))
-                    }
-
                     StoryPlaybackTextView(
                         text: storyText.isEmpty ? "暂无故事正文" : storyText,
                         currentTime: isCurrent ? player.currentTime : 0,
@@ -63,8 +60,12 @@ struct StoryPlayerView: View {
                     .frame(maxWidth: .infinity)
                     .frame(maxHeight: .infinity)
                     .layoutPriority(1)
-                    .background(Color.white.opacity(0.88))
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .background(Color.black.opacity(0.24))
+                    .clipShape(RoundedRectangle(cornerRadius: 22))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 22)
+                            .stroke(.white.opacity(0.16), lineWidth: 1)
+                    }
                     .padding(.horizontal, proxy.size.width < 350 ? 12 : 20)
 
                     playerControls
@@ -74,11 +75,17 @@ struct StoryPlayerView: View {
                 .frame(width: proxy.size.width, height: proxy.size.height)
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
-            .clipped()
         }
-        .navigationTitle("")
+        .navigationTitle(story.title)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(.hidden, for: .navigationBar)
         .toolbarColorScheme(.dark, for: .navigationBar)
+        .tint(.white)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                sleepTimerMenu
+            }
+        }
         .task(id: story.id) {
             loadStoryText()
             if audioPlayer.currentScene != nil {
@@ -99,6 +106,28 @@ struct StoryPlayerView: View {
         }
         .onDisappear {
             NotificationCenter.default.post(name: .storyDetailVisibilityChanged, object: false)
+        }
+    }
+
+    private var sleepTimerMenu: some View {
+        Menu {
+            ForEach([15, 30, 60], id: \.self) { minutes in
+                Button("\(minutes) 分钟") {
+                    startSleepTimer(minutes: minutes)
+                }
+            }
+            if sleepTimerMinutes != nil {
+                Divider()
+                Button("关闭定时", role: .destructive) {
+                    cancelSleepTimer()
+                }
+            }
+        } label: {
+            Image(systemName: sleepTimerMinutes == nil ? "timer" : "timer.circle.fill")
+                .font(.system(size: 18, weight: .semibold))
+                .frame(width: 42, height: 36)
+                .background(.white.opacity(0.14))
+                .clipShape(Capsule())
         }
     }
 
@@ -128,42 +157,55 @@ struct StoryPlayerView: View {
                 HStack {
                     Text(timeText(isCurrent ? (isSeeking ? seekValue : player.currentTime) : 0))
                         .font(.caption.monospacedDigit())
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.white.opacity(0.72))
                     Spacer()
                     Text(timeText(isCurrent ? player.duration : 0))
                         .font(.caption.monospacedDigit())
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.white.opacity(0.72))
                 }
 
-                Button {
-                    if shouldUseLocalAudio {
-                        player.toggle(story: story)
-                    } else {
-                        player.toggleText(story: story, text: storyText)
+                HStack {
+                    Button {
+                        player.seek(to: max(player.currentTime - 15, 0))
+                    } label: {
+                        Image(systemName: "gobackward.15")
+                            .font(.system(size: 25, weight: .semibold))
                     }
-                } label: {
-                    ZStack {
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        Color.blue.opacity(0.16),
-                                        Color.cyan.opacity(0.12),
-                                        Color.cyan.opacity(0.14)
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .frame(width: 64, height: 64)
+                    .buttonStyle(.plain)
 
-                        Image(systemName: isPlayingThis ? "pause.fill" : "play.fill")
-                            .font(.system(size: 26, weight: .bold))
-                            .foregroundStyle(.blue)
-                            .offset(x: isPlayingThis ? 0 : 2)
+                    Spacer()
+
+                    Button {
+                        if shouldUseLocalAudio {
+                            player.toggle(story: story)
+                        } else {
+                            player.toggleText(story: story, text: storyText)
+                        }
+                    } label: {
+                        ZStack {
+                            Circle()
+                                .fill(.white)
+                                .frame(width: 72, height: 72)
+
+                            Image(systemName: isPlayingThis ? "pause.fill" : "play.fill")
+                                .font(.system(size: 27, weight: .bold))
+                                .foregroundStyle(.black.opacity(0.88))
+                                .offset(x: isPlayingThis ? 0 : 2)
+                        }
                     }
+                    .buttonStyle(.plain)
+
+                    Spacer()
+
+                    Button {
+                        player.seek(to: min(player.currentTime + 15, player.duration))
+                    } label: {
+                        Image(systemName: "goforward.15")
+                            .font(.system(size: 25, weight: .semibold))
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
+                .foregroundStyle(.white)
             }
 
             if shouldUseLocalAudio, let error = player.downloadErrors[story.id] {
@@ -173,9 +215,36 @@ struct StoryPlayerView: View {
             } else if !shouldUseLocalAudio {
                 Text("正在使用系统语音朗读本地故事文本")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.white.opacity(0.58))
             }
         }
+        .padding(18)
+        .background(Color.black.opacity(0.26))
+        .clipShape(RoundedRectangle(cornerRadius: 24))
+        .overlay {
+            RoundedRectangle(cornerRadius: 24)
+                .stroke(.white.opacity(0.16), lineWidth: 1)
+        }
+    }
+
+    private func startSleepTimer(minutes: Int) {
+        sleepTimerTask?.cancel()
+        sleepTimerMinutes = minutes
+        sleepTimerTask = Task {
+            try? await Task.sleep(nanoseconds: UInt64(minutes) * 60 * 1_000_000_000)
+            guard !Task.isCancelled else { return }
+            await MainActor.run {
+                player.stop()
+                sleepTimerMinutes = nil
+                sleepTimerTask = nil
+            }
+        }
+    }
+
+    private func cancelSleepTimer() {
+        sleepTimerTask?.cancel()
+        sleepTimerTask = nil
+        sleepTimerMinutes = nil
     }
 
     private func timeText(_ time: TimeInterval) -> String {
@@ -230,13 +299,18 @@ private struct StoryPlaybackTextView: View {
                         Text(chunks[index])
                             .font(.body)
                             .lineSpacing(7)
-                            .foregroundStyle(.black.opacity(0.86))
+                            .foregroundStyle(.white.opacity(0.94))
                             .padding(.horizontal, isHighlighted(index) ? 8 : 0)
                             .padding(.vertical, isHighlighted(index) ? 5 : 0)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .background(
                                 RoundedRectangle(cornerRadius: 7)
-                                    .fill(isHighlighted(index) ? Color.blue.opacity(index == activeIndex ? 0.18 : 0.10) : Color.clear)
+                                    .fill(
+                                        isHighlighted(index)
+                                            ? Color(red: 0.68, green: 0.80, blue: 1.0)
+                                                .opacity(index == activeIndex ? 0.22 : 0.10)
+                                            : Color.clear
+                                    )
                             )
                             .id(index)
                     }
@@ -366,18 +440,17 @@ private struct StorySeekBar: View {
 
             ZStack(alignment: .leading) {
                 Capsule()
-                    .fill(Color(.systemGray5))
+                    .fill(.white.opacity(0.28))
                     .frame(height: 4)
 
                 Capsule()
-                    .fill(.blue)
+                    .fill(.white.opacity(0.9))
                     .frame(width: width * progress, height: 4)
 
                 Circle()
                     .fill(.white)
                     .frame(width: 22, height: 22)
                     .shadow(color: .black.opacity(0.2), radius: 2, y: 1)
-                    .overlay(Circle().stroke(.blue, lineWidth: 2))
                     .offset(x: min(max(width * progress - 11, 0), width - 22))
             }
             .frame(maxHeight: .infinity)
