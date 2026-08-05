@@ -288,7 +288,7 @@ final class StoryPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegat
 
         let startIndex = speechText.index(speechText.startIndex, offsetBy: startCharacter)
         let utterance = AVSpeechUtterance(string: String(speechText[startIndex...]))
-        utterance.voice = AVSpeechSynthesisVoice(language: "zh-CN")
+        utterance.voice = preferredStoryVoice()
         utterance.rate = AVSpeechUtteranceDefaultSpeechRate * 0.9
         utterance.pitchMultiplier = 0.98
         utterance.volume = 1
@@ -297,6 +297,35 @@ final class StoryPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegat
         isPlaying = true
         startProgressTimer()
         updateNowPlayingInfo()
+    }
+
+    /// 故事朗读默认使用系统普通话语音“黎潋”。不同系统语言下名称可能显示为
+    /// Li-Lian/Lilian，因此同时匹配本地化名称和稳定标识符；设备未安装时
+    /// 降级到可用的最高质量普通话语音，保证朗读功能正常。
+    private func preferredStoryVoice() -> AVSpeechSynthesisVoice? {
+        let preferredNames = ["黎潋", "Li-Lian", "Li Lian", "Lilian"]
+            .map(normalizedVoiceName)
+        let voices = AVSpeechSynthesisVoice.speechVoices()
+
+        if let voice = voices.first(where: { voice in
+            let name = normalizedVoiceName(voice.name)
+            let identifier = normalizedVoiceName(voice.identifier)
+            return preferredNames.contains(name) ||
+                preferredNames.contains(where: { identifier.contains($0) })
+        }) {
+            return voice
+        }
+
+        return voices
+            .filter { $0.language.caseInsensitiveCompare("zh-CN") == .orderedSame }
+            .max { $0.quality.rawValue < $1.quality.rawValue }
+            ?? AVSpeechSynthesisVoice(language: "zh-CN")
+    }
+
+    private func normalizedVoiceName(_ value: String) -> String {
+        value.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+            .filter { $0.isLetter || $0.isNumber }
+            .lowercased()
     }
 
     private func estimatedSpeechDuration(for text: String) -> TimeInterval {

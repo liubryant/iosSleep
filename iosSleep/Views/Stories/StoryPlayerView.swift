@@ -78,6 +78,7 @@ struct StoryPlayerView: View {
         }
         .navigationTitle(story.title)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
         .toolbarBackground(.hidden, for: .navigationBar)
         .toolbarColorScheme(.dark, for: .navigationBar)
         .tint(.white)

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MainTabView: View {
     @EnvironmentObject private var player: AudioPlayerService
+    @EnvironmentObject private var soundLibrary: SoundLibrary
     @EnvironmentObject private var storyPlayer: StoryPlayerService
     @EnvironmentObject private var storyLibrary: StoryLibrary
     @EnvironmentObject private var settings: AppSettings
@@ -69,6 +70,7 @@ struct MainTabView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: QuickActionService.didRequestAction)) { notification in
             guard let action = notification.object as? AppQuickAction else { return }
+            _ = QuickActionService.shared.consumePendingAction()
             openQuickAction(action)
         }
         .onAppear {
@@ -93,9 +95,36 @@ struct MainTabView: View {
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: QuickActionService.didRequestNature, object: nil)
             }
+            playRandomDownloadedNatureSound()
         case .stories:
             selectedTab = 2
+            playRandomStory()
         }
+    }
+
+    private func playRandomDownloadedNatureSound() {
+        let natureKeywords = ["雨", "风", "海", "山", "林", "森林", "竹林", "溪", "泉", "河", "湖", "岛", "星", "月", "雪", "虫", "鸟"]
+        let candidates = soundLibrary.scenes.filter { scene in
+            guard player.isBundledOrCached(scene) else { return false }
+            let searchableText = "\(scene.title) \(scene.subtitle) \(scene.category)"
+            return natureKeywords.contains {
+                searchableText.localizedCaseInsensitiveContains($0)
+            }
+        }
+        guard let scene = randomItem(excluding: player.currentScene?.id, from: candidates) else { return }
+        Task { await player.play(scene: scene) }
+    }
+
+    private func playRandomStory() {
+        let localStories = storyLibrary.stories.filter { storyPlayer.isBundledOrCached($0) }
+        let candidates = localStories.isEmpty ? storyLibrary.stories : localStories
+        guard let story = randomItem(excluding: storyPlayer.currentStory?.id, from: candidates) else { return }
+        Task { await storyPlayer.play(story: story) }
+    }
+
+    private func randomItem<T: Identifiable>(excluding currentID: T.ID?, from items: [T]) -> T? where T.ID: Equatable {
+        let alternatives = items.filter { $0.id != currentID }
+        return (alternatives.isEmpty ? items : alternatives).randomElement()
     }
 }
 

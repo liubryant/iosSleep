@@ -78,8 +78,8 @@ struct SoundHomeView: View {
         ) {
             ForEach(SoundFeature.allCases) { feature in
                 if feature == .stories {
-                    NavigationLink {
-                        StoryHomeView()
+                    Button {
+                        QuickActionService.shared.request(.stories)
                     } label: {
                         soundFeatureLabel(feature)
                     }

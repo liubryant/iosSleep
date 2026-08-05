@@ -53,17 +53,24 @@ struct StoryHomeView: View {
             if library.stories.isEmpty {
                 await library.load()
             }
-            openPendingNotificationStory()
+            await openPendingNotificationStory()
         }
         .onReceive(NotificationCenter.default.publisher(for: StoryNotificationService.didOpenStory)) { _ in
-            openPendingNotificationStory()
+            Task { @MainActor in
+                await openPendingNotificationStory()
+            }
         }
     }
 
-    private func openPendingNotificationStory() {
-        guard let storyID = StoryNotificationService.shared.consumePendingStoryID(),
-              let story = library.stories.first(where: { $0.id == storyID }) else { return }
+    @MainActor
+    private func openPendingNotificationStory() async {
+        guard let storyID = StoryNotificationService.shared.peekPendingStoryID() else { return }
+        if library.stories.isEmpty {
+            await library.load()
+        }
+        guard let story = library.stories.first(where: { $0.id == storyID }) else { return }
         navigationPath = [story]
+        StoryNotificationService.shared.clearPendingStoryID(storyID)
     }
 
     private var storySearchBar: some View {

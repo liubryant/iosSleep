@@ -188,6 +188,10 @@ final class AudioPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegat
         FileManager.default.fileExists(atPath: cachedAudioURL(for: scene).path)
     }
 
+    func isBundledOrCached(_ scene: SoundScene) -> Bool {
+        bundledAudioURL(for: scene) != nil || cachedAudioExists(for: scene)
+    }
+
     private func playableURL(for scene: SoundScene) async throws -> URL {
         if let bundleURL = bundledAudioURL(for: scene) {
             return bundleURL

@@ -46,6 +46,9 @@ final class StoryNotificationService: NSObject, ObservableObject, UNUserNotifica
     private let center = UNUserNotificationCenter.current()
     private let notificationHours = [11, 16, 20]
     private let identifierPrefix = "daily_story_recommendation_"
+    private let testNotificationIdentifier = "story_test_after_launch"
+    private var hasScheduledTestNotificationThisLaunch = false
+    private var isSchedulingTestNotification = false
     private(set) var pendingStoryID: String?
 
     private override init() {
@@ -67,17 +70,22 @@ final class StoryNotificationService: NSObject, ObservableObject, UNUserNotifica
     }
 
     func disable() {
-        let identifiers = notificationHours.indices.map { "\(identifierPrefix)\($0)" } + ["story_test_after_launch"]
+        let identifiers = notificationHours.indices.map { "\(identifierPrefix)\($0)" } + [testNotificationIdentifier]
         center.removePendingNotificationRequests(withIdentifiers: identifiers)
     }
 
     func scheduleTestNotification(stories: [StoryItem]) async {
+        guard !hasScheduledTestNotificationThisLaunch,
+              !isSchedulingTestNotification else { return }
         guard let story = stories.randomElement() else { return }
+        isSchedulingTestNotification = true
+        defer { isSchedulingTestNotification = false }
+
         let settings = await center.notificationSettings()
         guard settings.authorizationStatus == .authorized ||
                 settings.authorizationStatus == .provisional else { return }
 
-        center.removePendingNotificationRequests(withIdentifiers: ["story_test_after_launch"])
+        center.removePendingNotificationRequests(withIdentifiers: [testNotificationIdentifier])
         let content = UNMutableNotificationContent()
         content.title = "今日故事 · \(story.title)"
         content.body = "时光睡眠为你精选，点击立即播放《\(story.title)》"
@@ -85,16 +93,25 @@ final class StoryNotificationService: NSObject, ObservableObject, UNUserNotifica
         content.userInfo = ["storyID": story.id, "storyIndex": story.index]
         attachCover(of: story, to: content)
         let request = UNNotificationRequest(
-            identifier: "story_test_after_launch",
+            identifier: testNotificationIdentifier,
             content: content,
             trigger: UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
         )
-        try? await center.add(request)
+        do {
+            try await center.add(request)
+            hasScheduledTestNotificationThisLaunch = true
+        } catch {
+            // 调度失败时不写入本次启动标记，保留下次重试机会。
+        }
     }
 
-    func consumePendingStoryID() -> String? {
-        defer { pendingStoryID = nil }
+    func peekPendingStoryID() -> String? {
         return pendingStoryID
+    }
+
+    func clearPendingStoryID(_ storyID: String) {
+        guard pendingStoryID == storyID else { return }
+        pendingStoryID = nil
     }
 
     private func scheduleDailyStories(stories: [StoryItem]) async {

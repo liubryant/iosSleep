@@ -60,23 +60,7 @@ struct SleepHomeView: View {
     }
 
     private var sleepTopBar: some View {
-        ZStack {
-            sleepPageTabs
-
-            HStack {
-                Spacer()
-                Button {
-                    Task { await healthKit.requestAuthorization() }
-                } label: {
-                    Image(systemName: healthKit.isAuthorized ? "heart.fill" : "heart")
-                        .font(.title3)
-                        .frame(width: 38, height: 38)
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(.blue)
-            }
-            .padding(.trailing)
-        }
+        sleepPageTabs
         .padding(.top, 8)
         .padding(.bottom, 12)
     }
