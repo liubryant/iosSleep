@@ -32,17 +32,19 @@ struct StoryCardView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(10)
 
-                if story.isArticle {
-                    Text("散文")
-                        .font(.caption2.weight(.bold))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 5)
-                        .background(.blue.opacity(0.92))
-                        .clipShape(Capsule())
-                        .padding(8)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
-                }
+                Text(story.isArticle ? "散文" : "故事")
+                    .font(.caption2.weight(.bold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 5)
+                    .background(.ultraThinMaterial, in: Capsule())
+                    .overlay {
+                        Capsule()
+                            .stroke(.white.opacity(0.28), lineWidth: 0.6)
+                    }
+                    .shadow(color: .black.opacity(0.12), radius: 4, y: 2)
+                    .padding(8)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
         }

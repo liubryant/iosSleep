@@ -1,9 +1,11 @@
 import SwiftUI
 
 struct StoryHomeView: View {
+    @Binding var requestedStoryID: String?
     @EnvironmentObject private var library: StoryLibrary
     @EnvironmentObject private var player: StoryPlayerService
     @EnvironmentObject private var audioPlayer: AudioPlayerService
+    @ObservedObject private var notificationService = StoryNotificationService.shared
     @State private var searchText = ""
     @State private var navigationPath: [StoryItem] = []
 
@@ -46,14 +48,29 @@ struct StoryHomeView: View {
             }
             .navigationTitle("故事")
             .navigationDestination(for: StoryItem.self) { story in
-                StoryPlayerView(story: story)
+                StoryPlayerView(story: story) { nextStory in
+                    navigationPath = [nextStory]
+                }
             }
         }
-        .task {
+        .task(id: notificationService.pendingStoryID) {
             if library.stories.isEmpty {
                 await library.load()
             }
             await openPendingNotificationStory()
+        }
+        .task(id: requestedStoryID) {
+            await openRequestedStory()
+        }
+        .onChange(of: requestedStoryID) { _ in
+            Task { @MainActor in
+                await openRequestedStory()
+            }
+        }
+        .onAppear {
+            Task { @MainActor in
+                await openRequestedStory()
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: StoryNotificationService.didOpenStory)) { _ in
             Task { @MainActor in
@@ -70,6 +87,18 @@ struct StoryHomeView: View {
         }
         guard let story = library.stories.first(where: { $0.id == storyID }) else { return }
         navigationPath = [story]
+        StoryNotificationService.shared.clearPendingStoryID(storyID)
+    }
+
+    @MainActor
+    private func openRequestedStory() async {
+        guard let storyID = requestedStoryID else { return }
+        if library.stories.isEmpty {
+            await library.load()
+        }
+        guard let story = library.stories.first(where: { $0.id == storyID }) else { return }
+        navigationPath = [story]
+        requestedStoryID = nil
         StoryNotificationService.shared.clearPendingStoryID(storyID)
     }
 

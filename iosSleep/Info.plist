@@ -10,6 +10,22 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>CFBundleIcons</key>
+	<dict>
+		<key>CFBundlePrimaryIcon</key>
+		<dict>
+			<key>CFBundleIconFiles</key>
+			<array>
+				<string>AppIconCurrent60x60</string>
+			</array>
+			<key>CFBundleIconName</key>
+			<string>AppIconCurrent</string>
+		</dict>
+	</dict>
+	<key>CFBundleIconFiles</key>
+	<array>
+		<string>AppIconCurrent60x60</string>
+	</array>
 	<key>CFBundleName</key>
 	<string>时光睡眠</string>
 	<key>CFBundleDisplayName</key>

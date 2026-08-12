@@ -6,8 +6,10 @@ struct MainTabView: View {
     @EnvironmentObject private var storyPlayer: StoryPlayerService
     @EnvironmentObject private var storyLibrary: StoryLibrary
     @EnvironmentObject private var settings: AppSettings
+    @ObservedObject private var storyNotificationService = StoryNotificationService.shared
     @State private var selectedTab = 0
     @State private var isStoryDetailVisible = false
+    @State private var requestedStoryID: String?
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -24,7 +26,7 @@ struct MainTabView: View {
                         Label("睡眠", systemImage: "moon.zzz.fill")
                     }
 
-                StoryHomeView()
+                StoryHomeView(requestedStoryID: $requestedStoryID)
                     .tag(2)
                     .tabItem {
                         Label("故事", image: "StoryTabIcon")
@@ -62,11 +64,20 @@ struct MainTabView: View {
             guard id != nil, player.currentScene != nil else { return }
             player.stop()
         }
-        .onReceive(NotificationCenter.default.publisher(for: StoryNotificationService.didOpenStory)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: StoryNotificationService.didOpenStory)) { notification in
+            if let storyID = notification.object as? String {
+                requestedStoryID = storyID
+            }
             selectedTab = 2
         }
-        .onReceive(NotificationCenter.default.publisher(for: .storyDetailVisibilityChanged)) { notification in
-            isStoryDetailVisible = notification.object as? Bool ?? false
+        .onChange(of: storyNotificationService.pendingStoryID) { storyID in
+            if let storyID {
+                requestedStoryID = storyID
+                selectedTab = 2
+            }
+        }
+        .onPreferenceChange(StoryDetailVisibilityPreferenceKey.self) { visible in
+            isStoryDetailVisible = visible
         }
         .onReceive(NotificationCenter.default.publisher(for: QuickActionService.didRequestAction)) { notification in
             guard let action = notification.object as? AppQuickAction else { return }
@@ -74,14 +85,22 @@ struct MainTabView: View {
             openQuickAction(action)
         }
         .onAppear {
+            if storyNotificationService.pendingStoryID != nil {
+                requestedStoryID = storyNotificationService.pendingStoryID
+                selectedTab = 2
+            }
             if let action = QuickActionService.shared.consumePendingAction() {
                 openQuickAction(action)
             }
         }
         .task {
             _ = StoryNotificationService.shared
+            if storyLibrary.stories.isEmpty {
+                await storyLibrary.load()
+            }
+            await StoryNotificationService.shared.requestAuthorizationIfNeeded()
             if settings.storyReminderEnabled {
-                await StoryNotificationService.shared.scheduleTestNotification(
+                settings.storyReminderEnabled = await StoryNotificationService.shared.enable(
                     stories: storyLibrary.stories
                 )
             }
@@ -97,34 +116,76 @@ struct MainTabView: View {
             }
             playRandomDownloadedNatureSound()
         case .stories:
-            selectedTab = 2
-            playRandomStory()
+            openRandomStory()
         }
     }
 
     private func playRandomDownloadedNatureSound() {
-        let natureKeywords = ["雨", "风", "海", "山", "林", "森林", "竹林", "溪", "泉", "河", "湖", "岛", "星", "月", "雪", "虫", "鸟"]
-        let candidates = soundLibrary.scenes.filter { scene in
-            guard player.isBundledOrCached(scene) else { return false }
-            let searchableText = "\(scene.title) \(scene.subtitle) \(scene.category)"
-            return natureKeywords.contains {
-                searchableText.localizedCaseInsensitiveContains($0)
+        Task { @MainActor in
+            if soundLibrary.scenes.isEmpty {
+                await soundLibrary.load()
             }
+
+            let natureKeywords = ["雨", "风", "海", "山", "林", "森林", "竹林", "溪", "泉", "河", "湖", "岛", "星", "月", "雪", "虫", "鸟"]
+            let natureScenes = soundLibrary.scenes.filter { scene in
+                let searchableText = "\(scene.title) \(scene.subtitle) \(scene.category)"
+                return natureKeywords.contains {
+                    searchableText.localizedCaseInsensitiveContains($0)
+                }
+            }
+            let localNatureScenes = natureScenes.filter { player.isBundledOrCached($0) }
+            let localScenes = soundLibrary.scenes.filter { player.isBundledOrCached($0) }
+            let candidates: [SoundScene]
+            if !localNatureScenes.isEmpty {
+                candidates = localNatureScenes
+            } else if !natureScenes.isEmpty {
+                candidates = natureScenes
+            } else if !localScenes.isEmpty {
+                candidates = localScenes
+            } else {
+                candidates = soundLibrary.scenes
+            }
+
+            guard let scene = randomItem(excluding: player.currentScene?.id, from: candidates) else { return }
+            await player.play(scene: scene)
         }
-        guard let scene = randomItem(excluding: player.currentScene?.id, from: candidates) else { return }
-        Task { await player.play(scene: scene) }
     }
 
-    private func playRandomStory() {
-        let localStories = storyLibrary.stories.filter { storyPlayer.isBundledOrCached($0) }
-        let candidates = localStories.isEmpty ? storyLibrary.stories : localStories
-        guard let story = randomItem(excluding: storyPlayer.currentStory?.id, from: candidates) else { return }
-        Task { await storyPlayer.play(story: story) }
+    private func openRandomStory() {
+        Task { @MainActor in
+            if storyLibrary.stories.isEmpty {
+                await storyLibrary.load()
+            }
+            // 远程散文开关开启时，StoryLibrary 已把默认故事与散文合并。
+            // 快捷菜单直接从完整列表随机，不能优先限制为有本地音频的默认故事，
+            // 否则 553 篇散文永远没有机会被选中。
+            guard let story = randomItem(
+                excluding: storyPlayer.currentStory?.id,
+                from: storyLibrary.stories
+            ) else { return }
+            // 与通知点击共用同一条持久路由：先保存明确的故事 ID，
+            // StoryHomeView 加载完成后再消费，不依赖瞬时事件的到达时机。
+            StoryNotificationService.shared.requestOpenStory(story.id)
+            selectedTab = 2
+            // TabView 切换完成后再下发详情目标，确保 StoryHomeView 已挂载并能接收导航。
+            await Task.yield()
+            requestedStoryID = story.id
+        }
     }
 
     private func randomItem<T: Identifiable>(excluding currentID: T.ID?, from items: [T]) -> T? where T.ID: Equatable {
         let alternatives = items.filter { $0.id != currentID }
         return (alternatives.isEmpty ? items : alternatives).randomElement()
+    }
+}
+
+/// 由当前 SwiftUI 视图层级直接上报故事详情页是否可见，避免页面重建时
+/// onAppear/onDisappear 通知乱序导致全局迷你播放器覆盖在详情页上。
+struct StoryDetailVisibilityPreferenceKey: PreferenceKey {
+    static var defaultValue = false
+
+    static func reduce(value: inout Bool, nextValue: () -> Bool) {
+        value = value || nextValue()
     }
 }
 

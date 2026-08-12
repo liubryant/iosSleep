@@ -19,6 +19,8 @@ final class AudioPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegat
     private var player: AVAudioPlayer?
     private var sleepTimerTask: Task<Void, Never>?
     private var playTask: Task<Void, Never>?
+    private var cachedArtworkSceneID: String?
+    private var cachedArtwork: MPMediaItemArtwork?
 
     override init() {
         super.init()
@@ -39,7 +41,9 @@ final class AudioPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegat
 
     func play(scene: SoundScene) async {
         do {
-            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.mixWithOthers])
+            // 锁屏媒体卡片需要应用接管当前音频会话；混音模式下系统可能不会
+            // 将该声音识别为 Now Playing 内容。
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [])
             try AVAudioSession.sharedInstance().setActive(true)
 
             let url = try await playableURL(for: scene)
@@ -164,8 +168,14 @@ final class AudioPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegat
             info[MPMediaItemPropertyPlaybackDuration] = duration
         }
 
-        if let image = coverImage(for: scene) {
-            info[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: image.size) { _ in image }
+        if cachedArtworkSceneID != scene.id {
+            cachedArtworkSceneID = scene.id
+            cachedArtwork = coverImage(for: scene).map { image in
+                MPMediaItemArtwork(boundsSize: image.size) { _ in image }
+            }
+        }
+        if let cachedArtwork {
+            info[MPMediaItemPropertyArtwork] = cachedArtwork
         }
 
         MPNowPlayingInfoCenter.default().nowPlayingInfo = info

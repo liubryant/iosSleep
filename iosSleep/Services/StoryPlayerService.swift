@@ -5,6 +5,7 @@ import UIKit
 
 @MainActor
 final class StoryPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegate, AVSpeechSynthesizerDelegate {
+    static let didFinishStory = Notification.Name("StoryPlayerDidFinishStory")
     @Published private(set) var currentStory: StoryItem?
     @Published private(set) var isPlaying = false
     @Published private(set) var currentTime: TimeInterval = 0
@@ -20,6 +21,11 @@ final class StoryPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegat
     private var speechText = ""
     private var speechStartCharacter = 0
     private var speechCurrentCharacter = 0
+    /// 快进、快退会取消旧朗读并立即创建新朗读。系统仍可能延迟回调旧的
+    /// utterance，因此只允许当前 utterance 更新进度和播放状态。
+    private var activeSpeechUtterance: AVSpeechUtterance?
+    private var cachedArtworkStoryID: String?
+    private var cachedArtwork: MPMediaItemArtwork?
 
     private var speechCharacterCount: Int {
         speechText.count
@@ -87,6 +93,7 @@ final class StoryPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegat
         player = nil
         stopProgressTimer()
         speechSynthesizer.stopSpeaking(at: .immediate)
+        activeSpeechUtterance = nil
 
         currentStory = story
         isSpeechMode = true
@@ -110,6 +117,7 @@ final class StoryPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegat
             speechText = ""
             speechStartCharacter = 0
             speechCurrentCharacter = 0
+            activeSpeechUtterance = nil
 
             player = try AVAudioPlayer(contentsOf: url)
             player?.delegate = self
@@ -129,7 +137,7 @@ final class StoryPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegat
 
     func pause() {
         if isSpeechMode {
-            speechSynthesizer.pauseSpeaking(at: .word)
+            speechSynthesizer.pauseSpeaking(at: .immediate)
         } else {
             player?.pause()
         }
@@ -173,6 +181,7 @@ final class StoryPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegat
         playTask = nil
         stopProgressTimer()
         speechSynthesizer.stopSpeaking(at: .immediate)
+        activeSpeechUtterance = nil
         player?.stop()
         player = nil
         currentStory = nil
@@ -189,12 +198,16 @@ final class StoryPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegat
 
     nonisolated func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         Task { @MainActor in
+            let finishedStoryID = currentStory?.id
             player.currentTime = 0
             isPlaying = false
             currentTime = 0
             stopProgressTimer()
             updateNowPlayingInfo()
             MPNowPlayingInfoCenter.default().playbackState = .stopped
+            if flag, let finishedStoryID {
+                NotificationCenter.default.post(name: Self.didFinishStory, object: finishedStoryID)
+            }
         }
     }
 
@@ -257,8 +270,14 @@ final class StoryPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegat
         if duration > 0 {
             info[MPMediaItemPropertyPlaybackDuration] = duration
         }
-        if let image = coverImage(for: story) {
-            info[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: image.size) { _ in image }
+        if cachedArtworkStoryID != story.id {
+            cachedArtworkStoryID = story.id
+            cachedArtwork = coverImage(for: story).map { image in
+                MPMediaItemArtwork(boundsSize: image.size) { _ in image }
+            }
+        }
+        if let cachedArtwork {
+            info[MPMediaItemPropertyArtwork] = cachedArtwork
         }
 
         MPNowPlayingInfoCenter.default().nowPlayingInfo = info
@@ -293,6 +312,7 @@ final class StoryPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegat
         utterance.pitchMultiplier = 0.98
         utterance.volume = 1
 
+        activeSpeechUtterance = utterance
         speechSynthesizer.speak(utterance)
         isPlaying = true
         startProgressTimer()
@@ -346,26 +366,33 @@ final class StoryPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegat
 
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, willSpeakRangeOfSpeechString characterRange: NSRange, utterance: AVSpeechUtterance) {
         Task { @MainActor in
+            guard utterance === activeSpeechUtterance else { return }
             speechCurrentCharacter = min(speechStartCharacter + characterRange.location, speechCharacterCount)
             currentTime = time(forCharacter: speechCurrentCharacter)
-            updateNowPlayingInfo()
         }
     }
 
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
         Task { @MainActor in
+            guard utterance === activeSpeechUtterance else { return }
+            activeSpeechUtterance = nil
             speechCurrentCharacter = speechCharacterCount
             currentTime = duration
             isPlaying = false
             stopProgressTimer()
             updateNowPlayingInfo()
             MPNowPlayingInfoCenter.default().playbackState = .stopped
+            if let storyID = currentStory?.id {
+                NotificationCenter.default.post(name: Self.didFinishStory, object: storyID)
+            }
         }
     }
 
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
         Task { @MainActor in
+            guard utterance === activeSpeechUtterance else { return }
             if isSpeechMode && !isPlaying {
+                activeSpeechUtterance = nil
                 stopProgressTimer()
                 updateNowPlayingInfo()
             }

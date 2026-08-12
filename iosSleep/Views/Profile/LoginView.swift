@@ -115,10 +115,11 @@ struct LoginView: View {
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
+                .frame(height: 44)
             }
             .buttonStyle(.borderedProminent)
-            .controlSize(.large)
+            .controlSize(.regular)
+            .padding(.horizontal, 24)
             .disabled(!isPhoneValid || (mode == .code ? !isCodeValid : !isPasswordValid) || isLoggingIn)
 
             Button {

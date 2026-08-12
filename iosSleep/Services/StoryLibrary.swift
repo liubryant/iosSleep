@@ -44,16 +44,28 @@ final class StoryNotificationService: NSObject, ObservableObject, UNUserNotifica
     static let didOpenStory = Notification.Name("StoryNotificationDidOpenStory")
 
     private let center = UNUserNotificationCenter.current()
-    private let notificationHours = [11, 16, 20]
+    static let notificationHours = [21, 22]
+    static var reminderScheduleText: String {
+        notificationHours.map { String(format: "%02d:00", $0) }.joined(separator: "、")
+    }
+    private let notificationHours = StoryNotificationService.notificationHours
     private let identifierPrefix = "daily_story_recommendation_"
-    private let testNotificationIdentifier = "story_test_after_launch"
-    private var hasScheduledTestNotificationThisLaunch = false
-    private var isSchedulingTestNotification = false
-    private(set) var pendingStoryID: String?
+    private let notificationIconMigrationKey = "notification_icon_migrated_to_app_icon_current"
+    @Published private(set) var pendingStoryID: String?
 
     private override init() {
         super.init()
         center.delegate = self
+        clearLegacyNotificationsIfNeeded()
+    }
+
+    /// 通知中心会保留旧版本通知及其 App 图标快照。更换 App Icon 后只执行一次清理，
+    /// 后续新建的通知将统一读取当前安装包中的 AppIconCurrent。
+    private func clearLegacyNotificationsIfNeeded() {
+        guard !UserDefaults.standard.bool(forKey: notificationIconMigrationKey) else { return }
+        center.removeAllDeliveredNotifications()
+        center.removeAllPendingNotificationRequests()
+        UserDefaults.standard.set(true, forKey: notificationIconMigrationKey)
     }
 
     func enable(stories: [StoryItem]) async -> Bool {
@@ -62,51 +74,35 @@ final class StoryNotificationService: NSObject, ObservableObject, UNUserNotifica
             let granted = try await center.requestAuthorization(options: [.alert, .sound, .badge])
             guard granted else { return false }
             await scheduleDailyStories(stories: stories)
-            await scheduleTestNotification(stories: stories)
             return true
         } catch {
             return false
         }
     }
 
-    func disable() {
-        let identifiers = notificationHours.indices.map { "\(identifierPrefix)\($0)" } + [testNotificationIdentifier]
-        center.removePendingNotificationRequests(withIdentifiers: identifiers)
+    /// 首次进入首页时主动请求系统通知权限；已经选择过的用户不重复弹窗。
+    func requestAuthorizationIfNeeded() async {
+        let settings = await center.notificationSettings()
+        guard settings.authorizationStatus == .notDetermined else { return }
+        _ = try? await center.requestAuthorization(options: [.alert, .sound, .badge])
     }
 
-    func scheduleTestNotification(stories: [StoryItem]) async {
-        guard !hasScheduledTestNotificationThisLaunch,
-              !isSchedulingTestNotification else { return }
-        guard let story = stories.randomElement() else { return }
-        isSchedulingTestNotification = true
-        defer { isSchedulingTestNotification = false }
-
-        let settings = await center.notificationSettings()
-        guard settings.authorizationStatus == .authorized ||
-                settings.authorizationStatus == .provisional else { return }
-
-        center.removePendingNotificationRequests(withIdentifiers: [testNotificationIdentifier])
-        let content = UNMutableNotificationContent()
-        content.title = "今日故事 · \(story.title)"
-        content.body = "时光睡眠为你精选，点击立即播放《\(story.title)》"
-        content.sound = .default
-        content.userInfo = ["storyID": story.id, "storyIndex": story.index]
-        attachCover(of: story, to: content)
-        let request = UNNotificationRequest(
-            identifier: testNotificationIdentifier,
-            content: content,
-            trigger: UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
-        )
-        do {
-            try await center.add(request)
-            hasScheduledTestNotificationThisLaunch = true
-        } catch {
-            // 调度失败时不写入本次启动标记，保留下次重试机会。
-        }
+    func disable() {
+        // 同时移除旧版 11/16/20 点对应的三个任务，避免升级后残留 20 点通知。
+        let scheduleCount = max(notificationHours.count, 3)
+        // 同时移除旧版本遗留的 5 秒测试通知。
+        let identifiers = (0..<scheduleCount).map { "\(identifierPrefix)\($0)" } + ["story_test_after_launch"]
+        center.removePendingNotificationRequests(withIdentifiers: identifiers)
     }
 
     func peekPendingStoryID() -> String? {
         return pendingStoryID
+    }
+
+    /// 统一处理通知、桌面快捷菜单等入口发起的故事详情跳转。
+    func requestOpenStory(_ storyID: String) {
+        pendingStoryID = storyID
+        NotificationCenter.default.post(name: Self.didOpenStory, object: storyID)
     }
 
     func clearPendingStoryID(_ storyID: String) {
@@ -164,8 +160,9 @@ final class StoryNotificationService: NSObject, ObservableObject, UNUserNotifica
     ) {
         let storyID = response.notification.request.content.userInfo["storyID"] as? String
         Task { @MainActor in
-            self.pendingStoryID = storyID
-            NotificationCenter.default.post(name: Self.didOpenStory, object: storyID)
+            if let storyID {
+                self.requestOpenStory(storyID)
+            }
             completionHandler()
         }
     }

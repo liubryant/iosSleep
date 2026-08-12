@@ -66,7 +66,7 @@ struct ProfileView: View {
                         Label {
                             VStack(alignment: .leading, spacing: 3) {
                                 Text("故事提醒")
-                                Text("每天 11:00、16:00、20:00 精选故事")
+                                Text("每天 \(StoryNotificationService.reminderScheduleText) 精选故事")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
@@ -111,7 +111,7 @@ struct ProfileView: View {
                     HStack {
                         Text("版本")
                         Spacer()
-                        Text("1.2.0")
+                        Text(appVersion)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -132,6 +132,10 @@ struct ProfileView: View {
                 Text("将删除所有睡眠监测保存的录音声音数据，以及临时缓存文件，不会删除内置声音资源。此操作不可恢复。")
             }
         }
+    }
+
+    private var appVersion: String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "--"
     }
 
     private var profileHeader: some View {

@@ -4,7 +4,7 @@ struct SoundHomeView: View {
     @EnvironmentObject private var library: SoundLibrary
     @EnvironmentObject private var player: AudioPlayerService
     @EnvironmentObject private var storyPlayer: StoryPlayerService
-    @State private var selectedCategory: SoundCategory = .recommended
+    @State private var selectedCategory: SoundCategory = .all
 
     private let columns = [
         GridItem(.flexible(), spacing: 16),
@@ -73,7 +73,10 @@ struct SoundHomeView: View {
 
     private var soundFeatureCategories: some View {
         LazyVGrid(
-            columns: Array(repeating: GridItem(.flexible(), spacing: 4), count: 4),
+            columns: Array(
+                repeating: GridItem(.flexible(), spacing: 0, alignment: .center),
+                count: 4
+            ),
             spacing: 10
         ) {
             ForEach(SoundFeature.allCases) { feature in
@@ -96,7 +99,7 @@ struct SoundHomeView: View {
                 }
             }
         }
-        .padding(.horizontal, 12)
+        .padding(.horizontal, 0)
         .padding(.bottom, 8)
     }
 
@@ -124,7 +127,7 @@ struct SoundHomeView: View {
                 .foregroundStyle(feature.category == selectedCategory ? Color.blue : Color.secondary)
                 .lineLimit(1)
         }
-        .frame(maxWidth: .infinity)
+        .frame(width: 64)
         .frame(height: 72)
         .contentShape(Rectangle())
     }
@@ -137,9 +140,9 @@ struct SoundHomeView: View {
 
             filterMenu
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 20)
         .padding(.top, 10)
-        .padding(.bottom, 28)
+        .padding(.bottom, 18)
     }
 
     private var soundSearchBar: some View {
@@ -199,8 +202,8 @@ struct SoundHomeView: View {
             Image("LauncherIcon")
                 .resizable()
                 .scaledToFill()
-                .frame(width: 36, height: 36)
-                .clipShape(RoundedRectangle(cornerRadius: 9))
+                .frame(width: 30, height: 30)
+                .clipShape(RoundedRectangle(cornerRadius: 7))
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(greetingText)
@@ -318,7 +321,7 @@ private enum SoundCategory: String, CaseIterable, Identifiable {
         case .whisper:
             return limitedMatches(in: scenes, keywords: ["耳", "低语", "风铃", "键盘", "铅笔", "磨砚", "手谈", "切菜", "打字机", "心跳", "静电"])
         case .whiteNoise:
-            return Array(scenes.filter { $0.category == "white_noise" }.prefix(30))
+            return scenes
         case .dream:
             return limitedMatches(in: scenes, keywords: ["梦", "夜", "月", "星", "幻", "蓝色", "浮空", "云", "微光", "深睡", "睡吧"])
         case .mindfulness:

@@ -76,17 +76,46 @@ struct SoundCardView: View {
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(alignment: .bottomTrailing) {
                 if player.currentScene?.id == scene.id {
-                    Image(systemName: player.isPlaying ? "speaker.wave.2.fill" : "pause.fill")
-                        .font(.caption)
-                        .foregroundStyle(.white)
+                    PlayingWaveformIcon(isAnimating: player.isPlaying)
+                        .frame(width: 16, height: 16)
                         .padding(8)
                         .background(.blue)
                         .clipShape(Circle())
-                        .padding(14)
+                        .padding(.trailing, 14)
+                        .padding(.bottom, 23)
                 }
             }
         }
         .buttonStyle(.plain)
+    }
+}
+
+private struct PlayingWaveformIcon: View {
+    let isAnimating: Bool
+
+    private let baseHeights: [CGFloat] = [7, 13, 10, 15]
+
+    var body: some View {
+        TimelineView(.animation(minimumInterval: 0.16, paused: !isAnimating)) { context in
+            HStack(alignment: .center, spacing: 2) {
+                ForEach(baseHeights.indices, id: \.self) { index in
+                    Capsule()
+                        .fill(.white)
+                        .frame(
+                            width: 2.5,
+                            height: barHeight(at: index, date: context.date)
+                        )
+                }
+            }
+            .frame(width: 16, height: 16)
+        }
+    }
+
+    private func barHeight(at index: Int, date: Date) -> CGFloat {
+        guard isAnimating else { return baseHeights[index] }
+        let phase = date.timeIntervalSinceReferenceDate * 3.5 + Double(index) * 1.35
+        let factor = 0.55 + 0.45 * abs(sin(phase))
+        return max(4, baseHeights[index] * factor)
     }
 }
 

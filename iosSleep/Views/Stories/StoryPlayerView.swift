@@ -3,13 +3,16 @@ import SwiftUI
 struct StoryPlayerView: View {
     @EnvironmentObject private var player: StoryPlayerService
     @EnvironmentObject private var audioPlayer: AudioPlayerService
+    @EnvironmentObject private var storyLibrary: StoryLibrary
     let story: StoryItem
+    let onPlayStory: (StoryItem) -> Void
 
     @State private var isSeeking = false
     @State private var seekValue: Double = 0
     @State private var storyText = ""
     @State private var sleepTimerTask: Task<Void, Never>?
     @State private var sleepTimerMinutes: Int?
+    @AppStorage("storyPlaybackOrder") private var playbackOrder = StoryPlaybackOrder.sequential.rawValue
 
     private var isCurrent: Bool { player.currentStory?.id == story.id }
     private var isPlayingThis: Bool { isCurrent && player.isPlaying }
@@ -31,9 +34,9 @@ struct StoryPlayerView: View {
 
                 LinearGradient(
                     colors: [
-                        Color(red: 0.03, green: 0.07, blue: 0.15).opacity(0.52),
-                        Color(red: 0.08, green: 0.09, blue: 0.19).opacity(0.78),
-                        Color(red: 0.04, green: 0.06, blue: 0.13).opacity(0.96)
+                        Color(red: 0.03, green: 0.07, blue: 0.15).opacity(0.42),
+                        Color(red: 0.08, green: 0.09, blue: 0.19).opacity(0.66),
+                        Color(red: 0.04, green: 0.06, blue: 0.13).opacity(0.84)
                     ],
                     startPoint: .top,
                     endPoint: .bottom
@@ -60,7 +63,7 @@ struct StoryPlayerView: View {
                     .frame(maxWidth: .infinity)
                     .frame(maxHeight: .infinity)
                     .layoutPriority(1)
-                    .background(Color.black.opacity(0.24))
+                    .background(Color.black.opacity(0.16))
                     .clipShape(RoundedRectangle(cornerRadius: 22))
                     .overlay {
                         RoundedRectangle(cornerRadius: 22)
@@ -87,6 +90,7 @@ struct StoryPlayerView: View {
                 sleepTimerMenu
             }
         }
+        .preference(key: StoryDetailVisibilityPreferenceKey.self, value: true)
         .task(id: story.id) {
             loadStoryText()
             if audioPlayer.currentScene != nil {
@@ -102,11 +106,9 @@ struct StoryPlayerView: View {
                 player.playText(story: story, text: storyText)
             }
         }
-        .onAppear {
-            NotificationCenter.default.post(name: .storyDetailVisibilityChanged, object: true)
-        }
-        .onDisappear {
-            NotificationCenter.default.post(name: .storyDetailVisibilityChanged, object: false)
+        .onReceive(NotificationCenter.default.publisher(for: StoryPlayerService.didFinishStory)) { notification in
+            guard notification.object as? String == story.id else { return }
+            playNextStory()
         }
     }
 
@@ -127,7 +129,7 @@ struct StoryPlayerView: View {
             Image(systemName: sleepTimerMinutes == nil ? "timer" : "timer.circle.fill")
                 .font(.system(size: 18, weight: .semibold))
                 .frame(width: 42, height: 36)
-                .background(.white.opacity(0.14))
+                .background(.white.opacity(0.18))
                 .clipShape(Capsule())
         }
     }
@@ -218,13 +220,60 @@ struct StoryPlayerView: View {
                     .font(.caption)
                     .foregroundStyle(.white.opacity(0.58))
             }
+
+            playbackOrderControls
         }
         .padding(18)
-        .background(Color.black.opacity(0.26))
+        .background(Color.black.opacity(0.18))
         .clipShape(RoundedRectangle(cornerRadius: 24))
         .overlay {
             RoundedRectangle(cornerRadius: 24)
                 .stroke(.white.opacity(0.16), lineWidth: 1)
+        }
+    }
+
+    private var playbackOrderControls: some View {
+        HStack(spacing: 10) {
+            playbackOrderButton(title: "顺序播放", systemImage: "repeat", order: .sequential)
+            playbackOrderButton(title: "随机播放", systemImage: "shuffle", order: .random)
+        }
+    }
+
+    private func playbackOrderButton(
+        title: String,
+        systemImage: String,
+        order: StoryPlaybackOrder
+    ) -> some View {
+        let selected = playbackOrder == order.rawValue
+        return Button {
+            playbackOrder = order.rawValue
+        } label: {
+            Label(title, systemImage: systemImage)
+                .font(.subheadline.weight(.semibold))
+                .frame(maxWidth: .infinity)
+                .frame(height: 38)
+                .foregroundStyle(selected ? Color.black.opacity(0.86) : Color.white.opacity(0.82))
+                .background(selected ? Color.white : Color.white.opacity(0.18))
+                .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func playNextStory() {
+        let stories = storyLibrary.stories
+        guard stories.count > 1 else { return }
+
+        let nextStory: StoryItem?
+        if playbackOrder == StoryPlaybackOrder.random.rawValue {
+            nextStory = stories.filter { $0.id != story.id }.randomElement()
+        } else {
+            let orderedStories = stories.sorted { $0.index < $1.index }
+            guard let currentIndex = orderedStories.firstIndex(where: { $0.id == story.id }) else { return }
+            nextStory = orderedStories[(currentIndex + 1) % orderedStories.count]
+        }
+
+        if let nextStory {
+            onPlayStory(nextStory)
         }
     }
 
@@ -277,6 +326,11 @@ struct StoryPlayerView: View {
     }
 }
 
+private enum StoryPlaybackOrder: String {
+    case sequential
+    case random
+}
+
 private struct StoryPlaybackTextView: View {
     let text: String
     let currentTime: TimeInterval
@@ -301,7 +355,7 @@ private struct StoryPlaybackTextView: View {
                             .font(.body)
                             .lineSpacing(7)
                             .foregroundStyle(.white.opacity(0.94))
-                            .padding(.horizontal, isHighlighted(index) ? 8 : 0)
+                            .padding(.horizontal, 8)
                             .padding(.vertical, isHighlighted(index) ? 5 : 0)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .background(
@@ -358,10 +412,6 @@ private struct StoryPlaybackTextView: View {
     }
 }
 
-extension Notification.Name {
-    static let storyDetailVisibilityChanged = Notification.Name("StoryDetailVisibilityChanged")
-}
-
 private struct RotatingStoryCover: View {
     let story: StoryItem
     let isPlaying: Bool
@@ -373,22 +423,30 @@ private struct RotatingStoryCover: View {
     @State private var rotationStartedAt: Date?
 
     var body: some View {
-        TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: !isPlaying)) { context in
-            ZStack {
-                Circle()
-                    .fill(.black.opacity(0.06))
+        GeometryReader { proxy in
+            let diameter = max(min(proxy.size.width, proxy.size.height) - 20, 1)
 
-                StoryCoverImage(story: story)
-                    .padding(10)
-                    .clipShape(Circle())
-                    .overlay(Circle().stroke(.white, lineWidth: 5).padding(10))
-                    .shadow(color: .black.opacity(0.18), radius: 12, y: 6)
-                    .overlay {
-                        Circle()
-                            .fill(.white)
-                            .frame(width: 14, height: 14)
-                    }
-                    .rotationEffect(.degrees(rotation(at: context.date)))
+            TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: !isPlaying)) { context in
+                ZStack {
+                    Circle()
+                        .fill(.black.opacity(0.06))
+                        .frame(width: diameter, height: diameter)
+
+                    StoryCoverImage(story: story)
+                        .frame(width: diameter, height: diameter)
+                        .clipShape(Circle())
+                        .rotationEffect(.degrees(rotation(at: context.date)))
+
+                    Circle()
+                        .stroke(.white, lineWidth: 5)
+                        .frame(width: diameter, height: diameter)
+                        .shadow(color: .black.opacity(0.18), radius: 12, y: 6)
+
+                    Circle()
+                        .fill(.white)
+                        .frame(width: 14, height: 14)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
         .onAppear {

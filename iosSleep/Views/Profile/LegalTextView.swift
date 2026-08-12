@@ -88,10 +88,11 @@ struct PrivacyAgreementView: View {
                 } label: {
                     Text("同意并继续")
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 8)
+                        .frame(height: 44)
                 }
                 .buttonStyle(.borderedProminent)
-                .controlSize(.large)
+                .controlSize(.regular)
+                .padding(.horizontal, 24)
 
                 Button("不同意") {
                     showDisagreeAlert = true

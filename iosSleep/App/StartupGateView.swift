@@ -43,8 +43,16 @@ struct StartupGateView: View {
     }
 
     private var launchBackgroundView: some View {
-        Color(.systemBackground)
-            .ignoresSafeArea()
+        ZStack {
+            Color(.systemBackground)
+                .ignoresSafeArea()
+
+            Image("LaunchBrand")
+                .resizable()
+                .scaledToFill()
+                .frame(width: 112, height: 112)
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        }
     }
 
     private func startSplashFlowIfNeeded() {
@@ -52,7 +60,8 @@ struct StartupGateView: View {
         guard !didStartFlow else { return }
         didStartFlow = true
 
-        sdkManager.startIfAllowed(showSplash: true) {
+        // 暂时关闭开屏广告；SDK 仍会初始化，其他广告位不受影响。
+        sdkManager.startIfAllowed(showSplash: false) {
             Task { @MainActor in
                 isReadyForHome = true
             }
