@@ -1,6 +1,7 @@
 import UIKit
 
 enum AppQuickAction: String {
+    case mindfulness = "com.iossleep.quickaction.mindfulness"
     case nature = "com.iossleep.quickaction.nature"
     case stories = "com.iossleep.quickaction.stories"
 }

@@ -55,6 +55,8 @@
 		EF8DAD8CC994E316E2A5F888 /* StoryResources in Resources */ = {isa = PBXBuildFile; fileRef = DB77A839AB736E6367097760 /* StoryResources */; };
 		F0A1B2C3D4E5F60718293001 /* ModelResources in Resources */ = {isa = PBXBuildFile; fileRef = F0A1B2C3D4E5F60718293002 /* ModelResources */; };
 		F4BFE036F509DA7AF17EEA98 /* Pods_iosSleep.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE2385BF3AD04433671E7D6C /* Pods_iosSleep.framework */; };
+		A81700000000000000000001 /* MindfulnessPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A81700000000000000000002 /* MindfulnessPlayerView.swift */; };
+		A81700000000000000000003 /* MindfulnessHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A81700000000000000000004 /* MindfulnessHomeView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -111,6 +113,8 @@
 		FA3AC53F2B2BBA0C6DBFEE02 /* StoryItem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StoryItem.swift; sourceTree = "<group>"; };
 		F0A1B2C3D4E5F60718293002 /* ModelResources */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder; path = ModelResources; sourceTree = "<group>"; };
 		FE2385BF3AD04433671E7D6C /* Pods_iosSleep.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_iosSleep.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A81700000000000000000002 /* MindfulnessPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MindfulnessPlayerView.swift; sourceTree = "<group>"; };
+		A81700000000000000000004 /* MindfulnessHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MindfulnessHomeView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -224,6 +228,8 @@
 				BF000001000000000000010D /* SoundHomeView.swift */,
 				BF000001000000000000010E /* SoundCardView.swift */,
 				BF0000010000000000000125 /* DrawFeedAdCardView.swift */,
+				A81700000000000000000002 /* MindfulnessPlayerView.swift */,
+				A81700000000000000000004 /* MindfulnessHomeView.swift */,
 			);
 			path = Sounds;
 			sourceTree = "<group>";
@@ -456,6 +462,8 @@
 				873D5390ABDECD6B12DAC0B5 /* StoryHomeView.swift in Sources */,
 				C65358FED44CEC3E3A3BA107 /* StoryCardView.swift in Sources */,
 				D388D6D13200371F59D8F957 /* StoryPlayerView.swift in Sources */,
+				A81700000000000000000001 /* MindfulnessPlayerView.swift in Sources */,
+				A81700000000000000000003 /* MindfulnessHomeView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -584,7 +592,7 @@
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = iosSleep/iosSleep.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = MF7G4UB9D9;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -608,7 +616,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3.0;
+				MARKETING_VERSION = 1.3.1;
 				PRODUCT_BUNDLE_IDENTIFIER = cn.cjym.timesleep;
 				PRODUCT_NAME = "时光睡眠";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -625,7 +633,7 @@
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = iosSleep/iosSleep.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = MF7G4UB9D9;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -649,7 +657,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3.0;
+				MARKETING_VERSION = 1.3.1;
 				PRODUCT_BUNDLE_IDENTIFIER = cn.cjym.timesleep;
 				PRODUCT_NAME = "时光睡眠";
 				SWIFT_EMIT_LOC_STRINGS = YES;

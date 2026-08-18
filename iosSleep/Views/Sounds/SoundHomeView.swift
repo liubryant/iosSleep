@@ -1,14 +1,26 @@
 import SwiftUI
+import UIKit
 
 struct SoundHomeView: View {
     @EnvironmentObject private var library: SoundLibrary
     @EnvironmentObject private var player: AudioPlayerService
     @EnvironmentObject private var storyPlayer: StoryPlayerService
-    @State private var selectedCategory: SoundCategory = .all
+    @State private var selectedCategory: SoundCategory = .whiteNoise
 
     private let columns = [
         GridItem(.flexible(), spacing: 16),
         GridItem(.flexible(), spacing: 16)
+    ]
+
+    private let mindfulnessItems: [SoundHomeMindfulnessItem] = [
+        .init(title: "深度睡眠疗愈", subtitle: "卸下疲惫，沉入安稳梦境", imageName: "1", track: .deepSleep),
+        .init(title: "日间提神", subtitle: "唤醒精神，找回清晰专注", imageName: "2", track: .daytimeEnergy),
+        .init(title: "散步冥想", subtitle: "跟随脚步，感受此时此地", imageName: "3", track: .walking),
+        .init(title: "睡前释放情绪", subtitle: "温柔放下今天的情绪", imageName: "4", track: .emotionalRelease),
+        .init(title: "安定身心助眠", subtitle: "舒缓呼吸，让身体松下来", imageName: "5", track: .calmingSleep),
+        .init(title: "缓解疲倦", subtitle: "短暂休息，恢复身心能量", imageName: "6", track: .fatigueRelief),
+        .init(title: "快速入睡", subtitle: "平静思绪，更快进入睡眠", imageName: "7", track: .quickSleep),
+        .init(title: "考前失眠解放", subtitle: "减少紧张，安心迎接明天", imageName: "8", track: .examSleep)
     ]
 
     private var displayedScenes: [SoundScene] {
@@ -33,13 +45,18 @@ struct SoundHomeView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                soundTopBar
-                soundFeatureCategories
-                soundSearchBar
+            ScrollView {
+                VStack(spacing: 0) {
+                    soundFeatureCategories
+                    soundSearchBar
 
-                ScrollView {
                     LazyVStack(spacing: 16) {
+                        if selectedCategory == .whiteNoise {
+                            mindfulnessSection
+                        }
+
+                        soundSectionHeader
+
                         ForEach(sceneSections) { section in
                             LazyVGrid(columns: columns, spacing: 16) {
                                 ForEach(section.scenes) { scene in
@@ -56,6 +73,14 @@ struct SoundHomeView: View {
                     .padding(.bottom, player.currentScene == nil && storyPlayer.currentStory == nil ? 0 : 88)
                 }
             }
+            .safeAreaInset(edge: .top, spacing: 16) {
+                soundTopBar
+                    .background {
+                        BottomRoundedShape(radius: 5)
+                            .fill(.ultraThinMaterial)
+                            .ignoresSafeArea(edges: .top)
+                    }
+            }
             .toolbar(.hidden, for: .navigationBar)
             .overlay {
                 if library.scenes.isEmpty {
@@ -69,6 +94,108 @@ struct SoundHomeView: View {
                 library.searchText = ""
             }
         }
+    }
+
+    private var mindfulnessSection: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("正念冥想").font(.system(size: 15, weight: .medium))
+                    Text("跟随声音，把注意力带回当下")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+
+                NavigationLink {
+                    MindfulnessHomeView()
+                } label: {
+                    HStack(spacing: 4) {
+                        Text("更多")
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 10, weight: .semibold))
+                    }
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 5)
+                }
+                .buttonStyle(.plain)
+            }
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                LazyHGrid(
+                    rows: [GridItem(.fixed(235))],
+                    spacing: 16
+                ) {
+                    ForEach(Array(mindfulnessItems.prefix(6))) { item in
+                        NavigationLink {
+                            MindfulnessPlayerView(track: item.track)
+                        } label: {
+                            mindfulnessCard(item)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal, 2)
+                .padding(.vertical, 2)
+            }
+            .frame(height: 240)
+        }
+    }
+
+    private var soundSectionHeader: some View {
+        sectionHeader(title: "大自然入眠", subtitle: "枕着山海风雨，慢慢沉入梦乡")
+            .padding(.top, selectedCategory == .whiteNoise ? 8 : 0)
+    }
+
+    private func sectionHeader(title: String, subtitle: String) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(title).font(.system(size: 15, weight: .medium))
+            Text(subtitle).font(.system(size: 11)).foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func mindfulnessCard(_ item: SoundHomeMindfulnessItem) -> some View {
+        VStack(alignment: .leading, spacing: 11) {
+            ZStack {
+                if let image = mindfulnessImage(named: item.imageName) {
+                    Image(uiImage: image).resizable().scaledToFill()
+                } else {
+                    LinearGradient(colors: [.indigo, .blue], startPoint: .topLeading, endPoint: .bottomTrailing)
+                }
+                LinearGradient(colors: [.clear, .black.opacity(0.18)], startPoint: .top, endPoint: .bottom)
+            }
+            .frame(width: 150, height: 200)
+            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .overlay(alignment: .bottomTrailing) {
+                Image(systemName: "play.fill")
+                    .font(.caption.bold())
+                    .foregroundStyle(.white)
+                    .frame(width: 30, height: 30)
+                    .background(.black.opacity(0.30))
+                    .clipShape(Circle())
+                    .padding(9)
+            }
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(item.title)
+                    .font(.system(size: 15, weight: .regular))
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
+            }
+            .frame(width: 150, alignment: .leading)
+        }
+    }
+
+    private func mindfulnessImage(named name: String) -> UIImage? {
+        guard let url = Bundle.main.url(
+            forResource: name,
+            withExtension: "png",
+            subdirectory: "SoundResources/Mindfulness/Covers"
+        ) else { return nil }
+        return UIImage(contentsOfFile: url.path)
     }
 
     private var soundFeatureCategories: some View {
@@ -87,6 +214,13 @@ struct SoundHomeView: View {
                         soundFeatureLabel(feature)
                     }
                     .buttonStyle(.plain)
+                } else if feature == .mindfulness {
+                    NavigationLink {
+                        MindfulnessHomeView()
+                    } label: {
+                        soundFeatureLabel(feature)
+                    }
+                    .buttonStyle(.plain)
                 } else {
                     Button {
                         if let category = feature.category {
@@ -99,7 +233,7 @@ struct SoundHomeView: View {
                 }
             }
         }
-        .padding(.horizontal, 0)
+        .padding(.leading, -8)
         .padding(.bottom, 8)
     }
 
@@ -207,7 +341,7 @@ struct SoundHomeView: View {
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(greetingText)
-                    .font(.title3.weight(.semibold))
+                    .font(.title2.weight(.regular))
             }
         }
     }
@@ -263,6 +397,37 @@ private struct SoundHomeSection: Identifiable {
     let showsAdAfter: Bool
 
     var id: Int { index }
+}
+
+private struct SoundHomeMindfulnessItem: Identifiable {
+    let id = UUID()
+    let title: String
+    let subtitle: String
+    let imageName: String
+    let track: MindfulnessTrack
+}
+
+private struct BottomRoundedShape: Shape {
+    let radius: CGFloat
+
+    func path(in rect: CGRect) -> Path {
+        let r = min(radius, min(rect.width, rect.height) / 2)
+        var path = Path()
+        path.move(to: CGPoint(x: rect.minX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY - r))
+        path.addQuadCurve(
+            to: CGPoint(x: rect.maxX - r, y: rect.maxY),
+            control: CGPoint(x: rect.maxX, y: rect.maxY)
+        )
+        path.addLine(to: CGPoint(x: rect.minX + r, y: rect.maxY))
+        path.addQuadCurve(
+            to: CGPoint(x: rect.minX, y: rect.maxY - r),
+            control: CGPoint(x: rect.minX, y: rect.maxY)
+        )
+        path.closeSubpath()
+        return path
+    }
 }
 
 private enum SoundCategory: String, CaseIterable, Identifiable {

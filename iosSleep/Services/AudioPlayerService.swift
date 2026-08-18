@@ -1,7 +1,48 @@
 import AVFoundation
 import Foundation
 import MediaPlayer
+import StoreKit
 import UIKit
+
+@MainActor
+enum AppReviewPrompt {
+    private static var isRequestScheduled = false
+
+    static func recordPlayback(id: String) {
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "unknown"
+        let playedIDsKey = "review.playedAudioIDs.\(version)"
+        var ids = Set(UserDefaults.standard.stringArray(forKey: playedIDsKey) ?? [])
+        if ids.insert(id).inserted {
+            UserDefaults.standard.set(Array(ids), forKey: playedIDsKey)
+        }
+        guard ids.count >= 3 else { return }
+
+        let attemptCountKey = "review.attemptCount.\(version)"
+        let lastRequestDateKey = "review.lastRequestDate.\(version)"
+        let attemptCount = UserDefaults.standard.integer(forKey: attemptCountKey)
+        guard attemptCount < 3, !isRequestScheduled else { return }
+        let lastRequestTime = UserDefaults.standard.double(forKey: lastRequestDateKey)
+        if lastRequestTime > 0 {
+            guard Date().timeIntervalSince1970 - lastRequestTime >= 24 * 60 * 60 else { return }
+        }
+        isRequestScheduled = true
+
+        // 稍微延后，避免评分卡片与刚进入的播放反馈抢占同一帧。
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+            isRequestScheduled = false
+            guard let windowScene = UIApplication.shared.connectedScenes
+                .compactMap({ $0 as? UIWindowScene })
+                .first(where: { $0.activationState == .foregroundActive }) else { return }
+            UserDefaults.standard.set(attemptCount + 1, forKey: attemptCountKey)
+            UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: lastRequestDateKey)
+            if #available(iOS 18.0, *) {
+                AppStore.requestReview(in: windowScene)
+            } else {
+                SKStoreReviewController.requestReview(in: windowScene)
+            }
+        }
+    }
+}
 
 @MainActor
 final class AudioPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegate {
@@ -57,6 +98,7 @@ final class AudioPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegat
             currentScene = scene
             isPlaying = true
             updateNowPlayingInfo()
+            AppReviewPrompt.recordPlayback(id: "sound:\(scene.id)")
         } catch {
             print("Failed to play \(scene.title): \(error)")
         }
@@ -200,6 +242,13 @@ final class AudioPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegat
 
     func isBundledOrCached(_ scene: SoundScene) -> Bool {
         bundledAudioURL(for: scene) != nil || cachedAudioExists(for: scene)
+    }
+
+    /// 返回已经可离线播放的本地文件，供声音详情页复用，避免重复下载。
+    func localAudioURL(for scene: SoundScene) -> URL? {
+        if let bundledURL = bundledAudioURL(for: scene) { return bundledURL }
+        let cachedURL = cachedAudioURL(for: scene)
+        return FileManager.default.fileExists(atPath: cachedURL.path) ? cachedURL : nil
     }
 
     private func playableURL(for scene: SoundScene) async throws -> URL {

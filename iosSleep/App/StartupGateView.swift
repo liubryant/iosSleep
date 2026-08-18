@@ -51,7 +51,8 @@ struct StartupGateView: View {
                 .resizable()
                 .scaledToFill()
                 .frame(width: 112, height: 112)
-                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
+                .compositingGroup()
         }
     }
 

@@ -4,12 +4,16 @@ struct MainTabView: View {
     @EnvironmentObject private var player: AudioPlayerService
     @EnvironmentObject private var soundLibrary: SoundLibrary
     @EnvironmentObject private var storyPlayer: StoryPlayerService
+    @EnvironmentObject private var mindfulnessPlayer: MindfulnessAudioPlayer
     @EnvironmentObject private var storyLibrary: StoryLibrary
     @EnvironmentObject private var settings: AppSettings
     @ObservedObject private var storyNotificationService = StoryNotificationService.shared
     @State private var selectedTab = 0
     @State private var isStoryDetailVisible = false
+    @State private var isMindfulnessDetailVisible = false
+    @State private var isMindfulnessFlowVisible = false
     @State private var requestedStoryID: String?
+    @State private var quickMindfulnessTrack: MindfulnessTrack?
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -46,6 +50,15 @@ struct MainTabView: View {
                     .padding(.bottom, 58)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
                     .zIndex(1)
+            } else if let track = mindfulnessPlayer.currentTrack,
+                      selectedTab == 0,
+                      !isMindfulnessFlowVisible,
+                      !isMindfulnessDetailVisible {
+                GlobalMindfulnessMiniPlayerView(track: track)
+                    .padding(.horizontal)
+                    .padding(.bottom, 58)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .zIndex(1)
             } else if let scene = player.currentScene {
                 GlobalMiniPlayerView(scene: scene)
                     .padding(.horizontal)
@@ -56,13 +69,16 @@ struct MainTabView: View {
         }
         .animation(.easeInOut(duration: 0.2), value: player.currentScene?.id)
         .animation(.easeInOut(duration: 0.2), value: storyPlayer.currentStory?.id)
+        .animation(.easeInOut(duration: 0.2), value: mindfulnessPlayer.currentTrack?.id)
         .onChange(of: player.currentScene?.id) { id in
-            guard id != nil, storyPlayer.currentStory != nil else { return }
-            storyPlayer.stop()
+            guard id != nil else { return }
+            if storyPlayer.currentStory != nil { storyPlayer.stop() }
+            if mindfulnessPlayer.currentTrack != nil { mindfulnessPlayer.stop() }
         }
         .onChange(of: storyPlayer.currentStory?.id) { id in
-            guard id != nil, player.currentScene != nil else { return }
-            player.stop()
+            guard id != nil else { return }
+            if player.currentScene != nil { player.stop() }
+            if mindfulnessPlayer.currentTrack != nil { mindfulnessPlayer.stop() }
         }
         .onReceive(NotificationCenter.default.publisher(for: StoryNotificationService.didOpenStory)) { notification in
             if let storyID = notification.object as? String {
@@ -78,6 +94,17 @@ struct MainTabView: View {
         }
         .onPreferenceChange(StoryDetailVisibilityPreferenceKey.self) { visible in
             isStoryDetailVisible = visible
+        }
+        .onPreferenceChange(MindfulnessDetailVisibilityPreferenceKey.self) { visible in
+            isMindfulnessDetailVisible = visible
+        }
+        .onPreferenceChange(MindfulnessFlowVisibilityPreferenceKey.self) { visible in
+            isMindfulnessFlowVisible = visible
+        }
+        .fullScreenCover(item: $quickMindfulnessTrack) { track in
+            NavigationStack {
+                MindfulnessPlayerView(track: track)
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: QuickActionService.didRequestAction)) { notification in
             guard let action = notification.object as? AppQuickAction else { return }
@@ -109,6 +136,12 @@ struct MainTabView: View {
 
     private func openQuickAction(_ action: AppQuickAction) {
         switch action {
+        case .mindfulness:
+            selectedTab = 0
+            quickMindfulnessTrack = [
+                MindfulnessTrack.deepSleep, .daytimeEnergy, .walking, .emotionalRelease,
+                .calmingSleep, .fatigueRelief, .quickSleep, .examSleep
+            ].randomElement()
         case .nature:
             selectedTab = 0
             DispatchQueue.main.async {
@@ -176,6 +209,46 @@ struct MainTabView: View {
     private func randomItem<T: Identifiable>(excluding currentID: T.ID?, from items: [T]) -> T? where T.ID: Equatable {
         let alternatives = items.filter { $0.id != currentID }
         return (alternatives.isEmpty ? items : alternatives).randomElement()
+    }
+}
+
+private struct GlobalMindfulnessMiniPlayerView: View {
+    @EnvironmentObject private var player: MindfulnessAudioPlayer
+    let track: MindfulnessTrack
+
+    var body: some View {
+        HStack(spacing: 12) {
+            ZStack {
+                LinearGradient(colors: track.colors, startPoint: .topLeading, endPoint: .bottomTrailing)
+                Image(systemName: track.icon)
+                    .font(.system(size: 22, weight: .medium))
+                    .foregroundStyle(.white)
+            }
+            .frame(width: 48, height: 48)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(track.title).font(.headline).lineLimit(1)
+                Text(track.subtitle).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                if let timer = player.sleepTimerText {
+                    Text(timer).font(.caption2).foregroundStyle(.blue)
+                }
+            }
+            Spacer()
+            Button { player.toggle() } label: {
+                Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
+                    .frame(width: 36, height: 36)
+            }
+            .buttonStyle(.borderedProminent)
+            Button { player.stop() } label: {
+                Image(systemName: "xmark").frame(width: 28, height: 28)
+            }
+            .buttonStyle(.bordered)
+        }
+        .padding(12)
+        .background(.regularMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .shadow(color: .black.opacity(0.12), radius: 16, y: 8)
     }
 }
 

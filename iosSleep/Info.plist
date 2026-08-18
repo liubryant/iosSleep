@@ -70,6 +70,14 @@
 	<array>
 		<dict>
 			<key>UIApplicationShortcutItemIconType</key>
+			<string>UIApplicationShortcutIconTypeFavorite</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>正念冥想</string>
+			<key>UIApplicationShortcutItemType</key>
+			<string>com.iossleep.quickaction.mindfulness</string>
+		</dict>
+		<dict>
+			<key>UIApplicationShortcutItemIconType</key>
 			<string>UIApplicationShortcutIconTypeAudio</string>
 			<key>UIApplicationShortcutItemTitle</key>
 			<string>聆听自然</string>
