@@ -106,6 +106,12 @@ struct AccountDeletionView: View {
         .padding()
         .navigationTitle("账号与安全")
         .navigationBarTitleDisplayMode(.inline)
+        .appEdgeSwipeBack()
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("取消") { dismiss() }
+            }
+        }
         .alert("确认注销账号？", isPresented: $showingConfirm) {
             Button("取消", role: .cancel) {}
             Button("确认注销", role: .destructive) {

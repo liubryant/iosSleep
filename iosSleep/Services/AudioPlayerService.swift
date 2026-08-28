@@ -73,6 +73,7 @@ final class AudioPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegat
         if currentScene?.id == scene.id, isPlaying {
             pause()
         } else {
+            guard !scene.requiresVIP || SleepMembershipSession.shared.isVIPActive else { return }
             playTask?.cancel()
             playTask = Task { [weak self] in
                 await self?.play(scene: scene)
@@ -81,6 +82,7 @@ final class AudioPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegat
     }
 
     func play(scene: SoundScene) async {
+        guard !scene.requiresVIP || SleepMembershipSession.shared.isVIPActive else { return }
         do {
             // 锁屏媒体卡片需要应用接管当前音频会话；混音模式下系统可能不会
             // 将该声音识别为 Now Playing 内容。

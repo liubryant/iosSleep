@@ -5,6 +5,13 @@ import UserNotifications
 final class StoryLibrary: ObservableObject {
     @Published private(set) var stories: [StoryItem] = []
     @Published private(set) var articlesEnabled = false
+    @Published private(set) var favorites: Set<String> = []
+
+    private let favoritesKey = "stories.favorites"
+
+    init() {
+        favorites = Set(UserDefaults.standard.stringArray(forKey: favoritesKey) ?? [])
+    }
 
     func load() async {
         guard let bundledStories = decodeResource("stories_manifest") else {
@@ -20,6 +27,19 @@ final class StoryLibrary: ObservableObject {
         } else {
             stories = bundledStories.sorted { $0.index < $1.index }
         }
+    }
+
+    func isFavorite(_ story: StoryItem) -> Bool {
+        favorites.contains(story.id)
+    }
+
+    func toggleFavorite(_ story: StoryItem) {
+        if favorites.contains(story.id) {
+            favorites.remove(story.id)
+        } else {
+            favorites.insert(story.id)
+        }
+        UserDefaults.standard.set(Array(favorites), forKey: favoritesKey)
     }
 
     private func decodeResource(_ name: String) -> [StoryItem]? {

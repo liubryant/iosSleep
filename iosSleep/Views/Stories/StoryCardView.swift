@@ -59,7 +59,8 @@ struct StoryCardView: View {
                     .padding(8)
                     .background(.blue)
                     .clipShape(Circle())
-                    .padding(8)
+                    .padding(.trailing, 42)
+                    .padding(.bottom, 8)
             }
         }
     }

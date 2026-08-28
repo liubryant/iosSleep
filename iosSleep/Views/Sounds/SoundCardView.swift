@@ -7,9 +7,21 @@ struct SoundCardView: View {
     @EnvironmentObject private var storyPlayer: StoryPlayerService
 
     let scene: SoundScene
+    var isVIPContent = false
+    var onVIPRequired: (() -> Void)?
+
+    init(scene: SoundScene, isVIPContent: Bool = false, onVIPRequired: (() -> Void)? = nil) {
+        self.scene = scene
+        self.isVIPContent = isVIPContent
+        self.onVIPRequired = onVIPRequired
+    }
 
     var body: some View {
         Button {
+            if let onVIPRequired {
+                onVIPRequired()
+                return
+            }
             if storyPlayer.currentStory != nil {
                 storyPlayer.stop()
             }
@@ -20,6 +32,19 @@ struct SoundCardView: View {
                     CoverImage(scene: scene)
                         .aspectRatio(1, contentMode: .fill)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                    if isVIPContent {
+                        Label("VIP", systemImage: "crown.fill")
+                            .font(.system(size: 9, weight: .bold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 8)
+                            .frame(height: 23)
+                            .background(.ultraThinMaterial.opacity(0.88))
+                            .background(Color.black.opacity(0.16))
+                            .clipShape(Capsule())
+                            .padding(8)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                    }
 
                     Button {
                         library.toggleFavorite(scene)

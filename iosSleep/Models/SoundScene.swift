@@ -40,6 +40,12 @@ struct SoundScene: Codable, Identifiable, Hashable {
     var isBundledAudio: Bool {
         index <= 20
     }
+
+    /// 普通用户可免费聆听资源列表中的前 30 个声音。
+    /// 使用清单内稳定的 index 判断，避免搜索、收藏或分类后权限顺序发生变化。
+    var requiresVIP: Bool {
+        index > 30
+    }
 }
 
 private extension String {

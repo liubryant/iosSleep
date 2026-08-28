@@ -40,18 +40,22 @@ final class AppSettings: ObservableObject {
         storyReminderAsked = UserDefaults.standard.bool(forKey: Keys.storyReminderAsked)
     }
 
-    func login(phone: String) {
+    func login(phone: String, accessToken: String) {
         phoneNumber = phone
         isLoggedIn = true
+        SleepMembershipSession.shared.saveUserAccessToken(accessToken)
+        Task { await SleepMembershipSession.shared.bindGuestMembershipAfterLogin() }
     }
 
     func logout() {
         isLoggedIn = false
+        SleepMembershipSession.shared.logoutUser()
     }
 
     func clearAccountData() {
         isLoggedIn = false
         phoneNumber = ""
+        SleepMembershipSession.shared.logoutUser()
     }
 
     func acceptAgreement() {

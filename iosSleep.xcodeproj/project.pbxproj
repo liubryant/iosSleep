@@ -57,6 +57,11 @@
 		F4BFE036F509DA7AF17EEA98 /* Pods_iosSleep.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE2385BF3AD04433671E7D6C /* Pods_iosSleep.framework */; };
 		A81700000000000000000001 /* MindfulnessPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A81700000000000000000002 /* MindfulnessPlayerView.swift */; };
 		A81700000000000000000003 /* MindfulnessHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A81700000000000000000004 /* MindfulnessHomeView.swift */; };
+		A90000000000000000000001 /* SleepMembershipService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90000000000000000000101 /* SleepMembershipService.swift */; };
+		A90000000000000000000002 /* SleepStoreKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90000000000000000000102 /* SleepStoreKitService.swift */; };
+		A90000000000000000000003 /* SleepMembershipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90000000000000000000103 /* SleepMembershipView.swift */; };
+		A91000000000000000000001 /* VoiceCharactersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91000000000000000000002 /* VoiceCharactersView.swift */; };
+		A91000000000000000000003 /* VoiceCharacters in Resources */ = {isa = PBXBuildFile; fileRef = A91000000000000000000004 /* VoiceCharacters */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -115,6 +120,11 @@
 		FE2385BF3AD04433671E7D6C /* Pods_iosSleep.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_iosSleep.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A81700000000000000000002 /* MindfulnessPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MindfulnessPlayerView.swift; sourceTree = "<group>"; };
 		A81700000000000000000004 /* MindfulnessHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MindfulnessHomeView.swift; sourceTree = "<group>"; };
+		A90000000000000000000101 /* SleepMembershipService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepMembershipService.swift; sourceTree = "<group>"; };
+		A90000000000000000000102 /* SleepStoreKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepStoreKitService.swift; sourceTree = "<group>"; };
+		A90000000000000000000103 /* SleepMembershipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepMembershipView.swift; sourceTree = "<group>"; };
+		A91000000000000000000002 /* VoiceCharactersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceCharactersView.swift; sourceTree = "<group>"; };
+		A91000000000000000000004 /* VoiceCharacters */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder; path = VoiceCharacters; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -206,6 +216,8 @@
 				BF0000010000000000000911 /* AuthService.swift */,
 				8084153688101DE9E762DBE2 /* StoryLibrary.swift */,
 				ED3CF67938372D06C01B13A1 /* StoryPlayerService.swift */,
+				A90000000000000000000101 /* SleepMembershipService.swift */,
+				A90000000000000000000102 /* SleepStoreKitService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -230,6 +242,7 @@
 				BF0000010000000000000125 /* DrawFeedAdCardView.swift */,
 				A81700000000000000000002 /* MindfulnessPlayerView.swift */,
 				A81700000000000000000004 /* MindfulnessHomeView.swift */,
+				A91000000000000000000002 /* VoiceCharactersView.swift */,
 			);
 			path = Sounds;
 			sourceTree = "<group>";
@@ -251,6 +264,7 @@
 				BF0000010000000000000122 /* LaunchScreen.storyboard */,
 				DB77A839AB736E6367097760 /* StoryResources */,
 				F0A1B2C3D4E5F60718293002 /* ModelResources */,
+				A91000000000000000000004 /* VoiceCharacters */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -271,6 +285,7 @@
 				BF0000010000000000000913 /* SetPasswordView.swift */,
 				BF0000010000000000000921 /* AccountDeletionView.swift */,
 				BF0000010000000000000113 /* LegalTextView.swift */,
+				A90000000000000000000103 /* SleepMembershipView.swift */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
@@ -369,6 +384,7 @@
 				BF0000010000000000000023 /* PrivacyInfo.xcprivacy in Resources */,
 				EF8DAD8CC994E316E2A5F888 /* StoryResources in Resources */,
 				F0A1B2C3D4E5F60718293001 /* ModelResources in Resources */,
+				A91000000000000000000003 /* VoiceCharacters in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -464,6 +480,10 @@
 				D388D6D13200371F59D8F957 /* StoryPlayerView.swift in Sources */,
 				A81700000000000000000001 /* MindfulnessPlayerView.swift in Sources */,
 				A81700000000000000000003 /* MindfulnessHomeView.swift in Sources */,
+				A90000000000000000000001 /* SleepMembershipService.swift in Sources */,
+				A90000000000000000000002 /* SleepStoreKitService.swift in Sources */,
+				A90000000000000000000003 /* SleepMembershipView.swift in Sources */,
+				A91000000000000000000001 /* VoiceCharactersView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -592,7 +612,7 @@
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = iosSleep/iosSleep.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_TEAM = MF7G4UB9D9;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -616,7 +636,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3.1;
+				MARKETING_VERSION = 1.3.2;
 				PRODUCT_BUNDLE_IDENTIFIER = cn.cjym.timesleep;
 				PRODUCT_NAME = "时光睡眠";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -633,7 +653,7 @@
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = iosSleep/iosSleep.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_TEAM = MF7G4UB9D9;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -657,7 +677,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3.1;
+				MARKETING_VERSION = 1.3.2;
 				PRODUCT_BUNDLE_IDENTIFIER = cn.cjym.timesleep;
 				PRODUCT_NAME = "时光睡眠";
 				SWIFT_EMIT_LOC_STRINGS = YES;

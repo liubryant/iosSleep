@@ -101,6 +101,7 @@ struct MindfulnessPlayerView: View {
             .padding(.horizontal, 22)
             .padding(.bottom, 22)
         }
+        .appEdgeSwipeBack()
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
         .toolbar(.hidden, for: .tabBar)

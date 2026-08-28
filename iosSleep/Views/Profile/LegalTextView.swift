@@ -9,6 +9,7 @@ struct LegalTextView: View {
         WebPageView(url: url)
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
+        .appEdgeSwipeBack()
     }
 }
 

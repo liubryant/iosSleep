@@ -5,7 +5,14 @@ struct SoundHomeView: View {
     @EnvironmentObject private var library: SoundLibrary
     @EnvironmentObject private var player: AudioPlayerService
     @EnvironmentObject private var storyPlayer: StoryPlayerService
+    @EnvironmentObject private var settings: AppSettings
+    @ObservedObject private var membership = SleepMembershipSession.shared
     @State private var selectedCategory: SoundCategory = .whiteNoise
+    @State private var vipPromptTitle = ""
+    @State private var vipPromptKind: SleepVIPContentKind = .mindfulness
+    @State private var showVIPPrompt = false
+    @State private var showMembershipAfterPrompt = false
+    @State private var showMembership = false
 
     private let columns = [
         GridItem(.flexible(), spacing: 16),
@@ -60,7 +67,7 @@ struct SoundHomeView: View {
                         ForEach(sceneSections) { section in
                             LazyVGrid(columns: columns, spacing: 16) {
                                 ForEach(section.scenes) { scene in
-                                    SoundCardView(scene: scene)
+                                    soundCard(for: scene)
                                 }
                             }
 
@@ -93,6 +100,27 @@ struct SoundHomeView: View {
                 selectedCategory = .nature
                 library.searchText = ""
             }
+        }
+        .sheet(isPresented: $showVIPPrompt, onDismiss: {
+            guard showMembershipAfterPrompt else { return }
+            showMembershipAfterPrompt = false
+            showMembership = true
+        }) {
+            SleepVIPUpgradeSheet(
+                contentTitle: vipPromptTitle,
+                contentKind: vipPromptKind,
+                onUpgrade: {
+                    showMembershipAfterPrompt = true
+                    showVIPPrompt = false
+                },
+                onCancel: { showVIPPrompt = false }
+            )
+            .presentationDetents([.height(330)])
+            .presentationDragIndicator(.visible)
+        }
+        .fullScreenCover(isPresented: $showMembership) {
+            NavigationStack { SleepMembershipView() }
+                .environmentObject(settings)
         }
     }
 
@@ -128,19 +156,43 @@ struct SoundHomeView: View {
                     rows: [GridItem(.fixed(235))],
                     spacing: 16
                 ) {
-                    ForEach(Array(mindfulnessItems.prefix(6))) { item in
-                        NavigationLink {
-                            MindfulnessPlayerView(track: item.track)
-                        } label: {
-                            mindfulnessCard(item)
+                    ForEach(Array(mindfulnessItems.prefix(6).enumerated()), id: \.element.id) { index, item in
+                        if index >= 4 && !membership.isVIPActive {
+                            Button {
+                                vipPromptTitle = item.title
+                                vipPromptKind = .mindfulness
+                                showVIPPrompt = true
+                            } label: {
+                                mindfulnessCard(item, isVIPContent: true)
+                            }
+                            .buttonStyle(.plain)
+                        } else {
+                            NavigationLink {
+                                MindfulnessPlayerView(track: item.track)
+                            } label: {
+                                mindfulnessCard(item, isVIPContent: index >= 4)
+                            }
+                            .buttonStyle(.plain)
                         }
-                        .buttonStyle(.plain)
                     }
                 }
                 .padding(.horizontal, 2)
                 .padding(.vertical, 2)
             }
             .frame(height: 240)
+        }
+    }
+
+    @ViewBuilder
+    private func soundCard(for scene: SoundScene) -> some View {
+        if scene.requiresVIP && !membership.isVIPActive {
+            SoundCardView(scene: scene, isVIPContent: true) {
+                vipPromptTitle = scene.title
+                vipPromptKind = .sound
+                showVIPPrompt = true
+            }
+        } else {
+            SoundCardView(scene: scene, isVIPContent: scene.requiresVIP)
         }
     }
 
@@ -157,7 +209,7 @@ struct SoundHomeView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private func mindfulnessCard(_ item: SoundHomeMindfulnessItem) -> some View {
+    private func mindfulnessCard(_ item: SoundHomeMindfulnessItem, isVIPContent: Bool = false) -> some View {
         VStack(alignment: .leading, spacing: 11) {
             ZStack {
                 if let image = mindfulnessImage(named: item.imageName) {
@@ -177,6 +229,19 @@ struct SoundHomeView: View {
                     .background(.black.opacity(0.30))
                     .clipShape(Circle())
                     .padding(9)
+            }
+            .overlay(alignment: .topTrailing) {
+                if isVIPContent {
+                    Label("VIP", systemImage: "crown.fill")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 8)
+                        .frame(height: 23)
+                        .background(.ultraThinMaterial.opacity(0.88))
+                        .background(Color.black.opacity(0.16))
+                        .clipShape(Capsule())
+                        .padding(9)
+                }
             }
 
             VStack(alignment: .leading, spacing: 4) {
@@ -347,25 +412,16 @@ struct SoundHomeView: View {
     }
 
     private var filterMenu: some View {
-        Menu {
-            Button("全部") {
+        SoundOptionsMenuButton(
+            onShowAll: {
                 selectedCategory = .all
                 library.searchText = ""
-            }
-            Button("收藏") {
-                selectedCategory = .favorites
-            }
-            Divider()
-            Button("15 分钟后停止") { player.setSleepTimer(minutes: 15) }
-            Button("30 分钟后停止") { player.setSleepTimer(minutes: 30) }
-            Button("60 分钟后停止") { player.setSleepTimer(minutes: 60) }
-            Button("取消定时") { player.cancelSleepTimer() }
-        } label: {
-            Image(systemName: "slider.horizontal.3")
-                .font(.title3)
-                .frame(width: 38, height: 38)
-        }
-        .buttonStyle(.plain)
+            },
+            onShowFavorites: { selectedCategory = .favorites },
+            onSetTimer: { player.setSleepTimer(minutes: $0) },
+            onCancelTimer: { player.cancelSleepTimer() }
+        )
+        .frame(width: 44, height: 44)
     }
 
     private var greetingText: String {
@@ -388,6 +444,93 @@ struct SoundHomeView: View {
             greeting = "夜深了"
         }
         return "\(greeting)，时光睡眠！"
+    }
+}
+
+/// 保持菜单从右上角按钮锚点弹出，同时避开 SwiftUI `Menu` 关闭后偶发的
+/// SF Symbol 裁切快照残留。UIKit 按钮的图标层不会随菜单预览一起重建。
+private struct SoundOptionsMenuButton: UIViewRepresentable {
+    let onShowAll: () -> Void
+    let onShowFavorites: () -> Void
+    let onSetTimer: (Int) -> Void
+    let onCancelTimer: () -> Void
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(
+            onShowAll: onShowAll,
+            onShowFavorites: onShowFavorites,
+            onSetTimer: onSetTimer,
+            onCancelTimer: onCancelTimer
+        )
+    }
+
+    func makeUIView(context: Context) -> UIButton {
+        let button = UIButton(type: .system)
+        let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 19, weight: .regular)
+        button.setImage(UIImage(systemName: "slider.horizontal.3", withConfiguration: symbolConfiguration), for: .normal)
+        button.tintColor = .label
+        button.adjustsImageWhenHighlighted = false
+        button.contentHorizontalAlignment = .center
+        button.contentVerticalAlignment = .center
+        button.showsMenuAsPrimaryAction = true
+        button.accessibilityLabel = "声音筛选与定时"
+        button.menu = context.coordinator.makeMenu()
+        return button
+    }
+
+    func updateUIView(_ button: UIButton, context: Context) {
+        context.coordinator.update(
+            onShowAll: onShowAll,
+            onShowFavorites: onShowFavorites,
+            onSetTimer: onSetTimer,
+            onCancelTimer: onCancelTimer
+        )
+        button.menu = context.coordinator.makeMenu()
+    }
+
+    final class Coordinator {
+        private var onShowAll: () -> Void
+        private var onShowFavorites: () -> Void
+        private var onSetTimer: (Int) -> Void
+        private var onCancelTimer: () -> Void
+
+        init(
+            onShowAll: @escaping () -> Void,
+            onShowFavorites: @escaping () -> Void,
+            onSetTimer: @escaping (Int) -> Void,
+            onCancelTimer: @escaping () -> Void
+        ) {
+            self.onShowAll = onShowAll
+            self.onShowFavorites = onShowFavorites
+            self.onSetTimer = onSetTimer
+            self.onCancelTimer = onCancelTimer
+        }
+
+        func update(
+            onShowAll: @escaping () -> Void,
+            onShowFavorites: @escaping () -> Void,
+            onSetTimer: @escaping (Int) -> Void,
+            onCancelTimer: @escaping () -> Void
+        ) {
+            self.onShowAll = onShowAll
+            self.onShowFavorites = onShowFavorites
+            self.onSetTimer = onSetTimer
+            self.onCancelTimer = onCancelTimer
+        }
+
+        func makeMenu() -> UIMenu {
+            let filters = UIMenu(options: .displayInline, children: [
+                UIAction(title: "全部") { [weak self] _ in self?.onShowAll() },
+                UIAction(title: "收藏") { [weak self] _ in self?.onShowFavorites() }
+            ])
+            let timers = UIMenu(options: .displayInline, children: [
+                UIAction(title: "15 分钟后停止") { [weak self] _ in self?.onSetTimer(15) },
+                UIAction(title: "30 分钟后停止") { [weak self] _ in self?.onSetTimer(30) },
+                UIAction(title: "60 分钟后停止") { [weak self] _ in self?.onSetTimer(60) },
+                UIAction(title: "取消定时", attributes: .destructive) { [weak self] _ in self?.onCancelTimer() }
+            ])
+            return UIMenu(children: [filters, timers])
+        }
     }
 }
 

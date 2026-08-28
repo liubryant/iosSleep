@@ -138,10 +138,13 @@ struct MainTabView: View {
         switch action {
         case .mindfulness:
             selectedTab = 0
-            quickMindfulnessTrack = [
+            let allTracks = [
                 MindfulnessTrack.deepSleep, .daytimeEnergy, .walking, .emotionalRelease,
                 .calmingSleep, .fatigueRelief, .quickSleep, .examSleep
-            ].randomElement()
+            ]
+            let availableTracks = SleepMembershipSession.shared.isVIPActive
+                ? allTracks : Array(allTracks.prefix(4))
+            quickMindfulnessTrack = availableTracks.randomElement()
         case .nature:
             selectedTab = 0
             DispatchQueue.main.async {
@@ -179,7 +182,10 @@ struct MainTabView: View {
                 candidates = soundLibrary.scenes
             }
 
-            guard let scene = randomItem(excluding: player.currentScene?.id, from: candidates) else { return }
+            let accessibleCandidates = SleepMembershipSession.shared.isVIPActive
+                ? candidates
+                : candidates.filter { !$0.requiresVIP }
+            guard let scene = randomItem(excluding: player.currentScene?.id, from: accessibleCandidates) else { return }
             await player.play(scene: scene)
         }
     }

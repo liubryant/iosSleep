@@ -102,6 +102,12 @@ struct SetPasswordView: View {
         .padding()
         .navigationTitle("修改密码")
         .navigationBarTitleDisplayMode(.inline)
+        .appEdgeSwipeBack()
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("关闭") { dismiss() }
+            }
+        }
     }
 
     private func requestCode() {

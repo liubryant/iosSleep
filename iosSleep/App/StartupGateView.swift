@@ -29,6 +29,8 @@ struct StartupGateView: View {
             await soundLibrary.load()
             if settings.agreementAccepted {
                 await storyLibrary.load()
+                SleepIAPBootstrap.startObservingTransactions()
+                SleepMembershipSession.shared.refreshSilently()
             }
             startSplashFlowIfNeeded()
         }
@@ -37,6 +39,8 @@ struct StartupGateView: View {
             Task { @MainActor in
                 try? await Task.sleep(nanoseconds: 300_000_000)
                 await storyLibrary.load()
+                SleepIAPBootstrap.startObservingTransactions()
+                SleepMembershipSession.shared.refreshSilently()
                 startSplashFlowIfNeeded()
             }
         }

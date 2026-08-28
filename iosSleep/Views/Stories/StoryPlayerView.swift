@@ -79,6 +79,7 @@ struct StoryPlayerView: View {
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
         }
+        .appEdgeSwipeBack()
         .navigationTitle(story.title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)

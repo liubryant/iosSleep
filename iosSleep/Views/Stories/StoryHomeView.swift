@@ -16,12 +16,20 @@ struct StoryHomeView: View {
 
     private var filteredStories: [StoryItem] {
         let keyword = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !keyword.isEmpty else { return library.stories }
-        return library.stories.filter {
-            $0.title.localizedCaseInsensitiveContains(keyword) ||
-            ($0.author?.localizedCaseInsensitiveContains(keyword) ?? false) ||
-            ($0.summary?.localizedCaseInsensitiveContains(keyword) ?? false)
+        let matches: [StoryItem]
+        if keyword.isEmpty {
+            matches = library.stories
+        } else {
+            matches = library.stories.filter {
+                $0.title.localizedCaseInsensitiveContains(keyword) ||
+                ($0.author?.localizedCaseInsensitiveContains(keyword) ?? false) ||
+                ($0.summary?.localizedCaseInsensitiveContains(keyword) ?? false)
+            }
         }
+
+        // 稳定分组，不改变收藏组和普通组各自原有的推荐顺序。
+        return matches.filter { library.isFavorite($0) }
+            + matches.filter { !library.isFavorite($0) }
     }
 
     var body: some View {
@@ -141,11 +149,30 @@ struct StoryHomeView: View {
 
                 LazyVGrid(columns: columns, spacing: 16) {
                     ForEach(stories) { story in
-                        NavigationLink(value: story) {
-                            StoryCardView(story: story)
+                        ZStack(alignment: .bottomTrailing) {
+                            NavigationLink(value: story) {
+                                StoryCardView(story: story)
+                            }
+                            .buttonStyle(.plain)
+
+                            Button {
+                                library.toggleFavorite(story)
+                            } label: {
+                                Image(systemName: library.isFavorite(story) ? "heart.fill" : "heart")
+                                    .font(.system(size: 12, weight: .semibold))
+                                    .foregroundStyle(library.isFavorite(story) ? Color.red : Color.white)
+                                    .frame(width: 28, height: 28)
+                                    .background(.ultraThinMaterial, in: Circle())
+                                    .overlay {
+                                        Circle().stroke(.white.opacity(0.25), lineWidth: 0.5)
+                                    }
+                                    .shadow(color: .black.opacity(0.14), radius: 3, y: 1)
+                            }
+                            .buttonStyle(.plain)
+                            .padding(7)
+                            .accessibilityLabel(library.isFavorite(story) ? "取消收藏\(story.title)" : "收藏\(story.title)")
                         }
                         .frame(maxWidth: .infinity)
-                        .buttonStyle(.plain)
                     }
                 }
             }

@@ -16,6 +16,14 @@ enum AuthError: LocalizedError {
 struct AppUserLoginResult: Decodable {
     let phone: String
     let newUser: Bool
+    let accessToken: String?
+    let token: String?
+
+    var resolvedAccessToken: String? {
+        if let accessToken, !accessToken.isEmpty { return accessToken }
+        if let token, !token.isEmpty { return token }
+        return nil
+    }
 }
 
 /// 手机号验证码 / 密码登录相关接口。
