@@ -54,12 +54,14 @@ struct SoundHomeView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 0) {
-                    soundFeatureCategories
                     soundSearchBar
+                    soundFeatureCategories
 
                     LazyVStack(spacing: 16) {
                         if selectedCategory == .whiteNoise {
                             mindfulnessSection
+                            WellnessHomeSection()
+                                .padding(.top, 8)
                         }
 
                         soundSectionHeader
@@ -80,13 +82,9 @@ struct SoundHomeView: View {
                     .padding(.bottom, player.currentScene == nil && storyPlayer.currentStory == nil ? 0 : 88)
                 }
             }
-            .safeAreaInset(edge: .top, spacing: 16) {
+            .safeAreaInset(edge: .top, spacing: 0) {
                 soundTopBar
-                    .background {
-                        BottomRoundedShape(radius: 5)
-                            .fill(.ultraThinMaterial)
-                            .ignoresSafeArea(edges: .top)
-                    }
+                    .background(Color(.systemBackground).ignoresSafeArea(edges: .top))
             }
             .toolbar(.hidden, for: .navigationBar)
             .overlay {
@@ -369,8 +367,7 @@ struct SoundHomeView: View {
         .background(Color(.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .padding(.horizontal)
-        .padding(.top, 14)
-        .padding(.bottom, 4)
+        .padding(.vertical, 8)
     }
 
     private var soundCategoryBar: some View {
@@ -548,29 +545,6 @@ private struct SoundHomeMindfulnessItem: Identifiable {
     let subtitle: String
     let imageName: String
     let track: MindfulnessTrack
-}
-
-private struct BottomRoundedShape: Shape {
-    let radius: CGFloat
-
-    func path(in rect: CGRect) -> Path {
-        let r = min(radius, min(rect.width, rect.height) / 2)
-        var path = Path()
-        path.move(to: CGPoint(x: rect.minX, y: rect.minY))
-        path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
-        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY - r))
-        path.addQuadCurve(
-            to: CGPoint(x: rect.maxX - r, y: rect.maxY),
-            control: CGPoint(x: rect.maxX, y: rect.maxY)
-        )
-        path.addLine(to: CGPoint(x: rect.minX + r, y: rect.maxY))
-        path.addQuadCurve(
-            to: CGPoint(x: rect.minX, y: rect.maxY - r),
-            control: CGPoint(x: rect.minX, y: rect.maxY)
-        )
-        path.closeSubpath()
-        return path
-    }
 }
 
 private enum SoundCategory: String, CaseIterable, Identifiable {

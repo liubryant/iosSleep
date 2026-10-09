@@ -56,17 +56,44 @@ struct MindfulnessHomeView: View {
         .init(title: "考前失眠解放", subtitle: "减少紧张，安心迎接明天", icon: "book.closed.fill", colors: [.pink, .purple], imageName: "8", track: .examSleep)
     ]
 
-    private var allMeditationItems: [MindfulnessHomeItem] {
-        meditationItems + remoteMindfulness.items.map { item in
-            MindfulnessHomeItem(
-                title: item.title,
-                subtitle: "云端正念 · 下载后离线播放",
-                icon: "moon.stars.fill",
-                colors: remoteColors(for: item.id),
-                imageName: "\(Int(item.id.magnitude % 8) + 1)",
-                remoteMindfulness: item
+    private var meditationGroups: [MindfulnessDisplayGroup] {
+        var remoteGroups = remoteMindfulness.groups
+        var result: [MindfulnessDisplayGroup] = []
+
+        if let primaryIndex = remoteGroups.firstIndex(where: {
+            $0.name.trimmingCharacters(in: .whitespacesAndNewlines) == "正念冥想"
+        }) {
+            let primary = remoteGroups.remove(at: primaryIndex)
+            result.append(
+                MindfulnessDisplayGroup(
+                    id: "category-\(primary.id)",
+                    title: primary.name,
+                    subtitle: groupSubtitle(primary.description),
+                    items: meditationItems + primary.items.map(remoteHomeItem)
+                )
+            )
+        } else {
+            result.append(
+                MindfulnessDisplayGroup(
+                    id: "local-mindfulness",
+                    title: "正念冥想",
+                    subtitle: "跟随声音，把注意力带回当下",
+                    items: meditationItems
+                )
             )
         }
+
+        result.append(contentsOf: remoteGroups.compactMap { group in
+            let items = group.items.map(remoteHomeItem)
+            guard !items.isEmpty else { return nil }
+            return MindfulnessDisplayGroup(
+                id: "category-\(group.id)",
+                title: group.name,
+                subtitle: groupSubtitle(group.description),
+                items: items
+            )
+        })
+        return result
     }
 
     private var natureItems: [MindfulnessHomeItem] {
@@ -81,21 +108,40 @@ struct MindfulnessHomeView: View {
         }
     }
 
+    private func remoteHomeItem(_ item: RemoteMindfulnessItem) -> MindfulnessHomeItem {
+        MindfulnessHomeItem(
+            title: item.title,
+            subtitle: "云端正念 · 下载后离线播放",
+            icon: "moon.stars.fill",
+            colors: remoteColors(for: item.id),
+            imageName: "\(Int(item.id.magnitude % 8) + 1)",
+            remoteMindfulness: item
+        )
+    }
+
+    private func groupSubtitle(_ description: String?) -> String {
+        let value = description?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return value.isEmpty ? "跟随声音，把注意力带回当下" : value
+    }
+
     var body: some View {
         ZStack {
             Color(.systemGroupedBackground).ignoresSafeArea()
             ScrollView {
                 VStack(spacing: 28) {
                     hero
-                    contentSection(
-                        title: "正念冥想",
-                        subtitle: "跟随声音，把注意力带回当下",
-                        items: allMeditationItems,
-                        restrictAfterFirstFour: true,
-                        showsVoiceCharactersEntry: true,
-                        usesHomeCardRatio: true
-                    )
-                        .padding(.top, -10)
+                    ForEach(Array(meditationGroups.enumerated()), id: \.element.id) { index, group in
+                        contentSection(
+                            title: group.title,
+                            subtitle: group.subtitle,
+                            items: group.items,
+                            freeItemCount: index == 0 ? 4 : 0,
+                            showsVoiceCharactersEntry: index == 0,
+                            usesHomeCardRatio: true,
+                            maximumRowCount: 1
+                        )
+                        .padding(.top, index == 0 ? -10 : 0)
+                    }
                     contentSection(title: "大自然中入眠", subtitle: "枕着山海风雨，慢慢沉入梦乡", items: natureItems)
                 }
                 .padding(.bottom, 34)
@@ -286,11 +332,14 @@ struct MindfulnessHomeView: View {
         title: String,
         subtitle: String,
         items: [MindfulnessHomeItem],
-        restrictAfterFirstFour: Bool = false,
+        freeItemCount: Int? = nil,
         showsVoiceCharactersEntry: Bool = false,
-        usesHomeCardRatio: Bool = false
+        usesHomeCardRatio: Bool = false,
+        maximumRowCount: Int = 2
     ) -> some View {
         let rowHeight: CGFloat = usesHomeCardRatio ? 229 : 183
+        let rowCount = min(max(items.count, 1), max(maximumRowCount, 1))
+        let gridRows = Array(repeating: GridItem(.fixed(rowHeight), spacing: 12), count: rowCount)
 
         return VStack(alignment: .leading, spacing: 14) {
             HStack(alignment: .center, spacing: 12) {
@@ -321,9 +370,9 @@ struct MindfulnessHomeView: View {
             .padding(.horizontal, 20)
 
             ScrollView(.horizontal, showsIndicators: false) {
-                LazyHGrid(rows: [GridItem(.fixed(rowHeight), spacing: 12), GridItem(.fixed(rowHeight), spacing: 12)], spacing: 12) {
+                LazyHGrid(rows: gridRows, spacing: 12) {
                     ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
-                        let isVIPContent = (restrictAfterFirstFour && index >= 4)
+                        let isVIPContent = (freeItemCount.map { index >= $0 } ?? false)
                             || (item.scene?.requiresVIP == true)
                         destination(
                             for: item,
@@ -334,7 +383,7 @@ struct MindfulnessHomeView: View {
                 }
                 .padding(.horizontal, 20).padding(.vertical, 2)
             }
-            .frame(height: rowHeight * 2 + 12)
+            .frame(height: rowHeight * CGFloat(rowCount) + CGFloat(rowCount - 1) * 12)
         }
     }
 
@@ -558,6 +607,13 @@ struct MindfulnessFlowVisibilityPreferenceKey: PreferenceKey {
     }
 }
 
+private struct MindfulnessDisplayGroup: Identifiable {
+    let id: String
+    let title: String
+    let subtitle: String
+    let items: [MindfulnessHomeItem]
+}
+
 private struct MindfulnessHomeItem: Identifiable {
     let id: String
     let title: String
@@ -599,6 +655,15 @@ private struct MindfulnessHomeItem: Identifiable {
     }
 }
 
+private struct RemoteMindfulnessGroup: Decodable, Identifiable {
+    let id: Int
+    let name: String
+    let description: String?
+    let sortOrder: Int?
+    let itemCount: Int?
+    let items: [RemoteMindfulnessItem]
+}
+
 private struct RemoteMindfulnessItem: Decodable, Identifiable {
     let id: Int
     let title: String
@@ -619,7 +684,7 @@ private struct RemoteMindfulnessItem: Decodable, Identifiable {
 
 @MainActor
 private final class RemoteMindfulnessLibrary: ObservableObject {
-    @Published private(set) var items: [RemoteMindfulnessItem] = []
+    @Published private(set) var groups: [RemoteMindfulnessGroup] = []
     @Published private(set) var downloadProgress: [Int: Double] = [:]
 
     private static let serverBaseURL = URL(string: "https://www.cjym123.cn")!
@@ -630,23 +695,63 @@ private final class RemoteMindfulnessLibrary: ObservableObject {
         didLoad = true
 
         do {
-            var request = URLRequest(
-                url: Self.serverBaseURL.appendingPathComponent("api/mindfulness"),
-                cachePolicy: .reloadIgnoringLocalCacheData,
-                timeoutInterval: 30
-            )
-            request.httpMethod = "GET"
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let response = response as? HTTPURLResponse,
-                  (200..<300).contains(response.statusCode) else {
-                throw URLError(.badServerResponse)
+            let data = try await requestData(path: "api/mindfulness/grouped")
+            groups = try JSONDecoder().decode([RemoteMindfulnessGroup].self, from: data)
+                .map { group in
+                    RemoteMindfulnessGroup(
+                        id: group.id,
+                        name: group.name.trimmingCharacters(in: .whitespacesAndNewlines),
+                        description: group.description,
+                        sortOrder: group.sortOrder,
+                        itemCount: group.itemCount,
+                        items: validItems(group.items)
+                    )
+                }
+                .filter { !$0.name.isEmpty && !$0.items.isEmpty }
+                .sorted { lhs, rhs in
+                    let leftOrder = lhs.sortOrder ?? 0
+                    let rightOrder = rhs.sortOrder ?? 0
+                    return leftOrder == rightOrder ? lhs.id < rhs.id : leftOrder < rightOrder
+                }
+        } catch let groupedError {
+            do {
+                let data = try await requestData(path: "api/mindfulness")
+                let legacyItems = validItems(try JSONDecoder().decode([RemoteMindfulnessItem].self, from: data))
+                groups = legacyItems.isEmpty ? [] : [
+                    RemoteMindfulnessGroup(
+                        id: 0,
+                        name: "正念冥想",
+                        description: "跟随声音，把注意力带回当下",
+                        sortOrder: 0,
+                        itemCount: legacyItems.count,
+                        items: legacyItems
+                    )
+                ]
+            } catch {
+                groups = []
+                print("Failed to load grouped mindfulness list: \(groupedError); legacy fallback: \(error)")
             }
+        }
+    }
 
-            items = try JSONDecoder().decode([RemoteMindfulnessItem].self, from: data)
-                .filter { !$0.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !$0.downloadUrl.isEmpty }
-        } catch {
-            items = []
-            print("Failed to load remote mindfulness list: \(error)")
+    private func requestData(path: String) async throws -> Data {
+        var request = URLRequest(
+            url: Self.serverBaseURL.appendingPathComponent(path),
+            cachePolicy: .reloadIgnoringLocalCacheData,
+            timeoutInterval: 30
+        )
+        request.httpMethod = "GET"
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse,
+              (200..<300).contains(response.statusCode) else {
+            throw URLError(.badServerResponse)
+        }
+        return data
+    }
+
+    private func validItems(_ items: [RemoteMindfulnessItem]) -> [RemoteMindfulnessItem] {
+        items.filter {
+            !$0.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !$0.downloadUrl.isEmpty
         }
     }
 

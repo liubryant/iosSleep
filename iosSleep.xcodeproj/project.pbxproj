@@ -62,6 +62,8 @@
 		A90000000000000000000003 /* SleepMembershipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90000000000000000000103 /* SleepMembershipView.swift */; };
 		A91000000000000000000001 /* VoiceCharactersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91000000000000000000002 /* VoiceCharactersView.swift */; };
 		A91000000000000000000003 /* VoiceCharacters in Resources */ = {isa = PBXBuildFile; fileRef = A91000000000000000000004 /* VoiceCharacters */; };
+		A92000000000000000000001 /* WellnessModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A92000000000000000000002 /* WellnessModels.swift */; };
+		A92000000000000000000003 /* WellnessViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A92000000000000000000004 /* WellnessViews.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -125,6 +127,8 @@
 		A90000000000000000000103 /* SleepMembershipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepMembershipView.swift; sourceTree = "<group>"; };
 		A91000000000000000000002 /* VoiceCharactersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceCharactersView.swift; sourceTree = "<group>"; };
 		A91000000000000000000004 /* VoiceCharacters */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder; path = VoiceCharacters; sourceTree = "<group>"; };
+		A92000000000000000000002 /* WellnessModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WellnessModels.swift; sourceTree = "<group>"; };
+		A92000000000000000000004 /* WellnessViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WellnessViews.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -190,6 +194,7 @@
 				BF0000010000000000000104 /* SleepModels.swift */,
 				BF0000010000000000000105 /* AppSettings.swift */,
 				FA3AC53F2B2BBA0C6DBFEE02 /* StoryItem.swift */,
+				A92000000000000000000002 /* WellnessModels.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -229,6 +234,7 @@
 				BF0000010000000000000407 /* Sleep */,
 				BF0000010000000000000410 /* Profile */,
 				BF0000010000000000000411 /* Shared */,
+				A92000000000000000000005 /* Wellness */,
 				E6A04A10B10BBFD6A92ED45B /* Stories */,
 			);
 			path = Views;
@@ -318,6 +324,14 @@
 			path = Stories;
 			sourceTree = "<group>";
 		};
+		A92000000000000000000005 /* Wellness */ = {
+			isa = PBXGroup;
+			children = (
+				A92000000000000000000004 /* WellnessViews.swift */,
+			);
+			path = Wellness;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -352,6 +366,11 @@
 				TargetAttributes = {
 					BF0000010000000000000500 = {
 						CreatedOnToolsVersion = 16.0;
+						SystemCapabilities = {
+							com.apple.HealthKit = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -484,6 +503,8 @@
 				A90000000000000000000002 /* SleepStoreKitService.swift in Sources */,
 				A90000000000000000000003 /* SleepMembershipView.swift in Sources */,
 				A91000000000000000000001 /* VoiceCharactersView.swift in Sources */,
+				A92000000000000000000001 /* WellnessModels.swift in Sources */,
+				A92000000000000000000003 /* WellnessViews.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
