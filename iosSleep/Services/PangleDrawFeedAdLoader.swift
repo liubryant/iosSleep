@@ -37,7 +37,10 @@ final class PangleDrawFeedAdLoader: NSObject, ObservableObject {
             slot.position = .feed
             slot.imgSize = BUSize(by: .feed690_388)
             slot.mediation.mutedIfCan = true
-            slot.ext = [BUMAdLoadingParamNAIsMute: true]
+            slot.ext = [
+                BUMAdLoadingParamNAIsMute: true,
+                BUMAdLoadingParamIsClickable: true
+            ]
 
             let manager = BUNativeExpressAdManager(slot: slot, adSize: CGSize(width: width, height: 0))
             manager.delegate = self
@@ -80,6 +83,11 @@ extension PangleDrawFeedAdLoader: BUNativeExpressAdViewDelegate, BUCustomEventPr
         adView = nativeExpressAdView
     }
 
+    @objc(nativeExpressAdViewDidClick:)
+    func nativeExpressAdViewDidClick(_ nativeExpressAdView: BUNativeExpressAdView) {
+        print("csjad draw_feed_click slotID=\(slotID)")
+    }
+
     @objc(nativeExpressAdViewRenderFail:error:)
     func nativeExpressAdViewRenderFail(_ nativeExpressAdView: BUNativeExpressAdView, error: Error?) {
         isHidden = true
@@ -93,6 +101,10 @@ extension PangleDrawFeedAdLoader: BUNativeExpressAdViewDelegate, BUCustomEventPr
     }
 
     private func muteAdMedia(in view: UIView) {
+        if let mediaView = view as? BUMediaAdView {
+            // 信息流视频区域应响应广告点击，不作为播放/暂停控制器。
+            mediaView.drawVideoClickEnable = false
+        }
         muteLayers(in: view.layer)
         muteWebVideo(in: view)
         view.subviews.forEach { muteAdMedia(in: $0) }

@@ -5,14 +5,25 @@ struct SleepHomeView: View {
     @EnvironmentObject private var monitor: SleepMonitorService
     @EnvironmentObject private var healthKit: HealthKitService
     @State private var trendRange: SleepTrendRange = .week
-    @State private var selectedPage: SleepHomePage = .start
+    @SceneStorage("sleep.home.selectedPage") private var storedPageRawValue = SleepHomePage.start.rawValue
+
+    private var selectedPage: SleepHomePage {
+        SleepHomePage(rawValue: storedPageRawValue) ?? .start
+    }
+
+    private var selectedPageBinding: Binding<SleepHomePage> {
+        Binding(
+            get: { selectedPage },
+            set: { storedPageRawValue = $0.rawValue }
+        )
+    }
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
                 sleepTopBar
 
-                TabView(selection: $selectedPage) {
+                TabView(selection: selectedPageBinding) {
                     ScrollView {
                         VStack(spacing: 16) {
                             statusPanel
@@ -70,7 +81,7 @@ struct SleepHomeView: View {
             ForEach(SleepHomePage.allCases) { page in
                 Button {
                     withAnimation(.easeInOut(duration: 0.2)) {
-                        selectedPage = page
+                        storedPageRawValue = page.rawValue
                     }
                 } label: {
                     VStack(spacing: 9) {

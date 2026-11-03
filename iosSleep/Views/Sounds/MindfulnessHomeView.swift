@@ -8,7 +8,6 @@ struct MindfulnessHomeView: View {
     @EnvironmentObject private var player: AudioPlayerService
     @EnvironmentObject private var storyPlayer: StoryPlayerService
     @EnvironmentObject private var settings: AppSettings
-    @ObservedObject private var membership = SleepMembershipSession.shared
     @StateObject private var remoteMindfulness = RemoteMindfulnessLibrary()
     @State private var selectedBanner = 0
     @State private var pendingNatureSceneID: String?
@@ -17,11 +16,6 @@ struct MindfulnessHomeView: View {
     @State private var selectedRemoteTrack: MindfulnessTrack?
     @State private var remoteMessage: String?
     @State private var presenterIsMoving = false
-    @State private var vipPromptTitle = ""
-    @State private var vipPromptKind: SleepVIPContentKind = .mindfulness
-    @State private var showVIPPrompt = false
-    @State private var showMembershipAfterPrompt = false
-    @State private var showMembership = false
 
     private let bannerTimer = Timer.publish(every: 3, on: .main, in: .common).autoconnect()
     private let banners: [MindfulnessBanner] = [
@@ -135,7 +129,6 @@ struct MindfulnessHomeView: View {
                             title: group.title,
                             subtitle: group.subtitle,
                             items: group.items,
-                            freeItemCount: index == 0 ? 4 : 0,
                             showsVoiceCharactersEntry: index == 0,
                             usesHomeCardRatio: true,
                             maximumRowCount: 1
@@ -192,27 +185,6 @@ struct MindfulnessHomeView: View {
             Button("知道了", role: .cancel) { remoteMessage = nil }
         } message: {
             Text(remoteMessage ?? "")
-        }
-        .sheet(isPresented: $showVIPPrompt, onDismiss: {
-            guard showMembershipAfterPrompt else { return }
-            showMembershipAfterPrompt = false
-            showMembership = true
-        }) {
-            SleepVIPUpgradeSheet(
-                contentTitle: vipPromptTitle,
-                contentKind: vipPromptKind,
-                onUpgrade: {
-                    showMembershipAfterPrompt = true
-                    showVIPPrompt = false
-                },
-                onCancel: { showVIPPrompt = false }
-            )
-            .presentationDetents([.height(330)])
-            .presentationDragIndicator(.visible)
-        }
-        .fullScreenCover(isPresented: $showMembership) {
-            NavigationStack { SleepMembershipView() }
-                .environmentObject(settings)
         }
     }
 
@@ -332,7 +304,6 @@ struct MindfulnessHomeView: View {
         title: String,
         subtitle: String,
         items: [MindfulnessHomeItem],
-        freeItemCount: Int? = nil,
         showsVoiceCharactersEntry: Bool = false,
         usesHomeCardRatio: Bool = false,
         maximumRowCount: Int = 2
@@ -371,12 +342,9 @@ struct MindfulnessHomeView: View {
 
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHGrid(rows: gridRows, spacing: 12) {
-                    ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
-                        let isVIPContent = (freeItemCount.map { index >= $0 } ?? false)
-                            || (item.scene?.requiresVIP == true)
+                    ForEach(items) { item in
                         destination(
                             for: item,
-                            isVIPContent: isVIPContent,
                             usesHomeCardRatio: usesHomeCardRatio
                         )
                     }
@@ -390,28 +358,18 @@ struct MindfulnessHomeView: View {
     @ViewBuilder
     private func destination(
         for item: MindfulnessHomeItem,
-        isVIPContent: Bool,
         usesHomeCardRatio: Bool
     ) -> some View {
-        if isVIPContent && !membership.isVIPActive {
-            Button {
-                vipPromptTitle = item.title
-                vipPromptKind = item.scene == nil ? .mindfulness : .sound
-                showVIPPrompt = true
-            } label: {
-                card(item, isVIPContent: true, usesHomeCardRatio: usesHomeCardRatio)
-            }
-            .buttonStyle(.plain)
-        } else if let track = item.track {
+        if let track = item.track {
             NavigationLink { MindfulnessPlayerView(track: track) } label: {
-                card(item, isVIPContent: isVIPContent, usesHomeCardRatio: usesHomeCardRatio)
+                card(item, usesHomeCardRatio: usesHomeCardRatio)
             }
             .buttonStyle(.plain)
         } else if let remoteItem = item.remoteMindfulness {
             Button {
                 openRemoteMindfulness(remoteItem)
             } label: {
-                card(item, isVIPContent: isVIPContent, usesHomeCardRatio: usesHomeCardRatio)
+                card(item, usesHomeCardRatio: usesHomeCardRatio)
             }
             .buttonStyle(.plain)
         } else if let scene = item.scene {
@@ -424,7 +382,7 @@ struct MindfulnessHomeView: View {
                     player.toggle(scene: scene)
                 }
             } label: {
-                card(item, isVIPContent: isVIPContent, usesHomeCardRatio: usesHomeCardRatio)
+                card(item, usesHomeCardRatio: usesHomeCardRatio)
             }
             .buttonStyle(.plain)
         } else {
@@ -432,7 +390,6 @@ struct MindfulnessHomeView: View {
                 card(
                     item,
                     unavailable: true,
-                    isVIPContent: isVIPContent,
                     usesHomeCardRatio: usesHomeCardRatio
                 )
             }
@@ -444,7 +401,6 @@ struct MindfulnessHomeView: View {
     private func card(
         _ item: MindfulnessHomeItem,
         unavailable: Bool = false,
-        isVIPContent: Bool = false,
         usesHomeCardRatio: Bool = false
     ) -> some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -465,19 +421,6 @@ struct MindfulnessHomeView: View {
             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             .overlay(alignment: .bottomTrailing) {
                 cardStatus(for: item, unavailable: unavailable).padding(7)
-            }
-            .overlay(alignment: .topTrailing) {
-                if isVIPContent {
-                    Label("VIP", systemImage: "crown.fill")
-                        .font(.system(size: 8, weight: .bold))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 7)
-                        .frame(height: 21)
-                        .background(.ultraThinMaterial.opacity(0.88))
-                        .background(Color.black.opacity(0.16))
-                        .clipShape(Capsule())
-                        .padding(7)
-                }
             }
             VStack(alignment: .leading, spacing: 3) {
                 Text(item.title).font(.system(size: 12, weight: .semibold)).foregroundStyle(.primary).lineLimit(1)

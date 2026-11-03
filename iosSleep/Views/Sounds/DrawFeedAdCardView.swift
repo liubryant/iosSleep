@@ -23,6 +23,7 @@ struct DrawFeedAdCardView: View {
                                         .background(.black.opacity(0.35))
                                         .clipShape(RoundedRectangle(cornerRadius: 4))
                                         .padding(8)
+                                        .allowsHitTesting(false)
                                 }
                         } else {
                             RoundedRectangle(cornerRadius: 8)

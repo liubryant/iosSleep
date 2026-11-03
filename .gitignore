@@ -10,3 +10,8 @@ xcuserdata/
 # Build output
 build/
 DerivedData/
+
+# Local speech generation environment and intermediate audio
+.audio8-venv/
+.audio8-work/
+GeneratedAudio/

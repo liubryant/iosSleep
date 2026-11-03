@@ -3,7 +3,6 @@ import SwiftUI
 enum WellnessDestination: Hashable {
     case healthInsight
     case assessment(WellnessAssessmentKind)
-    case sleepDiary
     case breathing
     case devices
     case history
@@ -27,12 +26,11 @@ struct WellnessFeature: Identifiable, Hashable {
         .init(id: "bigfive", title: "大五性格", subtitle: "探索五种人格倾向", badge: "20 道题", icon: "person.crop.circle.fill", colors: [.purple, .indigo], destination: .assessment(.bigFive)),
         .init(id: "stress", title: "压力自测", subtitle: "看看身心是否超负荷", badge: "8 道题", icon: "speedometer", colors: [.orange, .red], destination: .assessment(.stress)),
         .init(id: "chronotype", title: "作息类型", subtitle: "晨型、弹性型还是夜型", badge: "节律探索", icon: "sun.and.horizon.fill", colors: [.yellow, .orange], destination: .assessment(.chronotype)),
-        .init(id: "diary", title: "睡眠日记", subtitle: "记录作息、夜醒与晨间精力", badge: "每日记录", icon: "book.closed.fill", colors: [.green, .teal], destination: .sleepDiary),
         .init(id: "breathing", title: "呼吸练习", subtitle: "用一分钟让身心慢下来", badge: "正念时长", icon: "lungs.fill", colors: [.mint, .teal], destination: .breathing),
         .init(id: "devices", title: "智能设备", subtitle: "手表与睡眠设备连接指南", badge: "多平台", icon: "applewatch", colors: [.indigo, .purple], destination: .devices)
     ]
 
-    static let sleepHealth = features(withIDs: ["health", "sleep", "diary", "chronotype"])
+    static let sleepHealth = features(withIDs: ["health", "sleep", "chronotype"])
     static let mindAndPersonality = features(withIDs: ["mbti", "mood", "anxiety", "stress", "bigfive"])
     static let relaxAndDevices = features(withIDs: ["breathing", "devices"])
 
@@ -44,12 +42,6 @@ struct WellnessFeature: Identifiable, Hashable {
 struct WellnessHomeSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 26) {
-            featureSection(
-                title: "睡眠健康",
-                subtitle: "从睡眠数据到作息习惯，发现恢复线索",
-                features: WellnessFeature.sleepHealth
-            )
-
             featureSection(
                 title: "情绪与性格",
                 subtitle: "温柔觉察情绪、压力与内在倾向",
@@ -115,18 +107,20 @@ private struct WellnessHomeCard: View {
     var body: some View {
         ZStack(alignment: .topLeading) {
             LinearGradient(
-                colors: feature.colors.map(\.color),
+                colors: feature.colors.map { $0.color.opacity(0.38) },
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
 
+            Color(.systemBackground).opacity(0.48)
+
             Circle()
-                .fill(.white.opacity(0.11))
+                .fill(feature.colors.first?.color.opacity(0.10) ?? .clear)
                 .frame(width: 105, height: 105)
                 .offset(x: 135, y: -46)
 
             Circle()
-                .fill(.white.opacity(0.08))
+                .fill(feature.colors.last?.color.opacity(0.08) ?? .clear)
                 .frame(width: 72, height: 72)
                 .offset(x: 168, y: 76)
 
@@ -136,12 +130,12 @@ private struct WellnessHomeCard: View {
                         .font(.system(size: 10, weight: .medium))
                         .padding(.horizontal, 9)
                         .frame(height: 23)
-                        .background(.white.opacity(0.17))
+                        .background(Color(.systemBackground).opacity(0.55))
                         .clipShape(Capsule())
                     Spacer()
                     Image(systemName: feature.icon)
                         .font(.system(size: 27, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.9))
+                        .foregroundStyle(feature.colors.first?.color.opacity(0.78) ?? .secondary)
                 }
 
                 Spacer()
@@ -150,16 +144,16 @@ private struct WellnessHomeCard: View {
                     .font(.system(size: 17, weight: .semibold))
                 Text(feature.subtitle)
                     .font(.system(size: 11))
-                    .foregroundStyle(.white.opacity(0.78))
+                    .foregroundStyle(.secondary)
                     .lineLimit(1)
                     .padding(.top, 4)
             }
-            .foregroundStyle(.white)
+            .foregroundStyle(.primary)
             .padding(15)
         }
         .frame(width: 220, height: 132)
         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .shadow(color: feature.colors.first?.color.opacity(0.16) ?? .clear, radius: 9, y: 5)
+        .shadow(color: feature.colors.first?.color.opacity(0.08) ?? .clear, radius: 8, y: 4)
         .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 }
@@ -174,8 +168,6 @@ struct WellnessDestinationView: View {
             HealthSleepInsightView()
         case .assessment(let kind):
             WellnessAssessmentView(definition: .definition(for: kind))
-        case .sleepDiary:
-            SleepDiaryView()
         case .breathing:
             BreathingExerciseView()
         case .devices:
@@ -358,7 +350,7 @@ struct WellnessHubView: View {
 
     private var privacyNotice: some View {
         Label {
-            Text("测评和睡眠日记默认仅保存在当前设备，不会用于广告推荐。测评结果用于自我觉察，不代替专业诊断。")
+            Text("测评结果默认仅保存在当前设备，不会用于广告推荐，仅用于自我觉察，不代替专业诊断。")
                 .font(.system(size: 11))
                 .foregroundStyle(.secondary)
         } icon: {
@@ -372,10 +364,16 @@ struct WellnessHubView: View {
 struct WellnessAssessmentView: View {
     let definition: WellnessAssessmentDefinition
 
+    @EnvironmentObject private var settings: AppSettings
     @ObservedObject private var history = WellnessHistoryStore.shared
+    @ObservedObject private var membership = SleepMembershipSession.shared
     @State private var currentIndex = 0
     @State private var answers: [String: Int] = [:]
     @State private var result: WellnessAssessmentRecord?
+    @State private var pendingMBTIResult: WellnessAssessmentRecord?
+    @State private var showMBTIUnlockPrompt = false
+    @State private var showMembershipAfterPrompt = false
+    @State private var showMembership = false
 
     var body: some View {
         ZStack {
@@ -394,6 +392,32 @@ struct WellnessAssessmentView: View {
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
         .toolbar(.hidden, for: .tabBar)
+        .onAppear {
+            restoreCachedMBTIResultIfNeeded()
+        }
+        .sheet(isPresented: $showMBTIUnlockPrompt, onDismiss: {
+            guard showMembershipAfterPrompt else { return }
+            showMembershipAfterPrompt = false
+            showMembership = true
+        }) {
+            MBTIMembershipUnlockSheet(
+                onUpgrade: {
+                    showMembershipAfterPrompt = true
+                    showMBTIUnlockPrompt = false
+                },
+                onCancel: {
+                    showMBTIUnlockPrompt = false
+                }
+            )
+            .presentationDetents([.height(360)])
+            .presentationDragIndicator(.visible)
+        }
+        .fullScreenCover(isPresented: $showMembership, onDismiss: {
+            revealPendingMBTIResultIfEntitled()
+        }) {
+            NavigationStack { SleepMembershipView() }
+                .environmentObject(settings)
+        }
     }
 
     private var questionContent: some View {
@@ -433,6 +457,7 @@ struct WellnessAssessmentView: View {
                         withAnimation(.easeInOut(duration: 0.2)) {
                             currentIndex = max(0, currentIndex - 1)
                         }
+                        saveMBTIDraftIfNeeded()
                     }
                     .buttonStyle(.bordered)
                     .disabled(currentIndex == 0)
@@ -490,6 +515,7 @@ struct WellnessAssessmentView: View {
             withAnimation(.easeInOut(duration: 0.16)) {
                 answers[question.id] = choice.score
             }
+            saveMBTIDraftIfNeeded()
         } label: {
             HStack {
                 Text(choice.text)
@@ -517,12 +543,32 @@ struct WellnessAssessmentView: View {
             withAnimation(.easeInOut(duration: 0.2)) {
                 currentIndex += 1
             }
+            saveMBTIDraftIfNeeded()
         } else {
             let newResult = definition.makeResult(answers: answers)
-            history.add(newResult)
-            withAnimation(.easeInOut(duration: 0.25)) {
-                result = newResult
+            if definition.kind == .mbti && !membership.isVIPActive {
+                pendingMBTIResult = newResult
+                saveMBTIDraftIfNeeded()
+                showMBTIUnlockPrompt = true
+            } else {
+                showResult(newResult)
             }
+        }
+    }
+
+    private func revealPendingMBTIResultIfEntitled() {
+        guard membership.isVIPActive, let pendingMBTIResult else { return }
+        self.pendingMBTIResult = nil
+        showResult(pendingMBTIResult)
+    }
+
+    private func showResult(_ newResult: WellnessAssessmentRecord) {
+        if definition.kind == .mbti {
+            MBTIAssessmentDraftStore.clear()
+        }
+        history.add(newResult)
+        withAnimation(.easeInOut(duration: 0.25)) {
+            result = newResult
         }
     }
 
@@ -592,6 +638,11 @@ struct WellnessAssessmentView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
 
                 Button("重新测评") {
+                    if definition.kind == .mbti {
+                        history.removeRecords(for: WellnessAssessmentKind.mbti.rawValue)
+                        MBTIAssessmentDraftStore.clear()
+                        pendingMBTIResult = nil
+                    }
                     answers = [:]
                     currentIndex = 0
                     withAnimation { self.result = nil }
@@ -644,6 +695,102 @@ struct WellnessAssessmentView: View {
     private func mbtiNickname(_ level: String) -> String {
         let parts = level.components(separatedBy: " · ")
         return parts.count > 1 ? parts[1] : level
+    }
+
+    private func restoreCachedMBTIResultIfNeeded() {
+        guard definition.kind == .mbti,
+              result == nil,
+              answers.isEmpty,
+              pendingMBTIResult == nil else { return }
+
+        if let cachedResult = history.latestRecord(for: WellnessAssessmentKind.mbti.rawValue) {
+            result = cachedResult
+            return
+        }
+
+        guard let draft = MBTIAssessmentDraftStore.load(), !draft.answers.isEmpty else { return }
+        answers = draft.answers
+        currentIndex = min(max(0, draft.currentIndex), definition.questions.count - 1)
+    }
+
+    private func saveMBTIDraftIfNeeded(currentIndex index: Int? = nil) {
+        guard definition.kind == .mbti else { return }
+        MBTIAssessmentDraftStore.save(
+            answers: answers,
+            currentIndex: index ?? currentIndex
+        )
+    }
+}
+
+private struct MBTIMembershipUnlockSheet: View {
+    let onUpgrade: () -> Void
+    let onCancel: () -> Void
+
+    var body: some View {
+        VStack(spacing: 14) {
+            Image(systemName: "crown.fill")
+                .font(.system(size: 28, weight: .semibold))
+                .foregroundStyle(Color(red: 0.76, green: 0.48, blue: 0.16))
+                .frame(width: 58, height: 58)
+                .background(Color(red: 1.0, green: 0.95, blue: 0.84))
+                .clipShape(Circle())
+
+            VStack(spacing: 7) {
+                Text("解锁会员，立刻查看完整数据分析")
+                    .font(.system(size: 18, weight: .bold))
+                    .multilineTextAlignment(.center)
+                Text("你的 MBTI 测评已完成，开通会员即可查看人格类型、四维偏好强度和完整人格解读。")
+                    .font(.system(size: 13))
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(3)
+            }
+
+            HStack(spacing: 10) {
+                unlockItem(icon: "person.text.rectangle", text: "人格类型")
+                unlockItem(icon: "chart.bar.fill", text: "偏好强度")
+                unlockItem(icon: "lightbulb.fill", text: "人格解读")
+            }
+
+            Button(action: onUpgrade) {
+                Text("立即解锁会员")
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(Color(red: 0.36, green: 0.20, blue: 0.08))
+                    .frame(maxWidth: .infinity, minHeight: 46)
+                    .background(
+                        LinearGradient(
+                            colors: [Color(red: 1.0, green: 0.88, blue: 0.62), Color(red: 0.86, green: 0.60, blue: 0.26)],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            }
+            .buttonStyle(.plain)
+
+            Button("暂不查看", action: onCancel)
+                .font(.system(size: 14))
+                .foregroundStyle(.secondary)
+                .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 22)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .background(Color(.systemBackground).ignoresSafeArea())
+    }
+
+    private func unlockItem(icon: String, text: String) -> some View {
+        VStack(spacing: 6) {
+            Image(systemName: icon)
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(Color(red: 0.75, green: 0.48, blue: 0.15))
+            Text(text)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, minHeight: 58)
+        .background(Color(red: 1.0, green: 0.97, blue: 0.91))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 }
 
@@ -1058,223 +1205,6 @@ private struct HealthBodyMetric: Identifiable {
     let value: String
     let icon: String
     let color: Color
-}
-
-struct SleepDiaryView: View {
-    @ObservedObject private var store = SleepDiaryStore.shared
-    @State private var date = Date()
-    @State private var bedtime: Date
-    @State private var wakeTime: Date
-    @State private var latency = 15
-    @State private var awakenings = 0
-    @State private var quality = 3
-    @State private var energy = 3
-    @State private var lateCaffeine = false
-    @State private var exercised = false
-    @State private var note = ""
-    @State private var showSaved = false
-
-    init() {
-        _bedtime = State(initialValue: Self.time(hour: 23, minute: 0))
-        _wakeTime = State(initialValue: Self.time(hour: 7, minute: 0))
-    }
-
-    var body: some View {
-        ZStack {
-            Color(.systemGroupedBackground).ignoresSafeArea()
-            ScrollView {
-                VStack(spacing: 16) {
-                    diaryHero
-                    diaryForm
-                    saveButton
-                    recentEntries
-                }
-                .padding(16)
-                .padding(.bottom, 28)
-            }
-        }
-        .safeAreaInset(edge: .top, spacing: 0) { WellnessTopBar(title: "睡眠日记") }
-        .appEdgeSwipeBack()
-        .navigationBarBackButtonHidden(true)
-        .toolbar(.hidden, for: .navigationBar)
-        .toolbar(.hidden, for: .tabBar)
-        .alert("已保存", isPresented: $showSaved) {
-            Button("知道了", role: .cancel) {}
-        } message: {
-            Text("今天的睡眠日记已保存在本机。")
-        }
-    }
-
-    private var diaryHero: some View {
-        HStack(spacing: 15) {
-            Image(systemName: "book.closed.fill")
-                .font(.system(size: 28))
-                .foregroundStyle(.white)
-                .frame(width: 58, height: 58)
-                .background(LinearGradient(colors: [.green, .teal], startPoint: .topLeading, endPoint: .bottomTrailing))
-                .clipShape(RoundedRectangle(cornerRadius: 17, style: .continuous))
-            VStack(alignment: .leading, spacing: 5) {
-                Text("每天一分钟，发现影响睡眠的线索")
-                    .font(.headline)
-                Text("同一天再次保存会更新当天记录")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-    }
-
-    private var diaryForm: some View {
-        VStack(spacing: 0) {
-            formRow("记录日期") { DatePicker("", selection: $date, displayedComponents: .date).labelsHidden() }
-            Divider().padding(.leading, 16)
-            formRow("上床时间") { DatePicker("", selection: $bedtime, displayedComponents: .hourAndMinute).labelsHidden() }
-            Divider().padding(.leading, 16)
-            formRow("起床时间") { DatePicker("", selection: $wakeTime, displayedComponents: .hourAndMinute).labelsHidden() }
-            Divider().padding(.leading, 16)
-            formRow("入睡用时") {
-                Stepper("\(latency) 分钟", value: $latency, in: 0...180, step: 5).labelsHidden()
-                Text("\(latency) 分钟").font(.subheadline.monospacedDigit()).foregroundStyle(.secondary)
-            }
-            Divider().padding(.leading, 16)
-            formRow("夜间醒来") {
-                Stepper("\(awakenings) 次", value: $awakenings, in: 0...20).labelsHidden()
-                Text("\(awakenings) 次").font(.subheadline.monospacedDigit()).foregroundStyle(.secondary)
-            }
-
-            Divider().padding(.leading, 16)
-            ratingRow(title: "睡眠质量", selection: $quality, icon: "moon.fill", color: .indigo)
-            Divider().padding(.leading, 16)
-            ratingRow(title: "晨间精力", selection: $energy, icon: "sun.max.fill", color: .orange)
-            Divider().padding(.leading, 16)
-            Toggle("下午 2 点后摄入咖啡因", isOn: $lateCaffeine).padding(16)
-            Divider().padding(.leading, 16)
-            Toggle("当天有适度运动", isOn: $exercised).padding(16)
-            Divider().padding(.leading, 16)
-
-            VStack(alignment: .leading, spacing: 9) {
-                Text("补充记录").font(.subheadline.weight(.medium))
-                TextEditor(text: $note)
-                    .frame(minHeight: 82)
-                    .padding(8)
-                    .background(Color(.tertiarySystemGroupedBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                Text("例如：晚饭过饱、工作压力、夜间做梦等")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            .padding(16)
-        }
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-    }
-
-    private func formRow<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
-        HStack {
-            Text(title).font(.subheadline.weight(.medium))
-            Spacer()
-            content()
-        }
-        .padding(16)
-    }
-
-    private func ratingRow(title: String, selection: Binding<Int>, icon: String, color: Color) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Label(title, systemImage: icon).font(.subheadline.weight(.medium))
-                Spacer()
-                Text("\(selection.wrappedValue) / 5").font(.caption.monospacedDigit()).foregroundStyle(.secondary)
-            }
-            HStack(spacing: 12) {
-                ForEach(1...5, id: \.self) { value in
-                    Button {
-                        selection.wrappedValue = value
-                    } label: {
-                        Image(systemName: value <= selection.wrappedValue ? "circle.inset.filled" : "circle")
-                            .font(.title3)
-                            .foregroundStyle(value <= selection.wrappedValue ? color : Color.secondary.opacity(0.35))
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-        }
-        .padding(16)
-    }
-
-    private var saveButton: some View {
-        Button {
-            store.add(.init(
-                date: date,
-                bedtime: bedtime,
-                wakeTime: wakeTime,
-                sleepLatencyMinutes: latency,
-                awakenings: awakenings,
-                quality: quality,
-                morningEnergy: energy,
-                lateCaffeine: lateCaffeine,
-                exercised: exercised,
-                note: note.trimmingCharacters(in: .whitespacesAndNewlines)
-            ))
-            showSaved = true
-        } label: {
-            Label("保存今日记录", systemImage: "checkmark.circle.fill")
-                .frame(maxWidth: .infinity)
-        }
-        .buttonStyle(.borderedProminent)
-        .tint(.teal)
-        .controlSize(.large)
-    }
-
-    @ViewBuilder
-    private var recentEntries: some View {
-        if !store.entries.isEmpty {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("最近记录").font(.headline)
-                ForEach(store.entries.prefix(7)) { entry in
-                    HStack(spacing: 12) {
-                        VStack(spacing: 3) {
-                            Text(entry.date.formatted(.dateTime.day()))
-                                .font(.title3.weight(.semibold))
-                            Text(entry.date.formatted(.dateTime.month(.abbreviated)))
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
-                        }
-                        .frame(width: 44, height: 48)
-                        .background(Color.teal.opacity(0.09))
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(durationText(entry.estimatedDuration))
-                                .font(.subheadline.weight(.semibold))
-                            Text("入睡 \(entry.sleepLatencyMinutes) 分钟 · 夜醒 \(entry.awakenings) 次")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        Spacer()
-                        Text("\(entry.quality)/5")
-                            .font(.subheadline.monospacedDigit())
-                            .foregroundStyle(.indigo)
-                    }
-                    .padding(14)
-                    .background(Color(.secondarySystemGroupedBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
-                }
-            }
-        }
-    }
-
-    private func durationText(_ interval: TimeInterval) -> String {
-        let minutes = max(0, Int(interval / 60))
-        return "预计睡眠 \(minutes / 60)小时\(minutes % 60)分"
-    }
-
-    private static func time(hour: Int, minute: Int) -> Date {
-        Calendar.current.date(bySettingHour: hour, minute: minute, second: 0, of: Date()) ?? Date()
-    }
 }
 
 struct BreathingExerciseView: View {

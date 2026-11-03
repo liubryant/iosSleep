@@ -521,85 +521,41 @@ final class WellnessHistoryStore: ObservableObject {
         persist()
     }
 
+    func latestRecord(for assessmentID: String) -> WellnessAssessmentRecord? {
+        records.first { $0.assessmentID == assessmentID }
+    }
+
+    func removeRecords(for assessmentID: String) {
+        records.removeAll { $0.assessmentID == assessmentID }
+        persist()
+    }
+
     private func persist() {
         guard let data = try? JSONEncoder().encode(records) else { return }
         UserDefaults.standard.set(data, forKey: defaultsKey)
     }
 }
 
-struct SleepDiaryEntry: Codable, Hashable, Identifiable {
-    let id: UUID
-    let date: Date
-    let bedtime: Date
-    let wakeTime: Date
-    let sleepLatencyMinutes: Int
-    let awakenings: Int
-    let quality: Int
-    let morningEnergy: Int
-    let lateCaffeine: Bool
-    let exercised: Bool
-    let note: String
-
-    init(
-        id: UUID = UUID(),
-        date: Date,
-        bedtime: Date,
-        wakeTime: Date,
-        sleepLatencyMinutes: Int,
-        awakenings: Int,
-        quality: Int,
-        morningEnergy: Int,
-        lateCaffeine: Bool,
-        exercised: Bool,
-        note: String
-    ) {
-        self.id = id
-        self.date = date
-        self.bedtime = bedtime
-        self.wakeTime = wakeTime
-        self.sleepLatencyMinutes = sleepLatencyMinutes
-        self.awakenings = awakenings
-        self.quality = quality
-        self.morningEnergy = morningEnergy
-        self.lateCaffeine = lateCaffeine
-        self.exercised = exercised
-        self.note = note
-    }
-
-    var estimatedDuration: TimeInterval {
-        let calendar = Calendar.current
-        let bedtimeComponents = calendar.dateComponents([.hour, .minute], from: bedtime)
-        let wakeComponents = calendar.dateComponents([.hour, .minute], from: wakeTime)
-        let dayStart = calendar.startOfDay(for: date)
-        guard let start = calendar.date(bySettingHour: bedtimeComponents.hour ?? 23, minute: bedtimeComponents.minute ?? 0, second: 0, of: dayStart),
-              var end = calendar.date(bySettingHour: wakeComponents.hour ?? 7, minute: wakeComponents.minute ?? 0, second: 0, of: dayStart) else { return 0 }
-        if end <= start {
-            end = calendar.date(byAdding: .day, value: 1, to: end) ?? end
-        }
-        return max(0, end.timeIntervalSince(start) - Double(sleepLatencyMinutes * 60))
-    }
+struct MBTIAssessmentDraft: Codable {
+    let answers: [String: Int]
+    let currentIndex: Int
 }
 
-@MainActor
-final class SleepDiaryStore: ObservableObject {
-    static let shared = SleepDiaryStore()
+enum MBTIAssessmentDraftStore {
+    private static let defaultsKey = "wellness.assessment.mbti.draft.v1"
 
-    @Published private(set) var entries: [SleepDiaryEntry] = []
-
-    private let defaultsKey = "wellness.sleep.diary.v1"
-
-    private init() {
-        guard let data = UserDefaults.standard.data(forKey: defaultsKey),
-              let stored = try? JSONDecoder().decode([SleepDiaryEntry].self, from: data) else { return }
-        entries = stored.sorted { $0.date > $1.date }
+    static func load() -> MBTIAssessmentDraft? {
+        guard let data = UserDefaults.standard.data(forKey: defaultsKey) else { return nil }
+        return try? JSONDecoder().decode(MBTIAssessmentDraft.self, from: data)
     }
 
-    func add(_ entry: SleepDiaryEntry) {
-        entries.removeAll { Calendar.current.isDate($0.date, inSameDayAs: entry.date) }
-        entries.append(entry)
-        entries.sort { $0.date > $1.date }
-        entries = Array(entries.prefix(180))
-        guard let data = try? JSONEncoder().encode(entries) else { return }
+    static func save(answers: [String: Int], currentIndex: Int) {
+        let draft = MBTIAssessmentDraft(answers: answers, currentIndex: currentIndex)
+        guard let data = try? JSONEncoder().encode(draft) else { return }
         UserDefaults.standard.set(data, forKey: defaultsKey)
+    }
+
+    static func clear() {
+        UserDefaults.standard.removeObject(forKey: defaultsKey)
     }
 }

@@ -8,7 +8,9 @@ struct MainTabView: View {
     @EnvironmentObject private var storyLibrary: StoryLibrary
     @EnvironmentObject private var settings: AppSettings
     @ObservedObject private var storyNotificationService = StoryNotificationService.shared
-    @State private var selectedTab = 0
+    // 使用场景级状态保存当前栏目。Duo 在外屏、内屏之间切换显示区域时，
+    // 即使系统重新计算根布局，也会继续停留在用户正在浏览的页面。
+    @SceneStorage("main.selectedTab") private var selectedTab = 0
     @State private var isStoryDetailVisible = false
     @State private var isMindfulnessDetailVisible = false
     @State private var isMindfulnessFlowVisible = false
@@ -43,6 +45,7 @@ struct MainTabView: View {
                     }
             }
             .tint(.blue)
+            .sleepKeepsHorizontalSystemBars()
 
             if let story = storyPlayer.currentStory, !isStoryDetailVisible {
                 GlobalStoryMiniPlayerView(story: story)
@@ -70,6 +73,7 @@ struct MainTabView: View {
         .animation(.easeInOut(duration: 0.2), value: player.currentScene?.id)
         .animation(.easeInOut(duration: 0.2), value: storyPlayer.currentStory?.id)
         .animation(.easeInOut(duration: 0.2), value: mindfulnessPlayer.currentTrack?.id)
+        .sleepDuoContinuityTransition()
         .onChange(of: player.currentScene?.id) { id in
             guard id != nil else { return }
             if storyPlayer.currentStory != nil { storyPlayer.stop() }
@@ -142,9 +146,7 @@ struct MainTabView: View {
                 MindfulnessTrack.deepSleep, .daytimeEnergy, .walking, .emotionalRelease,
                 .calmingSleep, .fatigueRelief, .quickSleep, .examSleep
             ]
-            let availableTracks = SleepMembershipSession.shared.isVIPActive
-                ? allTracks : Array(allTracks.prefix(4))
-            quickMindfulnessTrack = availableTracks.randomElement()
+            quickMindfulnessTrack = allTracks.randomElement()
         case .nature:
             selectedTab = 0
             DispatchQueue.main.async {
@@ -215,6 +217,118 @@ struct MainTabView: View {
     private func randomItem<T: Identifiable>(excluding currentID: T.ID?, from items: [T]) -> T? where T.ID: Equatable {
         let alternatives = items.filter { $0.id != currentID }
         return (alternatives.isEmpty ? items : alternatives).randomElement()
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func sleepKeepsHorizontalSystemBars() -> some View {
+        if #available(iOS 27.1, *) {
+            toolbarVerticalBehavior(.disabled)
+        } else {
+            self
+        }
+    }
+
+    /// iPhone Duo 打开或折叠时保持同一份视图状态，并让内容随铰链角度
+    /// 做轻量连续过渡。普通 iPhone 和低版本系统不进入这段逻辑。
+    @ViewBuilder
+    func sleepDuoContinuityTransition() -> some View {
+        if #available(iOS 27.1, *) {
+            modifier(SleepDuoContinuityModifier())
+        } else {
+            self
+        }
+    }
+}
+
+@available(iOS 27.1, *)
+private struct SleepDuoContinuityModifier: ViewModifier {
+    @State private var contentScale: CGFloat = 1
+    @State private var contentOpacity = 1.0
+    @State private var contentOffset: CGFloat = 0
+    @State private var contentRotation = 0.0
+    @State private var closingHandoffTask: Task<Void, Never>?
+
+    func body(content: Content) -> some View {
+        content
+            .scaleEffect(contentScale)
+            .opacity(contentOpacity)
+            .offset(x: contentOffset)
+            .rotation3DEffect(
+                .degrees(contentRotation),
+                axis: (x: 0, y: 1, z: 0),
+                anchor: contentRotation > 0 ? .trailing : .leading,
+                perspective: 0.18
+            )
+            // 铰链角度更新频率由系统决定，短线性动画用于衔接相邻采样点，
+            // 避免展开过程中布局出现台阶感。
+            .animation(.linear(duration: 0.08), value: contentScale)
+            .animation(.linear(duration: 0.08), value: contentOpacity)
+            .animation(.linear(duration: 0.08), value: contentOffset)
+            .animation(.linear(duration: 0.08), value: contentRotation)
+            .onHingeChange { oldContext, newContext in
+                updateTransition(from: oldContext.hinge, to: newContext.hinge)
+            }
+            .onDisappear { closingHandoffTask?.cancel() }
+    }
+
+    private func updateTransition(from oldHinge: DeviceHinge?, to hinge: DeviceHinge?) {
+        closingHandoffTask?.cancel()
+
+        guard let hinge else {
+            resetTransition()
+            return
+        }
+
+        if hinge.status == .closed {
+            // 初次挂载到已合拢的外屏时不播放动画；只有从半展开进入
+            // 合拢状态，才执行最后一段“小屏接管”收尾。
+            guard oldHinge?.status == .partiallyOpen else {
+                resetTransition()
+                return
+            }
+            completeClosingHandoff()
+            return
+        }
+
+        guard hinge.status == .partiallyOpen else {
+            resetTransition()
+            return
+        }
+
+        // 0° 为折叠，180° 为完全展开。只使用很轻的视觉变化，
+        // 让页面看起来从外屏自然延展到内屏，同时不影响点击和阅读。
+        let progress = min(max(hinge.angle.degrees / 180, 0), 1)
+        let isClosing = oldHinge.map { hinge.angle.degrees < $0.angle.degrees } ?? false
+        contentScale = 0.985 + (0.015 * progress)
+        contentOpacity = 0.97 + (0.03 * progress)
+        contentOffset = (isClosing ? 5 : -4) * (1 - progress)
+        contentRotation = (isClosing ? 1.2 : -0.8) * (1 - progress)
+    }
+
+    private func completeClosingHandoff() {
+        withAnimation(.easeOut(duration: 0.12)) {
+            contentScale = 0.975
+            contentOpacity = 0.96
+            contentOffset = 7
+            contentRotation = 1.5
+        }
+
+        closingHandoffTask = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 120_000_000)
+            guard !Task.isCancelled else { return }
+            withAnimation(.spring(response: 0.24, dampingFraction: 0.90)) {
+                resetTransition()
+            }
+        }
+    }
+
+    private func resetTransition() {
+        contentScale = 1
+        contentOpacity = 1
+        contentOffset = 0
+        contentRotation = 0
     }
 }
 

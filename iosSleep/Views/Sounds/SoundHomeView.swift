@@ -154,24 +154,13 @@ struct SoundHomeView: View {
                     rows: [GridItem(.fixed(235))],
                     spacing: 16
                 ) {
-                    ForEach(Array(mindfulnessItems.prefix(6).enumerated()), id: \.element.id) { index, item in
-                        if index >= 4 && !membership.isVIPActive {
-                            Button {
-                                vipPromptTitle = item.title
-                                vipPromptKind = .mindfulness
-                                showVIPPrompt = true
-                            } label: {
-                                mindfulnessCard(item, isVIPContent: true)
-                            }
-                            .buttonStyle(.plain)
-                        } else {
-                            NavigationLink {
-                                MindfulnessPlayerView(track: item.track)
-                            } label: {
-                                mindfulnessCard(item, isVIPContent: index >= 4)
-                            }
-                            .buttonStyle(.plain)
+                    ForEach(mindfulnessItems.prefix(6)) { item in
+                        NavigationLink {
+                            MindfulnessPlayerView(track: item.track)
+                        } label: {
+                            mindfulnessCard(item)
                         }
+                        .buttonStyle(.plain)
                     }
                 }
                 .padding(.horizontal, 2)
@@ -207,7 +196,7 @@ struct SoundHomeView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private func mindfulnessCard(_ item: SoundHomeMindfulnessItem, isVIPContent: Bool = false) -> some View {
+    private func mindfulnessCard(_ item: SoundHomeMindfulnessItem) -> some View {
         VStack(alignment: .leading, spacing: 11) {
             ZStack {
                 if let image = mindfulnessImage(named: item.imageName) {
@@ -228,20 +217,6 @@ struct SoundHomeView: View {
                     .clipShape(Circle())
                     .padding(9)
             }
-            .overlay(alignment: .topTrailing) {
-                if isVIPContent {
-                    Label("VIP", systemImage: "crown.fill")
-                        .font(.system(size: 9, weight: .bold))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 8)
-                        .frame(height: 23)
-                        .background(.ultraThinMaterial.opacity(0.88))
-                        .background(Color.black.opacity(0.16))
-                        .clipShape(Capsule())
-                        .padding(9)
-                }
-            }
-
             VStack(alignment: .leading, spacing: 4) {
                 Text(item.title)
                     .font(.system(size: 15, weight: .regular))
@@ -273,6 +248,13 @@ struct SoundHomeView: View {
                 if feature == .stories {
                     Button {
                         QuickActionService.shared.request(.stories)
+                    } label: {
+                        soundFeatureLabel(feature)
+                    }
+                    .buttonStyle(.plain)
+                } else if feature == .relax || feature == .focus {
+                    NavigationLink {
+                        WellnessHubView()
                     } label: {
                         soundFeatureLabel(feature)
                     }
@@ -627,11 +609,11 @@ private enum SoundFeature: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .whiteNoise: return "白噪音"
-        case .relax: return "舒眠放松"
+        case .relax: return "身心探索"
         case .favorites: return "我的收藏"
         case .stories: return "睡前故事"
         case .nature: return "自然之声"
-        case .focus: return "沉浸学习"
+        case .focus: return "情绪性格"
         case .mindfulness: return "自在正念"
         case .meditation: return "冥想专题"
         }
@@ -666,11 +648,11 @@ private enum SoundFeature: String, CaseIterable, Identifiable {
     var category: SoundCategory? {
         switch self {
         case .whiteNoise: return .whiteNoise
-        case .relax: return .sleep
+        case .relax: return nil
         case .favorites: return .favorites
         case .stories: return nil
         case .nature: return .nature
-        case .focus: return .whisper
+        case .focus: return nil
         case .mindfulness: return .mindfulness
         case .meditation: return .meditation
         }
