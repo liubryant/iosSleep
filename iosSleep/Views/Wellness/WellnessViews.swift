@@ -381,8 +381,12 @@ struct WellnessAssessmentView: View {
 
             if let result {
                 resultContent(result)
+                    .frame(maxWidth: 760)
+                    .frame(maxWidth: .infinity)
             } else {
                 questionContent
+                    .frame(maxWidth: 760)
+                    .frame(maxWidth: .infinity)
             }
         }
         .safeAreaInset(edge: .top, spacing: 0) {

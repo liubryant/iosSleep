@@ -32,6 +32,8 @@ struct SleepHomeView: View {
                             reportContent
                         }
                         .padding()
+                        .frame(maxWidth: 900)
+                        .frame(maxWidth: .infinity)
                     }
                     .tag(SleepHomePage.start)
 
@@ -40,6 +42,8 @@ struct SleepHomeView: View {
                             reportContent
                         }
                         .padding()
+                        .frame(maxWidth: 900)
+                        .frame(maxWidth: .infinity)
                     }
                     .tag(SleepHomePage.report)
                 }

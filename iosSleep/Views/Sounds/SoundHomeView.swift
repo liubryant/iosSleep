@@ -14,10 +14,7 @@ struct SoundHomeView: View {
     @State private var showMembershipAfterPrompt = false
     @State private var showMembership = false
 
-    private let columns = [
-        GridItem(.flexible(), spacing: 16),
-        GridItem(.flexible(), spacing: 16)
-    ]
+    private let columns = [GridItem(.adaptive(minimum: 160), spacing: 16)]
 
     private let mindfulnessItems: [SoundHomeMindfulnessItem] = [
         .init(title: "深度睡眠疗愈", subtitle: "卸下疲惫，沉入安稳梦境", imageName: "1", track: .deepSleep),
@@ -81,6 +78,8 @@ struct SoundHomeView: View {
                     .padding()
                     .padding(.bottom, player.currentScene == nil && storyPlayer.currentStory == nil ? 0 : 88)
                 }
+                .frame(maxWidth: 1100)
+                .frame(maxWidth: .infinity)
             }
             .safeAreaInset(edge: .top, spacing: 0) {
                 soundTopBar

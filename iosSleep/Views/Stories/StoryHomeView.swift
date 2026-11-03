@@ -9,10 +9,7 @@ struct StoryHomeView: View {
     @State private var searchText = ""
     @State private var navigationPath: [StoryItem] = []
 
-    private let columns = [
-        GridItem(.flexible(), spacing: 16),
-        GridItem(.flexible(), spacing: 16)
-    ]
+    private let columns = [GridItem(.adaptive(minimum: 160), spacing: 16)]
 
     private var filteredStories: [StoryItem] {
         let keyword = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -46,6 +43,8 @@ struct StoryHomeView: View {
                 }
                 .padding(.horizontal)
                 .padding(.bottom, player.currentStory == nil && audioPlayer.currentScene == nil ? 18 : 106)
+                .frame(maxWidth: 1100)
+                .frame(maxWidth: .infinity)
             }
             .overlay {
                 if library.stories.isEmpty {

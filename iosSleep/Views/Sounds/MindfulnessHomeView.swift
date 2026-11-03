@@ -138,6 +138,8 @@ struct MindfulnessHomeView: View {
                     contentSection(title: "大自然中入眠", subtitle: "枕着山海风雨，慢慢沉入梦乡", items: natureItems)
                 }
                 .padding(.bottom, 34)
+                .frame(maxWidth: 1100)
+                .frame(maxWidth: .infinity)
             }
         }
         .safeAreaInset(edge: .top, spacing: 0) { topBar }
