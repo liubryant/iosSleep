@@ -14,6 +14,11 @@ struct MindfulnessTrack: Identifiable {
     let accent: Color
     let icon: String
     var fileURL: URL?
+    var requiresVIP = false
+
+    static var bundledTracks: [MindfulnessTrack] {
+        [.deepSleep, .daytimeEnergy, .walking, .emotionalRelease, .calmingSleep, .fatigueRelief, .quickSleep, .examSleep]
+    }
 
     static let deepSleep = MindfulnessTrack(
         id: "deep-sleep-healing", title: "深度睡眠疗愈", subtitle: "正念引导 · 安稳入眠",
@@ -77,29 +82,56 @@ struct MindfulnessPlayerView: View {
     @EnvironmentObject private var ambientPlayer: AudioPlayerService
     @EnvironmentObject private var storyPlayer: StoryPlayerService
     @EnvironmentObject private var player: MindfulnessAudioPlayer
+    @StateObject private var remoteLibrary = RemoteMindfulnessLibrary()
     @State private var isFavorite: Bool
     @State private var isSeeking = false
     @State private var seekValue = 0.0
     @State private var breathingExpanded = false
-    let track: MindfulnessTrack
+    @State private var history: [MindfulnessTrack] = []
+    @State private var switchTask: Task<Void, Never>?
+    @State private var switchMessage: String?
+    private let initialTrack: MindfulnessTrack
+    private var track: MindfulnessTrack { player.currentTrack ?? initialTrack }
+    private var previousTrackIndex: Int? {
+        history.lastIndex { $0.id != track.id && canPlay($0.requiresVIP) }
+    }
 
     init(track: MindfulnessTrack = .deepSleep) {
-        self.track = track
+        self.initialTrack = track
         _isFavorite = State(initialValue: UserDefaults.standard.bool(forKey: "mindfulness.favorite.\(track.id)"))
     }
 
     var body: some View {
+        GeometryReader { geometry in
         ZStack {
             background
             VStack(spacing: 0) {
                 topBar
+                ScrollView {
+                if geometry.size.width >= 600 && geometry.size.width > geometry.size.height * 0.85 {
+                    HStack(spacing: 40) {
+                        breathingArtwork
+                            .frame(maxWidth: .infinity)
+                        playerPanel
+                            .frame(maxWidth: 480)
+                    }
+                    .padding(.vertical, 24)
+                } else {
+                VStack(spacing: 0) {
                 Spacer(minLength: 20)
                 breathingArtwork
                 Spacer(minLength: 26)
                 playerPanel
+                }
+                .frame(maxWidth: 600)
+                .frame(minHeight: max(0, geometry.size.height - 90))
+                .frame(maxWidth: .infinity)
+                }
+                }
             }
             .padding(.horizontal, 22)
             .padding(.bottom, 22)
+        }
         }
         .appEdgeSwipeBack()
         .navigationBarBackButtonHidden(true)
@@ -108,8 +140,14 @@ struct MindfulnessPlayerView: View {
         .task {
             ambientPlayer.stop()
             storyPlayer.stop()
-            player.prepareAndPlay(track: track)
+            player.prepareAndPlay(track: initialTrack)
         }
+        .onChange(of: track.id) { _ in
+            isSeeking = false
+            seekValue = 0
+            isFavorite = UserDefaults.standard.bool(forKey: "mindfulness.favorite.\(track.id)")
+        }
+        .onDisappear { switchTask?.cancel() }
         .preference(key: MindfulnessDetailVisibilityPreferenceKey.self, value: true)
     }
 
@@ -282,11 +320,13 @@ struct MindfulnessPlayerView: View {
                         isActive: player.sleepTimerText != nil
                     )
                 }
-                actionButton(title: "后退15秒", icon: "gobackward.15") { player.skip(seconds: -15) }
-                actionButton(title: "前进15秒", icon: "goforward.15") { player.skip(seconds: 15) }
+                actionButton(title: "上一个", icon: "backward.end.fill", action: playPreviousTrack)
+                    .disabled(previousTrackIndex == nil)
+                actionButton(title: "下一个", icon: "forward.end.fill", action: playNextTrack)
+                    .disabled(switchTask != nil)
             }
 
-            if let error = player.errorMessage {
+            if let error = switchMessage ?? player.errorMessage {
                 Text(error)
                     .font(.caption)
                     .foregroundStyle(Color(red: 1, green: 0.78, blue: 0.72))
@@ -301,7 +341,57 @@ struct MindfulnessPlayerView: View {
             RoundedRectangle(cornerRadius: 30, style: .continuous)
                 .stroke(.white.opacity(0.16), lineWidth: 1)
         }
-        .shadow(color: .black.opacity(0.18), radius: 28, y: 18)
+    }
+
+    private func playPreviousTrack() {
+        guard let index = previousTrackIndex else { return }
+        switchTask?.cancel()
+        switchMessage = nil
+        if player.prepareAndPlay(track: history[index], preservingSleepTimer: true) {
+            history.removeSubrange(index...)
+        }
+    }
+
+    private func playNextTrack() {
+        guard switchTask == nil else { return }
+        switchMessage = nil
+        let startingTrack = track
+        let startingPlaybackID = player.currentTrack?.id
+        switchTask = Task { @MainActor in
+            defer { switchTask = nil }
+            do {
+                await remoteLibrary.load()
+                try Task.checkCancellation()
+                let local = MindfulnessTrack.bundledTracks.filter { $0.id != startingTrack.id && canPlay($0.requiresVIP) }
+                let remote = remoteLibrary.groups.flatMap(\.items).filter {
+                    $0.trackID != startingTrack.id && canPlay($0.requiresVIP == true)
+                }
+                guard let index = (0..<(local.count + remote.count)).randomElement() else {
+                    switchMessage = "暂无其他可播放的冥想"
+                    return
+                }
+                let nextTrack: MindfulnessTrack
+                if index < local.count {
+                    nextTrack = local[index]
+                } else {
+                    let item = remote[index - local.count]
+                    let localURL = try await remoteLibrary.download(item)
+                    nextTrack = item.track(localURL: localURL)
+                }
+                try Task.checkCancellation()
+                guard player.currentTrack?.id == startingPlaybackID, canPlay(nextTrack.requiresVIP) else { return }
+                if player.prepareAndPlay(track: nextTrack, preservingSleepTimer: true) {
+                    history.append(startingTrack)
+                }
+            } catch {
+                guard !Task.isCancelled else { return }
+                switchMessage = "这段冥想暂时无法下载，请重试"
+            }
+        }
+    }
+
+    private func canPlay(_ requiresVIP: Bool) -> Bool {
+        !requiresVIP || SleepMembershipSession.shared.isVIPActive
     }
 
     private func actionButton(
@@ -356,22 +446,29 @@ final class MindfulnessAudioPlayer: NSObject, ObservableObject, AVAudioPlayerDel
         configureRemoteCommandCenter()
     }
 
-    func prepareAndPlay(track: MindfulnessTrack) {
-        if currentTrack?.id == track.id, audioPlayer != nil { play(); return }
-        stop()
-        self.track = track
-        currentTrack = track
+    @discardableResult
+    func prepareAndPlay(track: MindfulnessTrack, preservingSleepTimer: Bool = false) -> Bool {
+        guard !track.requiresVIP || SleepMembershipSession.shared.isVIPActive else {
+            errorMessage = "这段冥想仅限会员播放"
+            return false
+        }
+        if currentTrack?.id == track.id, audioPlayer != nil { play(); return isPlaying }
         guard let url = track.fileURL ?? Bundle.main.url(
             forResource: track.resourceName, withExtension: track.resourceExtension,
             subdirectory: track.subdirectory
         ) else {
             errorMessage = "未找到\(track.title)音频资源"
-            return
+            return false
         }
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .spokenAudio, options: [])
             try AVAudioSession.sharedInstance().setActive(true)
             let newPlayer = try AVAudioPlayer(contentsOf: url)
+            let deadline = preservingSleepTimer ? sleepDeadline : nil
+            stop()
+            sleepDeadline = deadline
+            self.track = track
+            currentTrack = track
             newPlayer.delegate = self
             newPlayer.numberOfLoops = -1
             newPlayer.prepareToPlay()
@@ -379,9 +476,12 @@ final class MindfulnessAudioPlayer: NSObject, ObservableObject, AVAudioPlayerDel
             duration = newPlayer.duration
             startProgressTimer()
             play()
+            updateSleepTimerText()
             AppReviewPrompt.recordPlayback(id: "mindfulness:\(track.id)")
+            return true
         } catch {
             errorMessage = "音频加载失败，请重新进入页面"
+            return false
         }
     }
 
@@ -531,7 +631,7 @@ final class MindfulnessAudioPlayer: NSObject, ObservableObject, AVAudioPlayerDel
         switch track.id {
         case MindfulnessTrack.deepSleep.id: coverName = "1"
         case MindfulnessTrack.daytimeEnergy.id: coverName = "2"
-        case MindfulnessTrack.walking.id: coverName = "3"
+        case MindfulnessTrack.walking.id: coverName = "7"
         case MindfulnessTrack.emotionalRelease.id: coverName = "4"
         case MindfulnessTrack.calmingSleep.id: coverName = "5"
         case MindfulnessTrack.fatigueRelief.id: coverName = "6"

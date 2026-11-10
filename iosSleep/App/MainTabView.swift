@@ -45,34 +45,42 @@ struct MainTabView: View {
                     }
             }
             .tint(.blue)
+            // iPad 默认将 TabView 放到顶部；使用紧凑导航样式保持底部标签栏。
+            // 内容的网格和播放器仍按实际窗口宽度布局。
+            .environment(\.horizontalSizeClass, .compact)
             .sleepKeepsHorizontalSystemBars()
 
-            if let story = storyPlayer.currentStory, !isStoryDetailVisible {
-                GlobalStoryMiniPlayerView(story: story)
-                    .padding(.horizontal)
-                    .padding(.bottom, 58)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-                    .zIndex(1)
-            } else if let track = mindfulnessPlayer.currentTrack,
-                      selectedTab == 0,
-                      !isMindfulnessFlowVisible,
-                      !isMindfulnessDetailVisible {
-                GlobalMindfulnessMiniPlayerView(track: track)
-                    .padding(.horizontal)
-                    .padding(.bottom, 58)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-                    .zIndex(1)
-            } else if let scene = player.currentScene {
-                GlobalMiniPlayerView(scene: scene)
-                    .padding(.horizontal)
-                    .padding(.bottom, 58)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-                    .zIndex(1)
+            ZStack(alignment: .bottom) {
+                if let story = storyPlayer.currentStory, !isStoryDetailVisible {
+                    GlobalStoryMiniPlayerView(story: story)
+                        .padding(.horizontal)
+                        .frame(maxWidth: 760)
+                        .padding(.bottom, 58)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                        .zIndex(1)
+                } else if let track = mindfulnessPlayer.currentTrack,
+                          selectedTab == 0,
+                          !isMindfulnessFlowVisible,
+                          !isMindfulnessDetailVisible {
+                    GlobalMindfulnessMiniPlayerView(track: track)
+                        .padding(.horizontal)
+                        .frame(maxWidth: 760)
+                        .padding(.bottom, 58)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                        .zIndex(1)
+                } else if let scene = player.currentScene {
+                    GlobalMiniPlayerView(scene: scene)
+                        .padding(.horizontal)
+                        .frame(maxWidth: 760)
+                        .padding(.bottom, 58)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                        .zIndex(1)
+                }
             }
+            .animation(.easeInOut(duration: 0.2), value: player.currentScene?.id)
+            .animation(.easeInOut(duration: 0.2), value: storyPlayer.currentStory?.id)
+            .animation(.easeInOut(duration: 0.2), value: mindfulnessPlayer.currentTrack?.id)
         }
-        .animation(.easeInOut(duration: 0.2), value: player.currentScene?.id)
-        .animation(.easeInOut(duration: 0.2), value: storyPlayer.currentStory?.id)
-        .animation(.easeInOut(duration: 0.2), value: mindfulnessPlayer.currentTrack?.id)
         .sleepDuoContinuityTransition()
         .onChange(of: player.currentScene?.id) { id in
             guard id != nil else { return }
@@ -270,7 +278,10 @@ private struct SleepDuoContinuityModifier: ViewModifier {
             .onHingeChange { oldContext, newContext in
                 updateTransition(from: oldContext.hinge, to: newContext.hinge)
             }
-            .onDisappear { closingHandoffTask?.cancel() }
+            .onDisappear {
+                closingHandoffTask?.cancel()
+                resetTransition()
+            }
     }
 
     private func updateTransition(from oldHinge: DeviceHinge?, to hinge: DeviceHinge?) {

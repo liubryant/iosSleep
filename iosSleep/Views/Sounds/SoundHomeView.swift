@@ -14,12 +14,12 @@ struct SoundHomeView: View {
     @State private var showMembershipAfterPrompt = false
     @State private var showMembership = false
 
-    private let columns = [GridItem(.adaptive(minimum: 160), spacing: 16)]
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 2)
 
     private let mindfulnessItems: [SoundHomeMindfulnessItem] = [
         .init(title: "深度睡眠疗愈", subtitle: "卸下疲惫，沉入安稳梦境", imageName: "1", track: .deepSleep),
         .init(title: "日间提神", subtitle: "唤醒精神，找回清晰专注", imageName: "2", track: .daytimeEnergy),
-        .init(title: "散步冥想", subtitle: "跟随脚步，感受此时此地", imageName: "3", track: .walking),
+        .init(title: "散步冥想", subtitle: "跟随脚步，感受此时此地", imageName: "7", track: .walking),
         .init(title: "睡前释放情绪", subtitle: "温柔放下今天的情绪", imageName: "4", track: .emotionalRelease),
         .init(title: "安定身心助眠", subtitle: "舒缓呼吸，让身体松下来", imageName: "5", track: .calmingSleep),
         .init(title: "缓解疲倦", subtitle: "短暂休息，恢复身心能量", imageName: "6", track: .fatigueRelief),
@@ -123,6 +123,9 @@ struct SoundHomeView: View {
 
     private var mindfulnessSection: some View {
         VStack(alignment: .leading, spacing: 14) {
+            NavigationLink {
+                MindfulnessHomeView()
+            } label: {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 3) {
                     Text("正念冥想").font(.system(size: 15, weight: .medium))
@@ -133,9 +136,6 @@ struct SoundHomeView: View {
 
                 Spacer()
 
-                NavigationLink {
-                    MindfulnessHomeView()
-                } label: {
                     HStack(spacing: 4) {
                         Text("更多")
                         Image(systemName: "chevron.right")
@@ -144,9 +144,10 @@ struct SoundHomeView: View {
                     .font(.system(size: 12))
                     .foregroundStyle(.secondary)
                     .padding(.top, 5)
-                }
-                .buttonStyle(.plain)
             }
+            .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
 
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHGrid(
@@ -584,7 +585,7 @@ private enum SoundCategory: String, CaseIterable, Identifiable {
         case .whisper:
             return limitedMatches(in: scenes, keywords: ["耳", "低语", "风铃", "键盘", "铅笔", "磨砚", "手谈", "切菜", "打字机", "心跳", "静电"])
         case .whiteNoise:
-            return scenes
+            return scenes.filter { SoundLibrary.isIncludedInNatureSleep($0) }
         case .dream:
             return limitedMatches(in: scenes, keywords: ["梦", "夜", "月", "星", "幻", "蓝色", "浮空", "云", "微光", "深睡", "睡吧"])
         case .mindfulness:

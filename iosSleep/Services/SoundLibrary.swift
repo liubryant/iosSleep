@@ -8,6 +8,11 @@ final class SoundLibrary: ObservableObject {
 
     private let favoritesKey = "sounds.favorites"
 
+    static func isIncludedInNatureSleep(_ scene: SoundScene) -> Bool {
+        let excludedTitles: Set<String> = ["打字机", "篮球场", "洗碗机", "图书馆", "雨窗", "沉睡小夜曲", "睡吧睡吧", "年"]
+        return !excludedTitles.contains(scene.title.trimmingCharacters(in: .whitespacesAndNewlines))
+    }
+
     init() {
         let saved = UserDefaults.standard.stringArray(forKey: favoritesKey) ?? []
         favorites = Set(saved)

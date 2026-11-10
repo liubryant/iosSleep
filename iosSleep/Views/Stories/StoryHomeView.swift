@@ -9,7 +9,12 @@ struct StoryHomeView: View {
     @State private var searchText = ""
     @State private var navigationPath: [StoryItem] = []
 
-    private let columns = [GridItem(.adaptive(minimum: 160), spacing: 16)]
+    private var columns: [GridItem] {
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            return Array(repeating: GridItem(.flexible(), spacing: 16), count: 2)
+        }
+        return [GridItem(.adaptive(minimum: 160), spacing: 16)]
+    }
 
     private var filteredStories: [StoryItem] {
         let keyword = searchText.trimmingCharacters(in: .whitespacesAndNewlines)

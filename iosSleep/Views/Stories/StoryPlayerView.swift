@@ -70,9 +70,11 @@ struct StoryPlayerView: View {
                             .stroke(.white.opacity(0.16), lineWidth: 1)
                     }
                     .padding(.horizontal, proxy.size.width < 350 ? 12 : 20)
+                    .frame(maxWidth: 820)
 
                     playerControls
                         .padding(.horizontal, proxy.size.width < 350 ? 16 : 24)
+                        .frame(maxWidth: 760)
                         .padding(.bottom, proxy.size.height < 600 ? 4 : 12)
                 }
                 .frame(width: proxy.size.width, height: proxy.size.height)

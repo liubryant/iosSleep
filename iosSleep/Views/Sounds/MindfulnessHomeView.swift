@@ -42,7 +42,7 @@ struct MindfulnessHomeView: View {
     private let meditationItems: [MindfulnessHomeItem] = [
         .init(title: "深度睡眠疗愈", subtitle: "卸下疲惫，沉入安稳梦境", icon: "moon.stars.fill", colors: [.indigo, .blue], imageName: "1", track: .deepSleep),
         .init(title: "日间提神", subtitle: "唤醒精神，找回清晰专注", icon: "sun.max.fill", colors: [.orange, .yellow], imageName: "2", track: .daytimeEnergy),
-        .init(title: "散步冥想", subtitle: "跟随脚步，感受此时此地", icon: "figure.walk", colors: [.green, .teal], imageName: "3", track: .walking),
+        .init(title: "散步冥想", subtitle: "跟随脚步，感受此时此地", icon: "figure.walk", colors: [.green, .teal], imageName: "7", track: .walking),
         .init(title: "睡前释放情绪", subtitle: "温柔放下今天的情绪", icon: "cloud.moon.fill", colors: [.purple, .indigo], imageName: "4", track: .emotionalRelease),
         .init(title: "安定身心助眠", subtitle: "舒缓呼吸，让身体松下来", icon: "heart.circle.fill", colors: [.teal, .cyan], imageName: "5", track: .calmingSleep),
         .init(title: "缓解疲倦", subtitle: "短暂休息，恢复身心能量", icon: "leaf.fill", colors: [.mint, .green], imageName: "6", track: .fatigueRelief),
@@ -91,7 +91,7 @@ struct MindfulnessHomeView: View {
     }
 
     private var natureItems: [MindfulnessHomeItem] {
-        library.scenes.suffix(20).map { scene in
+        library.scenes.suffix(20).filter { SoundLibrary.isIncludedInNatureSleep($0) }.map { scene in
             MindfulnessHomeItem(
                 title: scene.title,
                 subtitle: scene.subtitle.isEmpty ? "聆听自然，安然入眠" : scene.subtitle,
@@ -107,8 +107,8 @@ struct MindfulnessHomeView: View {
             title: item.title,
             subtitle: "云端正念 · 下载后离线播放",
             icon: "moon.stars.fill",
-            colors: remoteColors(for: item.id),
-            imageName: "\(Int(item.id.magnitude % 8) + 1)",
+            colors: item.colors,
+            imageName: ["1", "2", "4", "5", "6", "7", "8"][Int(item.id.magnitude % 7)],
             remoteMindfulness: item
         )
     }
@@ -464,6 +464,10 @@ struct MindfulnessHomeView: View {
     }
 
     private func openRemoteMindfulness(_ item: RemoteMindfulnessItem) {
+        guard item.requiresVIP != true || SleepMembershipSession.shared.isVIPActive else {
+            remoteMessage = "这段冥想仅限会员播放"
+            return
+        }
         if let activeID = pendingRemoteMindfulnessID {
             if activeID != item.id {
                 remoteMessage = "当前正念音频正在下载，请稍候"
@@ -494,28 +498,7 @@ struct MindfulnessHomeView: View {
 
     private func openRemotePlayer(_ item: RemoteMindfulnessItem, localURL: URL) {
         selectedNatureScene = nil
-        selectedRemoteTrack = remoteTrack(for: item, localURL: localURL)
-    }
-
-    private func remoteTrack(for item: RemoteMindfulnessItem, localURL: URL) -> MindfulnessTrack {
-        let colors = remoteColors(for: item.id)
-        return MindfulnessTrack(
-            id: "remote-\(item.id)",
-            title: item.title,
-            subtitle: "云端正念 · 离线播放",
-            resourceName: "remote-\(item.id)",
-            resourceExtension: item.fileExtension,
-            subdirectory: "",
-            colors: [colors[0].opacity(0.82), colors[1].opacity(0.75), colors[0].opacity(0.62)],
-            accent: colors[1],
-            icon: "moon.stars.fill",
-            fileURL: localURL
-        )
-    }
-
-    private func remoteColors(for id: Int) -> [Color] {
-        let palettes: [[Color]] = [[.indigo, .blue], [.teal, .cyan], [.green, .mint], [.purple, .pink], [.orange, .yellow]]
-        return palettes[Int(id.magnitude % UInt(palettes.count))]
+        selectedRemoteTrack = item.track(localURL: localURL)
     }
 
     private func sceneTrack(_ scene: SoundScene) -> MindfulnessTrack {
@@ -600,7 +583,7 @@ private struct MindfulnessHomeItem: Identifiable {
     }
 }
 
-private struct RemoteMindfulnessGroup: Decodable, Identifiable {
+struct RemoteMindfulnessGroup: Decodable, Identifiable {
     let id: Int
     let name: String
     let description: String?
@@ -609,13 +592,38 @@ private struct RemoteMindfulnessGroup: Decodable, Identifiable {
     let items: [RemoteMindfulnessItem]
 }
 
-private struct RemoteMindfulnessItem: Decodable, Identifiable {
+struct RemoteMindfulnessItem: Decodable, Identifiable {
     let id: Int
     let title: String
     let contentType: String?
     let sizeBytes: Int64?
     let sortOrder: Int?
     let downloadUrl: String
+    let requiresVIP: Bool?
+
+    var trackID: String { "remote-\(id)" }
+
+    var colors: [Color] {
+        let palettes: [[Color]] = [[.indigo, .blue], [.teal, .cyan], [.green, .mint], [.purple, .pink], [.orange, .yellow]]
+        return palettes[Int(id.magnitude % UInt(palettes.count))]
+    }
+
+    func track(localURL: URL) -> MindfulnessTrack {
+        let palette = colors
+        return MindfulnessTrack(
+            id: trackID,
+            title: title,
+            subtitle: "云端正念 · 离线播放",
+            resourceName: trackID,
+            resourceExtension: fileExtension,
+            subdirectory: "",
+            colors: [palette[0].opacity(0.82), palette[1].opacity(0.75), palette[0].opacity(0.62)],
+            accent: palette[1],
+            icon: "moon.stars.fill",
+            fileURL: localURL,
+            requiresVIP: requiresVIP == true
+        )
+    }
 
     var fileExtension: String {
         let normalized = contentType?.lowercased() ?? ""
@@ -628,7 +636,7 @@ private struct RemoteMindfulnessItem: Decodable, Identifiable {
 }
 
 @MainActor
-private final class RemoteMindfulnessLibrary: ObservableObject {
+final class RemoteMindfulnessLibrary: ObservableObject {
     @Published private(set) var groups: [RemoteMindfulnessGroup] = []
     @Published private(set) var downloadProgress: [Int: Double] = [:]
 
@@ -659,6 +667,10 @@ private final class RemoteMindfulnessLibrary: ObservableObject {
                     return leftOrder == rightOrder ? lhs.id < rhs.id : leftOrder < rightOrder
                 }
         } catch let groupedError {
+            guard !Task.isCancelled else {
+                didLoad = false
+                return
+            }
             do {
                 let data = try await requestData(path: "api/mindfulness")
                 let legacyItems = validItems(try JSONDecoder().decode([RemoteMindfulnessItem].self, from: data))
@@ -674,6 +686,7 @@ private final class RemoteMindfulnessLibrary: ObservableObject {
                 ]
             } catch {
                 groups = []
+                didLoad = false
                 print("Failed to load grouped mindfulness list: \(groupedError); legacy fallback: \(error)")
             }
         }
