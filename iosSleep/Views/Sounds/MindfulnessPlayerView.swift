@@ -3,6 +3,29 @@ import MediaPlayer
 import SwiftUI
 import UIKit
 
+enum MindfulnessCover {
+    private static let remoteIndices = [2, 5, 9, 10, 12, 14, 15, 17, 18, 19, 23, 24, 25, 26, 27, 30]
+    // This pool excludes the covers reserved for bundled meditations and daily inspiration.
+    static let wellnessIndices = remoteIndices.shuffled()
+    private static let cache = NSCache<NSNumber, UIImage>()
+
+    static func remoteIndex(for id: Int) -> Int {
+        remoteIndices[Int(id.magnitude % UInt(remoteIndices.count))]
+    }
+
+    static func image(at index: Int) -> UIImage? {
+        let key = NSNumber(value: index)
+        if let image = cache.object(forKey: key) { return image }
+        guard let url = Bundle.main.url(
+            forResource: String(format: "cover-%02d", index),
+            withExtension: "jpg",
+            subdirectory: "SoundResources/Mindfulness/Covers"
+        ), let image = UIImage(contentsOfFile: url.path) else { return nil }
+        cache.setObject(image, forKey: key)
+        return image
+    }
+}
+
 struct MindfulnessTrack: Identifiable {
     let id: String
     let title: String
@@ -15,6 +38,22 @@ struct MindfulnessTrack: Identifiable {
     let icon: String
     var fileURL: URL?
     var requiresVIP = false
+
+    var coverIndex: Int? {
+        switch id {
+        case Self.deepSleep.id: return 1
+        case Self.daytimeEnergy.id: return 20
+        case Self.walking.id: return 21
+        case Self.emotionalRelease.id: return 28
+        case Self.calmingSleep.id: return 4
+        case Self.fatigueRelief.id: return 8
+        case Self.quickSleep.id: return 22
+        case Self.examSleep.id: return 13
+        default:
+            guard id.hasPrefix("remote-"), let remoteID = Int(id.dropFirst("remote-".count)) else { return nil }
+            return MindfulnessCover.remoteIndex(for: remoteID)
+        }
+    }
 
     static var bundledTracks: [MindfulnessTrack] {
         [.deepSleep, .daytimeEnergy, .walking, .emotionalRelease, .calmingSleep, .fatigueRelief, .quickSleep, .examSleep]
@@ -38,42 +77,42 @@ struct MindfulnessTrack: Identifiable {
         id: "walking-meditation", title: "散步冥想", subtitle: "正念引导 · 感受脚下",
         resourceName: "散步冥想", resourceExtension: "mp3", subdirectory: "SoundResources/Mindfulness",
         colors: [Color(red: 0.18, green: 0.38, blue: 0.27), Color(red: 0.34, green: 0.55, blue: 0.39), Color(red: 0.12, green: 0.27, blue: 0.22)],
-        accent: .green, icon: "figure.walk"
+        accent: .green, icon: "figure.walk", requiresVIP: true
     )
 
     static let emotionalRelease = MindfulnessTrack(
         id: "emotional-release", title: "睡前释放情绪", subtitle: "正念引导 · 温柔放下",
         resourceName: "睡前释放情绪", resourceExtension: "mp3", subdirectory: "SoundResources/Mindfulness",
         colors: [Color(red: 0.34, green: 0.24, blue: 0.43), Color(red: 0.51, green: 0.38, blue: 0.58), Color(red: 0.22, green: 0.17, blue: 0.34)],
-        accent: .purple, icon: "cloud.moon.fill"
+        accent: .purple, icon: "cloud.moon.fill", requiresVIP: true
     )
 
     static let calmingSleep = MindfulnessTrack(
         id: "calming-sleep", title: "安定身心助眠", subtitle: "正念引导 · 舒缓身心",
         resourceName: "rachel安定身心助眠", resourceExtension: "mp3", subdirectory: "SoundResources/Mindfulness",
         colors: [Color(red: 0.15, green: 0.34, blue: 0.39), Color(red: 0.28, green: 0.52, blue: 0.55), Color(red: 0.11, green: 0.24, blue: 0.31)],
-        accent: .cyan, icon: "heart.circle.fill"
+        accent: .cyan, icon: "heart.circle.fill", requiresVIP: true
     )
 
     static let fatigueRelief = MindfulnessTrack(
         id: "fatigue-relief", title: "缓解疲倦", subtitle: "正念引导 · 恢复能量",
         resourceName: "caroline缓解疲倦给身心一次温柔的休息", resourceExtension: "mp3", subdirectory: "SoundResources/Mindfulness",
         colors: [Color(red: 0.25, green: 0.38, blue: 0.26), Color(red: 0.45, green: 0.59, blue: 0.35), Color(red: 0.17, green: 0.29, blue: 0.22)],
-        accent: .mint, icon: "leaf.fill"
+        accent: .mint, icon: "leaf.fill", requiresVIP: true
     )
 
     static let quickSleep = MindfulnessTrack(
         id: "quick-sleep", title: "快速入睡", subtitle: "正念引导 · 沉入梦乡",
         resourceName: "suyue快速入睡｜让意识慢慢沉入夜晚", resourceExtension: "mp3", subdirectory: "SoundResources/Mindfulness",
         colors: [Color(red: 0.19, green: 0.24, blue: 0.47), Color(red: 0.32, green: 0.39, blue: 0.64), Color(red: 0.13, green: 0.17, blue: 0.34)],
-        accent: .blue, icon: "zzz"
+        accent: .blue, icon: "zzz", requiresVIP: true
     )
 
     static let examSleep = MindfulnessTrack(
         id: "exam-sleep", title: "考前失眠解放", subtitle: "正念引导 · 缓解紧张",
         resourceName: "nan考前失眠解放｜放下焦虑，安心入眠", resourceExtension: "mp3", subdirectory: "SoundResources/Mindfulness",
         colors: [Color(red: 0.42, green: 0.24, blue: 0.36), Color(red: 0.62, green: 0.39, blue: 0.51), Color(red: 0.29, green: 0.17, blue: 0.31)],
-        accent: .pink, icon: "book.closed.fill"
+        accent: .pink, icon: "book.closed.fill", requiresVIP: true
     )
 }
 
@@ -160,6 +199,18 @@ struct MindfulnessPlayerView: View {
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
+            if let index = track.coverIndex, let cover = MindfulnessCover.image(at: index) {
+                GeometryReader { geometry in
+                    Image(uiImage: cover)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .clipped()
+                }
+                .accessibilityHidden(true)
+                LinearGradient(colors: [.black.opacity(0.35), .black.opacity(0.78)],
+                               startPoint: .top, endPoint: .bottom)
+            }
             Circle()
                 .fill(track.accent.opacity(0.20))
                 .frame(width: 360, height: 360)
@@ -627,28 +678,7 @@ final class MindfulnessAudioPlayer: NSObject, ObservableObject, AVAudioPlayerDel
     }
 
     private func nowPlayingArtwork(for track: MindfulnessTrack) -> UIImage? {
-        let coverName: String?
-        switch track.id {
-        case MindfulnessTrack.deepSleep.id: coverName = "1"
-        case MindfulnessTrack.daytimeEnergy.id: coverName = "2"
-        case MindfulnessTrack.walking.id: coverName = "7"
-        case MindfulnessTrack.emotionalRelease.id: coverName = "4"
-        case MindfulnessTrack.calmingSleep.id: coverName = "5"
-        case MindfulnessTrack.fatigueRelief.id: coverName = "6"
-        case MindfulnessTrack.quickSleep.id: coverName = "7"
-        case MindfulnessTrack.examSleep.id: coverName = "8"
-        default: coverName = nil
-        }
-        if let coverName,
-           let url = Bundle.main.url(
-               forResource: coverName,
-               withExtension: "png",
-               subdirectory: "SoundResources/Mindfulness/Covers"
-           ),
-           let image = UIImage(contentsOfFile: url.path) {
-            return image
-        }
-        return UIImage(named: "LauncherIcon")
+        return track.coverIndex.flatMap { MindfulnessCover.image(at: $0) } ?? UIImage(named: "LauncherIcon")
     }
 
     private func clearNowPlayingInfoIfOwned(trackID: String?) {

@@ -19,13 +19,42 @@ final class SoundLibrary: ObservableObject {
     }
 
     var filteredScenes: [SoundScene] {
-        let text = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !text.isEmpty else { return scenes }
-        return scenes.filter { scene in
-            scene.title.localizedCaseInsensitiveContains(text) ||
-            scene.subtitle.localizedCaseInsensitiveContains(text) ||
-            scene.category.localizedCaseInsensitiveContains(text)
+        let tokens = searchText.split(whereSeparator: \.isWhitespace).map { normalized(String($0)) }
+        guard !tokens.isEmpty else { return scenes }
+        let phrase = tokens.joined()
+        return scenes.compactMap { scene -> (scene: SoundScene, rank: Int)? in
+            let title = normalized(scene.title)
+            if title == phrase { return (scene, 0) }
+            if title.hasPrefix(phrase) { return (scene, 1) }
+            if title.contains(phrase) { return (scene, 2) }
+            let details = [title, normalized(scene.subtitle), normalized(scene.category)]
+            if tokens.allSatisfy({ token in details.contains(where: { $0.contains(token) }) }) {
+                return (scene, 3)
+            }
+            if tokens.allSatisfy({ token in
+                title.contains(token) || (token.count > 1 && matchesInOrder(token, in: title))
+            }) {
+                return (scene, 4)
+            }
+            return nil
+        }.sorted {
+            $0.rank == $1.rank ? $0.scene.index < $1.scene.index : $0.rank < $1.rank
+        }.map(\.scene)
+    }
+
+    private func normalized(_ text: String) -> String {
+        text.folding(options: [.caseInsensitive, .diacriticInsensitive, .widthInsensitive], locale: .current)
+            .filter { !$0.isWhitespace }
+    }
+
+    private func matchesInOrder(_ token: String, in title: String) -> Bool {
+        var letters = token.makeIterator()
+        var next = letters.next()
+        for character in title where character == next {
+            next = letters.next()
+            if next == nil { return true }
         }
+        return false
     }
 
     func load() async {

@@ -1,11 +1,13 @@
 import SwiftUI
 
 enum WellnessDestination: Hashable {
+    case hub
     case healthInsight
     case assessment(WellnessAssessmentKind)
     case breathing
     case devices
     case history
+    case record(WellnessAssessmentRecord)
 }
 
 struct WellnessFeature: Identifiable, Hashable {
@@ -34,6 +36,17 @@ struct WellnessFeature: Identifiable, Hashable {
     static let mindAndPersonality = features(withIDs: ["mbti", "mood", "anxiety", "stress", "bigfive"])
     static let relaxAndDevices = features(withIDs: ["breathing", "devices"])
 
+    private static let coverDestinations = (mindAndPersonality + sleepHealth + relaxAndDevices).map(\.destination) + [.history]
+    private static let coverIndices = Dictionary(uniqueKeysWithValues: zip(coverDestinations, MindfulnessCover.wellnessIndices))
+
+    static func coverImage(for destination: WellnessDestination) -> UIImage? {
+        coverIndices[destination].flatMap { MindfulnessCover.image(at: $0) }
+    }
+
+    static var hubCoverImage: UIImage? {
+        MindfulnessCover.wellnessIndices.dropFirst(coverDestinations.count).first.flatMap { MindfulnessCover.image(at: $0) }
+    }
+
     private static func features(withIDs ids: [String]) -> [WellnessFeature] {
         ids.compactMap { id in all.first(where: { $0.id == id }) }
     }
@@ -56,38 +69,36 @@ struct WellnessHomeSection: View {
         features: [WellnessFeature]
     ) -> some View {
         VStack(alignment: .leading, spacing: 14) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(title)
-                        .font(.system(size: 15, weight: .medium))
-                    Text(subtitle)
-                        .font(.system(size: 11))
-                        .foregroundStyle(.secondary)
-                }
+            NavigationLink(value: WellnessDestination.hub) {
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(title)
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundStyle(SoundHomeTextColor.title)
+                        Text(subtitle)
+                            .font(.system(size: 11))
+                            .foregroundStyle(SoundHomeTextColor.detail)
+                    }
 
-                Spacer()
+                    Spacer()
 
-                NavigationLink {
-                    WellnessHubView()
-                } label: {
                     HStack(spacing: 4) {
                         Text("全部")
                         Image(systemName: "chevron.right")
                             .font(.system(size: 10, weight: .semibold))
                     }
                     .font(.system(size: 12))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(SoundHomeTextColor.detail)
                     .padding(.top, 5)
                 }
-                .buttonStyle(.plain)
+                .contentShape(Rectangle())
             }
+            .buttonStyle(.plain)
 
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(spacing: 12) {
                     ForEach(features) { feature in
-                        NavigationLink {
-                            WellnessDestinationView(destination: feature.destination)
-                        } label: {
+                        NavigationLink(value: feature.destination) {
                             WellnessHomeCard(feature: feature)
                         }
                         .buttonStyle(.plain)
@@ -106,23 +117,20 @@ private struct WellnessHomeCard: View {
 
     var body: some View {
         ZStack(alignment: .topLeading) {
-            LinearGradient(
-                colors: feature.colors.map { $0.color.opacity(0.38) },
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+            if let image = WellnessFeature.coverImage(for: feature.destination) {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 220, height: 132)
+                    .clipped()
+                    .accessibilityHidden(true)
+            } else {
+                LinearGradient(colors: feature.colors.map(\.color),
+                               startPoint: .topLeading, endPoint: .bottomTrailing)
+            }
 
-            Color(.systemBackground).opacity(0.48)
-
-            Circle()
-                .fill(feature.colors.first?.color.opacity(0.10) ?? .clear)
-                .frame(width: 105, height: 105)
-                .offset(x: 135, y: -46)
-
-            Circle()
-                .fill(feature.colors.last?.color.opacity(0.08) ?? .clear)
-                .frame(width: 72, height: 72)
-                .offset(x: 168, y: 76)
+            LinearGradient(colors: [.black.opacity(0.40), .black.opacity(0.72)],
+                           startPoint: .top, endPoint: .bottom)
 
             VStack(alignment: .leading, spacing: 0) {
                 HStack {
@@ -130,12 +138,12 @@ private struct WellnessHomeCard: View {
                         .font(.system(size: 10, weight: .medium))
                         .padding(.horizontal, 9)
                         .frame(height: 23)
-                        .background(Color(.systemBackground).opacity(0.55))
+                        .background(.black.opacity(0.32))
                         .clipShape(Capsule())
                     Spacer()
                     Image(systemName: feature.icon)
                         .font(.system(size: 27, weight: .medium))
-                        .foregroundStyle(feature.colors.first?.color.opacity(0.78) ?? .secondary)
+                        .foregroundStyle(.white.opacity(0.9))
                 }
 
                 Spacer()
@@ -144,11 +152,11 @@ private struct WellnessHomeCard: View {
                     .font(.system(size: 17, weight: .semibold))
                 Text(feature.subtitle)
                     .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.white.opacity(0.74))
                     .lineLimit(1)
                     .padding(.top, 4)
             }
-            .foregroundStyle(.primary)
+            .foregroundStyle(.white)
             .padding(15)
         }
         .frame(width: 220, height: 132)
@@ -164,6 +172,8 @@ struct WellnessDestinationView: View {
     @ViewBuilder
     var body: some View {
         switch destination {
+        case .hub:
+            WellnessHubView()
         case .healthInsight:
             HealthSleepInsightView()
         case .assessment(let kind):
@@ -174,6 +184,8 @@ struct WellnessDestinationView: View {
             ConnectedHealthDevicesView()
         case .history:
             WellnessHistoryView()
+        case .record(let record):
+            WellnessRecordDetailView(record: record)
         }
     }
 }
@@ -212,9 +224,7 @@ struct WellnessHubView: View {
                         features: WellnessFeature.relaxAndDevices
                     )
 
-                    NavigationLink {
-                        WellnessHistoryView()
-                    } label: {
+                    NavigationLink(value: WellnessDestination.history) {
                         historyCard
                     }
                     .buttonStyle(.plain)
@@ -235,32 +245,19 @@ struct WellnessHubView: View {
     }
 
     private var hero: some View {
-        ZStack(alignment: .leading) {
-            LinearGradient(
-                colors: [Color(red: 0.17, green: 0.30, blue: 0.55), Color(red: 0.31, green: 0.58, blue: 0.62)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            Circle().fill(.white.opacity(0.09)).frame(width: 170, height: 170).offset(x: 235, y: -58)
-            Image(systemName: "sparkles")
-                .font(.system(size: 68, weight: .ultraLight))
-                .foregroundStyle(.white.opacity(0.2))
-                .frame(maxWidth: .infinity, alignment: .trailing)
-                .padding(.trailing, 25)
-
-            VStack(alignment: .leading, spacing: 9) {
-                Text("给自己一点了解的时间")
-                    .font(.system(size: 20, weight: .semibold))
-                Text("从睡眠、情绪到性格节律，所有记录默认仅保存在 App 本地。")
-                    .font(.system(size: 13))
-                    .foregroundStyle(.white.opacity(0.8))
-                    .lineSpacing(3)
-                    .frame(maxWidth: 245, alignment: .leading)
-            }
-            .foregroundStyle(.white)
-            .padding(22)
+        VStack(alignment: .leading, spacing: 9) {
+            Text("给自己一点了解的时间")
+                .font(.system(size: 20, weight: .semibold))
+            Text("从睡眠、情绪到性格节律，所有记录默认仅保存在 App 本地。")
+                .font(.system(size: 13))
+                .foregroundStyle(.white.opacity(0.82))
+                .lineSpacing(3)
+                .frame(maxWidth: 320, alignment: .leading)
         }
-        .frame(height: 150)
+        .foregroundStyle(.white)
+        .padding(22)
+        .frame(maxWidth: .infinity, minHeight: 150, alignment: .leading)
+        .background { WellnessCoverBackground(image: WellnessFeature.hubCoverImage) }
         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
     }
 
@@ -268,31 +265,30 @@ struct WellnessHubView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Image(systemName: feature.icon)
-                    .font(.system(size: 23, weight: .medium))
-                    .foregroundStyle(feature.colors.first?.color ?? .blue)
-                    .frame(width: 44, height: 44)
-                    .background(
-                        LinearGradient(colors: feature.colors.map { $0.color.opacity(0.15) }, startPoint: .topLeading, endPoint: .bottomTrailing)
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
+                    .font(.system(size: 21, weight: .medium))
+                    .frame(width: 40, height: 40)
+                    .background(.black.opacity(0.30), in: RoundedRectangle(cornerRadius: 12))
+                    .accessibilityHidden(true)
                 Spacer()
                 Image(systemName: "chevron.right")
                     .font(.caption.weight(.semibold))
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(.white.opacity(0.72))
+                    .accessibilityHidden(true)
             }
             Text(feature.title)
                 .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(.primary)
             Text(feature.subtitle)
                 .font(.system(size: 11))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.white.opacity(0.8))
                 .lineLimit(2)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
+        .foregroundStyle(.white)
         .padding(15)
         .frame(maxWidth: .infinity, minHeight: 145, alignment: .topLeading)
-        .background(Color(.secondarySystemGroupedBackground))
+        .background { WellnessCoverBackground(image: WellnessFeature.coverImage(for: feature.destination)) }
         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
     private func hubFeatureSection(
@@ -311,9 +307,7 @@ struct WellnessHubView: View {
 
             LazyVGrid(columns: columns, spacing: 12) {
                 ForEach(features) { feature in
-                    NavigationLink {
-                        WellnessDestinationView(destination: feature.destination)
-                    } label: {
+                    NavigationLink(value: feature.destination) {
                         hubCard(feature)
                     }
                     .buttonStyle(.plain)
@@ -326,26 +320,27 @@ struct WellnessHubView: View {
         HStack(spacing: 14) {
             Image(systemName: "clock.arrow.circlepath")
                 .font(.system(size: 23, weight: .medium))
-                .foregroundStyle(.blue)
+                .foregroundStyle(.white)
                 .frame(width: 48, height: 48)
-                .background(Color.blue.opacity(0.1))
+                .background(.black.opacity(0.30))
                 .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             VStack(alignment: .leading, spacing: 5) {
                 Text("测评记录")
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(.white)
                 Text(history.records.isEmpty ? "完成测评后，可在这里查看变化" : "已保存 \(history.records.count) 次测评结果")
                     .font(.system(size: 12))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.white.opacity(0.8))
             }
             Spacer()
             Image(systemName: "chevron.right")
                 .font(.caption.weight(.semibold))
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(.white.opacity(0.72))
         }
         .padding(16)
-        .background(Color(.secondarySystemGroupedBackground))
+        .background { WellnessCoverBackground(image: WellnessFeature.coverImage(for: .history)) }
         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .contentShape(Rectangle())
     }
 
     private var privacyNotice: some View {
@@ -361,8 +356,41 @@ struct WellnessHubView: View {
     }
 }
 
+private struct WellnessCoverBackground: View {
+    let image: UIImage?
+    var fallback: Color = Color(white: 0.12)
+
+    var body: some View {
+        cover.allowsHitTesting(false)
+    }
+
+    @ViewBuilder
+    private var cover: some View {
+        if let image {
+            GeometryReader { geometry in
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: geometry.size.width, height: geometry.size.height)
+                    .clipped()
+                    .overlay {
+                        LinearGradient(colors: [.black.opacity(0.46), .black.opacity(0.77)],
+                                       startPoint: .topLeading, endPoint: .bottomTrailing)
+                    }
+            }
+            .accessibilityHidden(true)
+        } else {
+            fallback
+        }
+    }
+}
+
 struct WellnessAssessmentView: View {
     let definition: WellnessAssessmentDefinition
+
+    private var coverImage: UIImage? {
+        WellnessFeature.coverImage(for: .assessment(definition.kind))
+    }
 
     @EnvironmentObject private var settings: AppSettings
     @ObservedObject private var history = WellnessHistoryStore.shared
@@ -404,7 +432,9 @@ struct WellnessAssessmentView: View {
             showMembershipAfterPrompt = false
             showMembership = true
         }) {
-            MBTIMembershipUnlockSheet(
+            SleepVIPUpgradeSheet(
+                contentTitle: definition.title,
+                contentKind: .mbti,
                 onUpgrade: {
                     showMembershipAfterPrompt = true
                     showMBTIUnlockPrompt = false
@@ -413,8 +443,6 @@ struct WellnessAssessmentView: View {
                     showMBTIUnlockPrompt = false
                 }
             )
-            .presentationDetents([.height(360)])
-            .presentationDragIndicator(.visible)
         }
         .fullScreenCover(isPresented: $showMembership, onDismiss: {
             revealPendingMBTIResultIfEntitled()
@@ -487,7 +515,8 @@ struct WellnessAssessmentView: View {
     }
 
     private var assessmentHeader: some View {
-        HStack(spacing: 14) {
+        let image = coverImage
+        return HStack(spacing: 14) {
             Image(systemName: definition.icon)
                 .font(.system(size: 28, weight: .medium))
                 .foregroundStyle(.white)
@@ -500,15 +529,16 @@ struct WellnessAssessmentView: View {
             VStack(alignment: .leading, spacing: 5) {
                 Text(definition.introduction)
                     .font(.system(size: 13))
-                    .foregroundStyle(.primary)
-                    .lineLimit(3)
+                    .foregroundStyle(image == nil ? Color.primary : .white)
+                    .fixedSize(horizontal: false, vertical: true)
                 Text(definition.periodText)
                     .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(image == nil ? Color.secondary : .white.opacity(0.8))
             }
         }
         .padding(16)
-        .background(Color(.secondarySystemGroupedBackground))
+        .frame(maxWidth: .infinity, minHeight: image == nil ? nil : 136, alignment: .leading)
+        .background { WellnessCoverBackground(image: image, fallback: Color(.secondarySystemGroupedBackground)) }
         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
@@ -577,7 +607,8 @@ struct WellnessAssessmentView: View {
     }
 
     private func resultContent(_ result: WellnessAssessmentRecord) -> some View {
-        ScrollView {
+        let image = coverImage
+        return ScrollView {
             VStack(spacing: 18) {
                 VStack(spacing: 13) {
                     ZStack {
@@ -595,7 +626,7 @@ struct WellnessAssessmentView: View {
                                 .font(.system(size: definition.kind == .mbti ? 27 : 32, weight: .bold, design: .rounded))
                             Text(definition.kind == .mbti ? "人格类型" : (result.metrics.isEmpty ? "/ \(result.maximumScore)" : "综合画像"))
                                 .font(.caption)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(image == nil ? Color.secondary : .white.opacity(0.8))
                         }
                     }
                     .frame(width: 138, height: 138)
@@ -604,13 +635,14 @@ struct WellnessAssessmentView: View {
                         .font(.title2.weight(.semibold))
                     Text(result.summary)
                         .font(.system(size: 14))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(image == nil ? Color.secondary : .white.opacity(0.8))
                         .multilineTextAlignment(.center)
                         .lineSpacing(4)
                 }
                 .padding(22)
                 .frame(maxWidth: .infinity)
-                .background(Color(.secondarySystemGroupedBackground))
+                .foregroundStyle(image == nil ? Color.primary : .white)
+                .background { WellnessCoverBackground(image: image, fallback: Color(.secondarySystemGroupedBackground)) }
                 .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
 
                 if !result.metrics.isEmpty {
@@ -726,78 +758,6 @@ struct WellnessAssessmentView: View {
     }
 }
 
-private struct MBTIMembershipUnlockSheet: View {
-    let onUpgrade: () -> Void
-    let onCancel: () -> Void
-
-    var body: some View {
-        VStack(spacing: 14) {
-            Image(systemName: "crown.fill")
-                .font(.system(size: 28, weight: .semibold))
-                .foregroundStyle(Color(red: 0.76, green: 0.48, blue: 0.16))
-                .frame(width: 58, height: 58)
-                .background(Color(red: 1.0, green: 0.95, blue: 0.84))
-                .clipShape(Circle())
-
-            VStack(spacing: 7) {
-                Text("解锁会员，立刻查看完整数据分析")
-                    .font(.system(size: 18, weight: .bold))
-                    .multilineTextAlignment(.center)
-                Text("你的 MBTI 测评已完成，开通会员即可查看人格类型、四维偏好强度和完整人格解读。")
-                    .font(.system(size: 13))
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(3)
-            }
-
-            HStack(spacing: 10) {
-                unlockItem(icon: "person.text.rectangle", text: "人格类型")
-                unlockItem(icon: "chart.bar.fill", text: "偏好强度")
-                unlockItem(icon: "lightbulb.fill", text: "人格解读")
-            }
-
-            Button(action: onUpgrade) {
-                Text("立即解锁会员")
-                    .font(.system(size: 15, weight: .bold))
-                    .foregroundStyle(Color(red: 0.36, green: 0.20, blue: 0.08))
-                    .frame(maxWidth: .infinity, minHeight: 46)
-                    .background(
-                        LinearGradient(
-                            colors: [Color(red: 1.0, green: 0.88, blue: 0.62), Color(red: 0.86, green: 0.60, blue: 0.26)],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-            }
-            .buttonStyle(.plain)
-
-            Button("暂不查看", action: onCancel)
-                .font(.system(size: 14))
-                .foregroundStyle(.secondary)
-                .buttonStyle(.plain)
-        }
-        .padding(.horizontal, 20)
-        .padding(.top, 22)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(Color(.systemBackground).ignoresSafeArea())
-    }
-
-    private func unlockItem(icon: String, text: String) -> some View {
-        VStack(spacing: 6) {
-            Image(systemName: icon)
-                .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(Color(red: 0.75, green: 0.48, blue: 0.15))
-            Text(text)
-                .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity, minHeight: 58)
-        .background(Color(red: 1.0, green: 0.97, blue: 0.91))
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-    }
-}
-
 struct WellnessHistoryView: View {
     @ObservedObject private var history = WellnessHistoryStore.shared
 
@@ -810,9 +770,7 @@ struct WellnessHistoryView: View {
                 ScrollView {
                     LazyVStack(spacing: 12) {
                         ForEach(history.records) { record in
-                            NavigationLink {
-                                WellnessRecordDetailView(record: record)
-                            } label: {
+                            NavigationLink(value: WellnessDestination.record(record)) {
                                 historyRow(record)
                             }
                             .buttonStyle(.plain)
@@ -860,6 +818,7 @@ struct WellnessHistoryView: View {
         .padding(16)
         .background(Color(.secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 17, style: .continuous))
+        .contentShape(Rectangle())
     }
 
     private func mbtiCode(_ level: String) -> String {
@@ -1041,7 +1000,6 @@ struct HealthSleepInsightView: View {
 
     private var healthHero: some View {
         ZStack(alignment: .leading) {
-            LinearGradient(colors: [.blue, .cyan], startPoint: .topLeading, endPoint: .bottomTrailing)
             Image(systemName: "heart.text.square.fill")
                 .font(.system(size: 76))
                 .foregroundStyle(.white.opacity(0.17))
@@ -1060,7 +1018,8 @@ struct HealthSleepInsightView: View {
             .foregroundStyle(.white)
             .padding(20)
         }
-        .frame(height: 128)
+        .frame(maxWidth: .infinity, minHeight: 128, alignment: .leading)
+        .background { WellnessCoverBackground(image: WellnessFeature.coverImage(for: .healthInsight)) }
         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
     }
 
@@ -1213,6 +1172,7 @@ private struct HealthBodyMetric: Identifiable {
 
 struct BreathingExerciseView: View {
     @EnvironmentObject private var healthKit: HealthKitService
+    @Environment(\.colorScheme) private var colorScheme
     @State private var selectedDuration = 60
     @State private var remaining = 60
     @State private var isRunning = false
@@ -1221,10 +1181,24 @@ struct BreathingExerciseView: View {
 
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
+    private var isDark: Bool { colorScheme == .dark }
+
+    private var backgroundColors: [Color] {
+        isDark
+            ? [Color(red: 0.045, green: 0.105, blue: 0.11), Color(red: 0.045, green: 0.065, blue: 0.10)]
+            : [Color(red: 0.91, green: 0.98, blue: 0.96), Color(red: 0.90, green: 0.95, blue: 0.99)]
+    }
+
+    private var circleColors: [Color] {
+        isDark
+            ? [Color(red: 0.13, green: 0.29, blue: 0.29), Color(red: 0.08, green: 0.17, blue: 0.21)]
+            : [Color.white, Color(red: 0.74, green: 0.89, blue: 0.88)]
+    }
+
     var body: some View {
         ZStack {
             LinearGradient(
-                colors: [Color(red: 0.91, green: 0.98, blue: 0.96), Color(red: 0.90, green: 0.95, blue: 0.99)],
+                colors: backgroundColors,
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -1244,8 +1218,11 @@ struct BreathingExerciseView: View {
                 ZStack {
                     Circle()
                         .fill(
-                            RadialGradient(colors: [.white.opacity(0.95), Color.teal.opacity(0.2)], center: .center, startRadius: 12, endRadius: 118)
+                            RadialGradient(colors: circleColors, center: .center, startRadius: 12, endRadius: 118)
                         )
+                        .overlay {
+                            Circle().strokeBorder(Color.teal.opacity(isDark ? 0.42 : 0.24), lineWidth: 1)
+                        }
                         .frame(width: 220, height: 220)
                         .scaleEffect(circleScale)
                         .shadow(color: .teal.opacity(0.16), radius: 28)
@@ -1253,17 +1230,17 @@ struct BreathingExerciseView: View {
 
                     VStack(spacing: 8) {
                         Text(phaseText)
-                            .font(.system(size: 25, weight: .medium))
+                            .font(.system(size: 25, weight: .semibold))
                         Text(timeText)
-                            .font(.system(size: 15, weight: .regular, design: .rounded))
-                            .foregroundStyle(.secondary)
+                            .font(.system(size: 17, weight: .medium, design: .rounded))
+                            .foregroundStyle(.primary.opacity(0.82))
                             .monospacedDigit()
                     }
                 }
 
                 Text(phaseHint)
                     .font(.system(size: 14))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.primary.opacity(0.85))
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: 270)
 
@@ -1277,6 +1254,7 @@ struct BreathingExerciseView: View {
                             .frame(width: 46, height: 46)
                     }
                     .buttonStyle(.bordered)
+                    .tint(.primary)
 
                     Button {
                         toggleRunning()
@@ -1285,7 +1263,8 @@ struct BreathingExerciseView: View {
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(.teal)
+                    .tint(Color(red: 0.08, green: 0.42, blue: 0.43))
+                    .foregroundStyle(.white)
                     .controlSize(.large)
                 }
                 .padding(.horizontal, 24)
@@ -1293,6 +1272,8 @@ struct BreathingExerciseView: View {
                 Text("完成后可在获得授权的情况下写入 Apple 健康正念时长")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 20)
                     .padding(.bottom, 22)
             }
             .padding(.top, 22)
@@ -1432,7 +1413,6 @@ struct ConnectedHealthDevicesView: View {
 
     private var appleHealthCard: some View {
         ZStack(alignment: .leading) {
-            LinearGradient(colors: [.pink, .red], startPoint: .topLeading, endPoint: .bottomTrailing)
             Image(systemName: "heart.fill")
                 .font(.system(size: 82))
                 .foregroundStyle(.white.opacity(0.15))
@@ -1461,7 +1441,8 @@ struct ConnectedHealthDevicesView: View {
             .foregroundStyle(.white)
             .padding(20)
         }
-        .frame(height: 148)
+        .frame(maxWidth: .infinity, minHeight: 148, alignment: .leading)
+        .background { WellnessCoverBackground(image: WellnessFeature.coverImage(for: .devices)) }
         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
     }
 

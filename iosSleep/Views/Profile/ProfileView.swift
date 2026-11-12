@@ -187,11 +187,11 @@ struct ProfileView: View {
             VStack(alignment: .leading, spacing: 5) {
                 Text(settings.isLoggedIn ? maskedPhone : "登录时光睡眠")
                     .font(.system(size: cardFontSize(19), weight: .semibold))
-                    .foregroundStyle(Color(profileHex: "#19191F"))
+                    .foregroundStyle(.white)
                     .lineLimit(1)
                 Text(settings.isLoggedIn ? "账号已登录" : "登录后同步睡眠数据与会员权益")
                     .font(.system(size: cardFontSize(12)))
-                    .foregroundStyle(Color(profileHex: "#73727E"))
+                    .foregroundStyle(Color(profileHex: "#E3CBB2"))
             }
 
             Spacer()
@@ -199,10 +199,10 @@ struct ProfileView: View {
             if settings.isLoggedIn {
                 Text("账号")
                     .font(.system(size: cardFontSize(13), weight: .medium))
-                    .foregroundStyle(Color(profileHex: "#6750F5"))
+                    .foregroundStyle(Color(profileHex: "#F4D8AE"))
                     .padding(.horizontal, 16)
                     .frame(height: 38)
-                    .background(.white.opacity(0.8))
+                    .background(.white.opacity(0.12))
                     .clipShape(Capsule())
             } else {
                 Text("登录")
@@ -223,11 +223,11 @@ struct ProfileView: View {
         }
         .padding(.horizontal, 18)
         .frame(height: isPad ? 136 : 116)
-        .background(Color(profileHex: "#F6F2FF"))
+        .background(accountCardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 24))
         .overlay {
             RoundedRectangle(cornerRadius: 24)
-                .stroke(Color(profileHex: "#6750F5").opacity(0.08), lineWidth: 1)
+                .stroke(.white.opacity(0.10), lineWidth: 1)
         }
         .contentShape(RoundedRectangle(cornerRadius: 24))
         .onTapGesture { openAccount() }
@@ -307,20 +307,18 @@ struct ProfileView: View {
             .padding(.bottom, 14)
         }
         .frame(height: isPad ? 158 : 134)
-        .background {
-            LinearGradient(
-                colors: [
-                    Color(profileHex: "#241B18"),
-                    Color(profileHex: "#3B2920"),
-                    Color(profileHex: "#5A402B")
-                ],
-                startPoint: .leading,
-                endPoint: .trailing
-            )
-        }
+        .background(accountCardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 22))
         .contentShape(RoundedRectangle(cornerRadius: 22))
         .onTapGesture { showingMembership = true }
+    }
+
+    private var accountCardBackground: LinearGradient {
+        LinearGradient(
+            colors: [Color(profileHex: "#241B18"), Color(profileHex: "#3B2920"), Color(profileHex: "#5A402B")],
+            startPoint: .leading,
+            endPoint: .trailing
+        )
     }
 
     private func vipBenefit(_ title: String) -> some View {

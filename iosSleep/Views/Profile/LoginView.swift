@@ -8,6 +8,7 @@ private enum LoginMode {
 struct LoginView: View {
     @EnvironmentObject private var settings: AppSettings
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
 
     @State private var mode: LoginMode = .code
     @State private var phone = ""
@@ -21,6 +22,10 @@ struct LoginView: View {
     @State private var countdownTask: Task<Void, Never>?
 
     private let loginPurple = Color(red: 0.40, green: 0.31, blue: 0.96)
+
+    private var loginAccent: Color {
+        colorScheme == .dark ? Color(red: 0.76, green: 0.70, blue: 1.0) : loginPurple
+    }
 
     private var isPhoneValid: Bool {
         let pattern = "^1[3-9]\\d{9}$"
@@ -46,7 +51,7 @@ struct LoginView: View {
 
     var body: some View {
         ZStack {
-            Color(red: 0.975, green: 0.97, blue: 0.995)
+            Color(.systemBackground)
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
@@ -56,6 +61,7 @@ struct LoginView: View {
         }
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
+        .toolbar(.hidden, for: .tabBar)
         .appEdgeSwipeBack()
         .sheet(item: $legalDocument) { document in
             NavigationStack {
@@ -91,7 +97,8 @@ struct LoginView: View {
             Color.clear.frame(width: 44, height: 44)
         }
         .padding(.horizontal, 4)
-        .background(Color.white.opacity(0.9))
+        .foregroundStyle(.primary)
+        .background(Color(.systemBackground))
     }
 
     private var loginContent: some View {
@@ -120,14 +127,14 @@ struct LoginView: View {
                         HStack(spacing: 10) {
                             Text("+86")
                                 .font(.system(size: 15, weight: .semibold))
-                                .foregroundStyle(loginPurple)
+                                .foregroundStyle(loginAccent)
                             Divider().frame(height: 20)
                             TextField("请输入手机号", text: Binding(
                                 get: { phone },
-                                set: { phone = String($0.filter(\.isNumber).prefix(11)) }
-                            ))
+                                set: { phone = normalizedPhoneNumber($0) }
+                            ), prompt: Text("请输入手机号").foregroundColor(.secondary))
                             .keyboardType(.numberPad)
-                            .textContentType(.telephoneNumber)
+                            .textContentType(mode == .password ? .username : .telephoneNumber)
                         }
                     }
 
@@ -137,7 +144,7 @@ struct LoginView: View {
                                 TextField("请输入6位验证码", text: Binding(
                                     get: { code },
                                     set: { code = String($0.filter(\.isNumber).prefix(6)) }
-                                ))
+                                ), prompt: Text("请输入6位验证码").foregroundColor(.secondary))
                                 .keyboardType(.numberPad)
                                 .textContentType(.oneTimeCode)
 
@@ -147,13 +154,13 @@ struct LoginView: View {
                                     Group {
                                         if isSendingCode {
                                             ProgressView()
-                                                .tint(loginPurple)
+                                                .tint(loginAccent)
                                         } else {
                                             Text(countdown > 0 ? "\(countdown)s" : "获取验证码")
                                         }
                                     }
                                     .font(.system(size: 13, weight: .semibold))
-                                    .foregroundStyle(canSendCode ? loginPurple : Color.secondary)
+                                    .foregroundStyle(canSendCode ? loginAccent : Color.secondary)
                                     .frame(width: 78)
                                 }
                                 .buttonStyle(.plain)
@@ -162,7 +169,8 @@ struct LoginView: View {
                         }
                     } else {
                         labeledField(title: "密码") {
-                            SecureField("请输入密码（至少6位）", text: $password)
+                            SecureField("请输入密码（至少6位）", text: $password,
+                                        prompt: Text("请输入密码（至少6位）").foregroundColor(.secondary))
                                 .textContentType(.password)
                         }
                     }
@@ -183,13 +191,13 @@ struct LoginView: View {
                                     .font(.system(size: 16, weight: .bold))
                             }
                         }
-                        .foregroundStyle(.white)
+                        .foregroundStyle(canLogin || isLoggingIn ? Color.white : Color.secondary)
                         .frame(maxWidth: .infinity, minHeight: 50)
                         .background {
                             LinearGradient(
-                                colors: canLogin
-                                    ? [loginPurple, Color(red: 0.61, green: 0.47, blue: 1.0)]
-                                    : [Color.gray.opacity(0.4), Color.gray.opacity(0.4)],
+                                colors: canLogin || isLoggingIn
+                                    ? [loginPurple, Color(red: 0.49, green: 0.34, blue: 0.91)]
+                                    : [Color(.secondarySystemBackground), Color(.secondarySystemBackground)],
                                 startPoint: .leading,
                                 endPoint: .trailing
                             )
@@ -202,7 +210,7 @@ struct LoginView: View {
                     Button { switchMode() } label: {
                         Text(mode == .code ? "使用密码登录" : "使用验证码登录")
                             .font(.system(size: 13, weight: .semibold))
-                            .foregroundStyle(loginPurple)
+                            .foregroundStyle(loginAccent)
                     }
                     .buttonStyle(.plain)
                 }
@@ -212,6 +220,8 @@ struct LoginView: View {
                     .padding(.top, 8)
                     .padding(.bottom, 24)
             }
+            .frame(maxWidth: 500)
+            .frame(maxWidth: .infinity)
         }
     }
 
@@ -226,13 +236,16 @@ struct LoginView: View {
 
             content()
                 .font(.system(size: 15))
+                .foregroundStyle(.primary)
+                .tint(loginAccent)
                 .padding(.horizontal, 14)
                 .frame(height: 50)
-                .background(Color(red: 0.965, green: 0.95, blue: 1.0))
+                .background(Color(.secondarySystemBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .overlay {
                     RoundedRectangle(cornerRadius: 12)
-                        .stroke(loginPurple.opacity(0.16), lineWidth: 1)
+                        .strokeBorder(Color.primary.opacity(0.12), lineWidth: 1)
+                        .allowsHitTesting(false)
                 }
         }
     }
@@ -252,9 +265,21 @@ struct LoginView: View {
                 }
             }
             .font(.system(size: 12, weight: .semibold))
-            .foregroundStyle(loginPurple)
+            .foregroundStyle(loginAccent)
             .buttonStyle(.plain)
         }
+    }
+
+    private func normalizedPhoneNumber(_ input: String) -> String {
+        let digits = input.filter(\.isNumber)
+        // Password AutoFill can return a saved username with the +86 country code.
+        if digits.count == 13, digits.hasPrefix("86") {
+            return String(digits.dropFirst(2))
+        }
+        if digits.count == 15, digits.hasPrefix("0086") {
+            return String(digits.dropFirst(4))
+        }
+        return String(digits.prefix(11))
     }
 
     private func requestCode() {

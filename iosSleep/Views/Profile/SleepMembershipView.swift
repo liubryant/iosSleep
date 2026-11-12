@@ -586,21 +586,52 @@ struct SleepMembershipView: View {
     }
 }
 
+struct SleepMembershipDiamond: View {
+    var body: some View {
+        Canvas { context, size in
+            func facet(_ points: [CGPoint], color: Color) {
+                var path = Path()
+                path.addLines(points.map { CGPoint(x: $0.x * size.width, y: $0.y * size.height) })
+                path.closeSubpath()
+                context.fill(path, with: .color(color))
+            }
+
+            let left = CGPoint(x: 0, y: 0.32)
+            let topLeft = CGPoint(x: 0.19, y: 0)
+            let topRight = CGPoint(x: 0.81, y: 0)
+            let right = CGPoint(x: 1, y: 0.32)
+            let bottom = CGPoint(x: 0.5, y: 1)
+            let innerLeft = CGPoint(x: 0.28, y: 0.24)
+            let innerRight = CGPoint(x: 0.72, y: 0.24)
+            let innerBottom = CGPoint(x: 0.5, y: 0.61)
+
+            facet([left, topLeft, topRight, right, bottom], color: Color(red: 0.88, green: 0.65, blue: 0.28))
+            facet([left, topLeft, topRight, innerRight, innerLeft], color: Color(red: 1, green: 0.88, blue: 0.58))
+            facet([left, innerLeft, innerBottom, bottom], color: Color(red: 0.96, green: 0.77, blue: 0.41))
+            facet([topRight, right, bottom, innerBottom, innerRight], color: Color(red: 0.73, green: 0.49, blue: 0.20))
+            facet([innerLeft, innerRight, innerBottom], color: Color(red: 0.22, green: 0.15, blue: 0.08))
+        }
+    }
+}
+
 enum SleepVIPContentKind {
     case mindfulness
     case sound
+    case mbti
 
     var title: String {
         switch self {
         case .mindfulness: return "VIP 专享正念"
         case .sound: return "VIP 专享声音"
+        case .mbti: return "解锁完整 MBTI 分析"
         }
     }
 
     var benefitIcon: String {
         switch self {
-        case .mindfulness: return "figure.mind.and.body"
+        case .mindfulness: return "wind"
         case .sound: return "waveform"
+        case .mbti: return "chart.bar.xaxis"
         }
     }
 
@@ -608,91 +639,133 @@ enum SleepVIPContentKind {
         switch self {
         case .mindfulness: return "正念冥想内容"
         case .sound: return "全部助眠声音"
+        case .mbti: return "完整人格报告"
         }
     }
 
-    var freeText: String {
+    var benefitDetail: String {
         switch self {
-        case .mindfulness: return "普通用户：前 4 个"
-        case .sound: return "普通用户：前 30 个"
+        case .mindfulness: return "畅听会员专享的引导练习与冥想课程"
+        case .sound: return "畅听会员专享的助眠声音"
+        case .mbti: return "人格类型、四维偏好强度、完整人格解读"
         }
+    }
+
+    func prompt(for contentTitle: String) -> String {
+        if self == .mbti { return "你的 MBTI 测评已完成，开通会员即可查看结果。" }
+        let title = contentTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+        return title.isEmpty ? "开通会员即可播放" : "开通会员即可播放「\(title)」"
     }
 }
 
+struct SleepVIPPromptContent: Identifiable {
+    let id = UUID()
+    let title: String
+    let kind: SleepVIPContentKind
+}
+
 struct SleepVIPUpgradeSheet: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     let contentTitle: String
     var contentKind: SleepVIPContentKind = .mindfulness
     let onUpgrade: () -> Void
     let onCancel: () -> Void
 
+    private let gold = Color(red: 0.97, green: 0.80, blue: 0.47)
+
     var body: some View {
-        VStack(spacing: 10) {
-            Text(contentKind.title)
-                .font(.system(size: 17, weight: .bold))
-                .foregroundStyle(Color(red: 0.10, green: 0.10, blue: 0.18))
-            Text("“\(contentTitle)”需要开通会员后播放")
-                .font(.system(size: 13))
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .lineLimit(2)
-            upgradeBenefit(
-                icon: contentKind.benefitIcon,
-                title: contentKind.benefitTitle,
-                freeText: contentKind.freeText,
-                vipText: "VIP：全部解锁"
-            )
-            upgradeBenefit(icon: "crown.fill", title: "会员专享体验", freeText: "基础内容畅听", vipText: "专享内容畅听")
-            Button(action: onUpgrade) {
-                Text("立即开通会员")
-                    .font(.system(size: 15, weight: .bold))
-                    .foregroundStyle(Color(red: 0.36, green: 0.20, blue: 0.08))
-                    .frame(maxWidth: .infinity, minHeight: 44)
-                    .background(
-                        LinearGradient(
-                            colors: [Color(red: 1.0, green: 0.88, blue: 0.62), Color(red: 0.86, green: 0.60, blue: 0.26)],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                header
+                benefit
+                actions
             }
-            .buttonStyle(.plain)
-            .padding(.horizontal, 4)
-            Button("稍后再说", action: onCancel)
-                .font(.system(size: 14))
-                .foregroundStyle(.secondary)
-                .buttonStyle(.plain)
-                .padding(.bottom, 8)
+            .padding(.horizontal, 22)
+            .padding(.top, 28)
+            .padding(.bottom, 12)
+            .frame(maxWidth: 460)
+            .frame(maxWidth: .infinity)
         }
-        .padding(.horizontal, 16)
-        .padding(.top, 20)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(Color(uiColor: .systemBackground).ignoresSafeArea())
+        .background(sheetBackground.ignoresSafeArea())
+        .presentationDetents(dynamicTypeSize.isAccessibilitySize ? [.large] : [.height(320), .large])
+        .presentationDragIndicator(.visible)
     }
 
-    private func upgradeBenefit(icon: String, title: String, freeText: String, vipText: String) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: icon)
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(Color(red: 0.75, green: 0.48, blue: 0.15))
-                .frame(width: 34, height: 34)
-                .background(Color(red: 1.0, green: 0.96, blue: 0.87))
-                .clipShape(Circle())
-            VStack(alignment: .leading, spacing: 5) {
-                Text(title).font(.system(size: 13, weight: .semibold)).foregroundStyle(Color(red: 0.10, green: 0.10, blue: 0.18))
-                HStack {
-                    Text(freeText)
-                    Spacer(minLength: 8)
-                    Text(vipText).foregroundStyle(Color(red: 0.75, green: 0.48, blue: 0.15))
-                }
-                .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(.secondary)
+    private var sheetBackground: some View {
+        LinearGradient(
+            colors: [Color(red: 0.16, green: 0.12, blue: 0.09), Color(white: 0.08)],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+
+    private var header: some View {
+        HStack(alignment: .center, spacing: 12) {
+            SleepMembershipDiamond()
+                .frame(width: 24, height: 19)
+                .frame(width: 38, height: 38)
+                .background(gold.opacity(0.13), in: RoundedRectangle(cornerRadius: 12))
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("时光睡眠会员")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(gold)
+                Text(contentKind.title)
+                    .font(.title2.bold())
+                    .foregroundStyle(.white)
+                    .accessibilityAddTraits(.isHeader)
+                Text(contentKind.prompt(for: contentTitle))
+                    .font(.subheadline)
+                    .foregroundStyle(Color(white: 0.75))
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 9)
-        .background(Color(red: 1.0, green: 0.98, blue: 0.94))
-        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+    }
+
+    private var benefit: some View {
+        HStack(alignment: .center, spacing: 12) {
+            Image(systemName: contentKind.benefitIcon)
+                .font(.body.weight(.semibold))
+                .foregroundStyle(gold)
+                .frame(width: 26)
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(contentKind.benefitTitle)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.white)
+                Text(contentKind.benefitDetail)
+                    .font(.footnote)
+                    .foregroundStyle(Color(white: 0.72))
+            }
+            .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.white.opacity(0.07), in: RoundedRectangle(cornerRadius: 12))
+    }
+
+    private var actions: some View {
+        VStack(spacing: 2) {
+            Button(action: onUpgrade) {
+                Text("立即开通会员")
+                    .font(.headline)
+                    .foregroundStyle(Color(red: 0.20, green: 0.12, blue: 0.06))
+                    .padding(.vertical, 10)
+                    .frame(maxWidth: .infinity, minHeight: 48)
+                    .background(gold, in: RoundedRectangle(cornerRadius: 13))
+            }
+            .buttonStyle(.plain)
+
+            Button(action: onCancel) {
+                Text("稍后再说")
+                    .font(.subheadline)
+                    .foregroundStyle(Color(white: 0.72))
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+        }
     }
 }
 

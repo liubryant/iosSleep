@@ -82,32 +82,26 @@ struct SoundCardView: View {
                             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
                     }
                 }
+                .overlay(alignment: .bottomTrailing) {
+                    if player.currentScene?.id == scene.id {
+                        PlayingWaveformIcon(isAnimating: player.isPlaying)
+                            .frame(width: 16, height: 16)
+                            .padding(8)
+                            .background(.blue, in: Circle())
+                            .padding(8)
+                    }
+                }
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(scene.title)
                         .font(.headline)
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(SoundHomeTextColor.title)
                         .lineLimit(1)
 
                     Text(scene.subtitle.isEmpty ? "助眠声音" : scene.subtitle)
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(SoundHomeTextColor.detail)
                         .lineLimit(2)
-                        .frame(minHeight: 34, alignment: .top)
-                }
-            }
-            .padding(10)
-            .background(Color(.secondarySystemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .overlay(alignment: .bottomTrailing) {
-                if player.currentScene?.id == scene.id {
-                    PlayingWaveformIcon(isAnimating: player.isPlaying)
-                        .frame(width: 16, height: 16)
-                        .padding(8)
-                        .background(.blue)
-                        .clipShape(Circle())
-                        .padding(.trailing, 14)
-                        .padding(.bottom, 23)
                 }
             }
         }

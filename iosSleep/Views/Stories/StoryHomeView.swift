@@ -47,7 +47,7 @@ struct StoryHomeView: View {
                     }
                 }
                 .padding(.horizontal)
-                .padding(.bottom, player.currentStory == nil && audioPlayer.currentScene == nil ? 18 : 106)
+                .padding(.bottom, 18 + (player.currentStory == nil && audioPlayer.currentScene == nil ? 0 : miniPlayerOverlayInset))
                 .frame(maxWidth: 1100)
                 .frame(maxWidth: .infinity)
             }

@@ -189,6 +189,8 @@ struct SleepHomeView: View {
                         .padding(.vertical, 7)
                 }
                 .buttonStyle(.borderedProminent)
+                .tint(Color(white: 0.17))
+                .foregroundStyle(.white)
                 .controlSize(.regular)
             }
             .padding(22)

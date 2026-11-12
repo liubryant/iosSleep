@@ -18,68 +18,26 @@ struct MainTabView: View {
     @State private var quickMindfulnessTrack: MindfulnessTrack?
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            TabView(selection: $selectedTab) {
-                SoundHomeView()
-                    .tag(0)
-                    .tabItem {
-                        Label("声音", systemImage: "waveform")
+        Group {
+            if #available(iOS 26.1, *) {
+                tabs
+                    .tabViewBottomAccessory(isEnabled: showsMiniPlayer) {
+                        miniPlayer
+                            .frame(maxWidth: 720)
+                            .frame(maxWidth: .infinity)
                     }
-
-                SleepHomeView()
-                    .tag(1)
-                    .tabItem {
-                        Label("睡眠", systemImage: "moon.zzz.fill")
+                    .tabBarMinimizeBehavior(.never)
+            } else {
+                ZStack(alignment: .bottom) {
+                    tabs
+                    if showsMiniPlayer {
+                        miniPlayer
+                            .modifier(MiniPlayerGlass())
+                            .modifier(MiniPlayerPlacement())
+                            .transition(.opacity)
                     }
-
-                StoryHomeView(requestedStoryID: $requestedStoryID)
-                    .tag(2)
-                    .tabItem {
-                        Label("故事", image: "StoryTabIcon")
-                    }
-
-                ProfileView()
-                    .tag(3)
-                    .tabItem {
-                        Label("我的", systemImage: "person.crop.circle")
-                    }
-            }
-            .tint(.blue)
-            // iPad 默认将 TabView 放到顶部；使用紧凑导航样式保持底部标签栏。
-            // 内容的网格和播放器仍按实际窗口宽度布局。
-            .environment(\.horizontalSizeClass, .compact)
-            .sleepKeepsHorizontalSystemBars()
-
-            ZStack(alignment: .bottom) {
-                if let story = storyPlayer.currentStory, !isStoryDetailVisible {
-                    GlobalStoryMiniPlayerView(story: story)
-                        .padding(.horizontal)
-                        .frame(maxWidth: 760)
-                        .padding(.bottom, 58)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
-                        .zIndex(1)
-                } else if let track = mindfulnessPlayer.currentTrack,
-                          selectedTab == 0,
-                          !isMindfulnessFlowVisible,
-                          !isMindfulnessDetailVisible {
-                    GlobalMindfulnessMiniPlayerView(track: track)
-                        .padding(.horizontal)
-                        .frame(maxWidth: 760)
-                        .padding(.bottom, 58)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
-                        .zIndex(1)
-                } else if let scene = player.currentScene {
-                    GlobalMiniPlayerView(scene: scene)
-                        .padding(.horizontal)
-                        .frame(maxWidth: 760)
-                        .padding(.bottom, 58)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
-                        .zIndex(1)
                 }
             }
-            .animation(.easeInOut(duration: 0.2), value: player.currentScene?.id)
-            .animation(.easeInOut(duration: 0.2), value: storyPlayer.currentStory?.id)
-            .animation(.easeInOut(duration: 0.2), value: mindfulnessPlayer.currentTrack?.id)
         }
         .sleepDuoContinuityTransition()
         .onChange(of: player.currentScene?.id) { id in
@@ -163,6 +121,63 @@ struct MainTabView: View {
             playRandomDownloadedNatureSound()
         case .stories:
             openRandomStory()
+        }
+    }
+
+    private var tabs: some View {
+        TabView(selection: $selectedTab) {
+            SoundHomeView()
+                .tag(0)
+                .tabItem {
+                    Label("声音", systemImage: "waveform")
+                }
+
+            SleepHomeView()
+                .tag(1)
+                .tabItem {
+                    Label("睡眠", systemImage: "moon.zzz.fill")
+                }
+
+            StoryHomeView(requestedStoryID: $requestedStoryID)
+                .tag(2)
+                .tabItem {
+                    Label("故事", image: "StoryTabIcon")
+                }
+
+            ProfileView()
+                .tag(3)
+                .tabItem {
+                    Label("我的", systemImage: "person.crop.circle")
+                }
+        }
+        .tint(.blue)
+        // iPad 默认将 TabView 放到顶部；使用紧凑导航样式保持底部标签栏。
+        // 内容的网格和播放器仍按实际窗口宽度布局。
+        .environment(\.horizontalSizeClass, .compact)
+        .sleepKeepsHorizontalSystemBars()
+    }
+
+    private var showsStoryMiniPlayer: Bool {
+        storyPlayer.currentStory != nil && !isStoryDetailVisible
+    }
+
+    private var showsMindfulnessMiniPlayer: Bool {
+        mindfulnessPlayer.currentTrack != nil && selectedTab == 0
+            && !isMindfulnessFlowVisible && !isMindfulnessDetailVisible
+    }
+
+    private var showsMiniPlayer: Bool {
+        showsStoryMiniPlayer || showsMindfulnessMiniPlayer || player.currentScene != nil
+    }
+
+    @ViewBuilder
+    private var miniPlayer: some View {
+        if showsStoryMiniPlayer, let story = storyPlayer.currentStory {
+            GlobalStoryMiniPlayerView(story: story)
+        } else if showsMindfulnessMiniPlayer, let track = mindfulnessPlayer.currentTrack {
+            GlobalMindfulnessMiniPlayerView(track: track)
+        } else if let scene = player.currentScene {
+            GlobalMiniPlayerView(scene: scene)
         }
     }
 
@@ -343,43 +358,124 @@ private struct SleepDuoContinuityModifier: ViewModifier {
     }
 }
 
+// The system accessory already contributes to the scroll view safe area.
+var miniPlayerOverlayInset: CGFloat {
+    if #available(iOS 26.1, *) { return 0 }
+    return 64
+}
+
+private struct MiniPlayerPlacement: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .padding(.horizontal, 20)
+            .frame(maxWidth: 760)
+            .padding(.bottom, bottomInset)
+            .transition(.opacity)
+    }
+
+    private var bottomInset: CGFloat {
+        if #available(iOS 26.0, *) { return 56 }
+        return 50.5
+    }
+}
+
+private struct MiniPlayerBar<Artwork: View>: View {
+    let title: String
+    let subtitle: String
+    var timer: String? = nil
+    let isPlaying: Bool
+    let onToggle: () -> Void
+    let onStop: () -> Void
+    @ViewBuilder let artwork: () -> Artwork
+
+    var body: some View {
+        HStack(spacing: 8) {
+            artwork()
+                .frame(width: 30, height: 30)
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 1) {
+                Text(title)
+                    .font(.subheadline.weight(.semibold))
+                    .lineLimit(1)
+
+                if let timer {
+                    Text(timer)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                } else if !subtitle.isEmpty {
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, 4)
+
+            HStack(spacing: 0) {
+                control(isPlaying ? "pause.fill" : "play.fill",
+                        label: isPlaying ? "暂停" : "播放", action: onToggle)
+                control("xmark", label: "停止播放", action: onStop)
+            }
+        }
+        .padding(.leading, 14)
+        .padding(.trailing, 5)
+        .frame(minHeight: 51)
+        .foregroundStyle(.primary)
+    }
+
+    private func control(_ icon: String, label: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: icon)
+                .font(.system(size: 18, weight: .semibold))
+                .frame(width: 44, height: 44)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(label)
+    }
+}
+
+private struct MiniPlayerGlass: ViewModifier {
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content.glassEffect(.regular, in: .capsule)
+        } else {
+            content
+                .background(.regularMaterial, in: Capsule())
+                .overlay {
+                    Capsule()
+                        .strokeBorder(.primary.opacity(0.12), lineWidth: 1)
+                        .allowsHitTesting(false)
+                }
+        }
+    }
+}
+
 private struct GlobalMindfulnessMiniPlayerView: View {
     @EnvironmentObject private var player: MindfulnessAudioPlayer
     let track: MindfulnessTrack
 
     var body: some View {
-        HStack(spacing: 12) {
+        MiniPlayerBar(title: track.title, subtitle: track.subtitle, timer: player.sleepTimerText,
+                      isPlaying: player.isPlaying, onToggle: player.toggle, onStop: player.stop) {
             ZStack {
-                LinearGradient(colors: track.colors, startPoint: .topLeading, endPoint: .bottomTrailing)
-                Image(systemName: track.icon)
-                    .font(.system(size: 22, weight: .medium))
-                    .foregroundStyle(.white)
-            }
-            .frame(width: 48, height: 48)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(track.title).font(.headline).lineLimit(1)
-                Text(track.subtitle).font(.caption).foregroundStyle(.secondary).lineLimit(1)
-                if let timer = player.sleepTimerText {
-                    Text(timer).font(.caption2).foregroundStyle(.blue)
+                if let index = track.coverIndex, let cover = MindfulnessCover.image(at: index) {
+                    Image(uiImage: cover)
+                        .resizable()
+                        .scaledToFill()
+                } else {
+                    LinearGradient(colors: track.colors, startPoint: .topLeading, endPoint: .bottomTrailing)
+                    Image(systemName: track.icon)
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundStyle(.white)
                 }
             }
-            Spacer()
-            Button { player.toggle() } label: {
-                Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
-                    .frame(width: 36, height: 36)
-            }
-            .buttonStyle(.borderedProminent)
-            Button { player.stop() } label: {
-                Image(systemName: "xmark").frame(width: 28, height: 28)
-            }
-            .buttonStyle(.bordered)
         }
-        .padding(12)
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.12), radius: 16, y: 8)
     }
 }
 
@@ -398,48 +494,10 @@ private struct GlobalMiniPlayerView: View {
     let scene: SoundScene
 
     var body: some View {
-        HStack(spacing: 12) {
+        MiniPlayerBar(title: scene.title, subtitle: scene.subtitle, timer: player.sleepTimerText,
+                      isPlaying: player.isPlaying, onToggle: { player.toggle(scene: scene) }, onStop: player.stop) {
             CoverImage(scene: scene)
-                .frame(width: 48, height: 48)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(scene.title)
-                    .font(.headline)
-                    .lineLimit(1)
-                Text(scene.subtitle)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-                if let timer = player.sleepTimerText {
-                    Text(timer)
-                        .font(.caption2)
-                        .foregroundStyle(.blue)
-                }
-            }
-
-            Spacer()
-
-            Button {
-                player.toggle(scene: scene)
-            } label: {
-                Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
-                    .frame(width: 36, height: 36)
-            }
-            .buttonStyle(.borderedProminent)
-
-            Button {
-                player.stop()
-            } label: {
-                Image(systemName: "xmark")
-                    .frame(width: 28, height: 28)
-            }
-            .buttonStyle(.bordered)
         }
-        .padding(12)
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.12), radius: 16, y: 8)
     }
 }
 
@@ -448,46 +506,9 @@ private struct GlobalStoryMiniPlayerView: View {
     let story: StoryItem
 
     var body: some View {
-        HStack(spacing: 12) {
+        MiniPlayerBar(title: story.title, subtitle: "睡前故事", isPlaying: player.isPlaying,
+                      onToggle: { player.isPlaying ? player.pause() : player.resume() }, onStop: player.stop) {
             StoryCoverImage(story: story)
-                .frame(width: 48, height: 48)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(story.title)
-                    .font(.headline)
-                    .lineLimit(1)
-                Text("睡前故事")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-            }
-
-            Spacer()
-
-            Button {
-                if player.isPlaying {
-                    player.pause()
-                } else {
-                    player.resume()
-                }
-            } label: {
-                Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
-                    .frame(width: 36, height: 36)
-            }
-            .buttonStyle(.borderedProminent)
-
-            Button {
-                player.stop()
-            } label: {
-                Image(systemName: "xmark")
-                    .frame(width: 28, height: 28)
-            }
-            .buttonStyle(.bordered)
         }
-        .padding(12)
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.12), radius: 16, y: 8)
     }
 }

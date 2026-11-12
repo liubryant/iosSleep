@@ -1,46 +1,73 @@
 import SwiftUI
 import UIKit
 
+enum SoundHomeTextColor {
+    static let title = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark ? .white : .label
+    })
+    static let detail = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark ? UIColor(white: 0.65, alpha: 1) : .secondaryLabel
+    })
+}
+
 struct SoundHomeView: View {
+    @ScaledMetric(relativeTo: .title2) private var greetingFontSize = 25.0
+    @ScaledMetric(relativeTo: .subheadline) private var membershipBannerFontSize = 13.0
     @EnvironmentObject private var library: SoundLibrary
     @EnvironmentObject private var player: AudioPlayerService
     @EnvironmentObject private var storyPlayer: StoryPlayerService
+    @EnvironmentObject private var mindfulnessPlayer: MindfulnessAudioPlayer
     @EnvironmentObject private var settings: AppSettings
+    @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.openURL) private var openURL
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @StateObject private var weather = HomeWeather()
     @ObservedObject private var membership = SleepMembershipSession.shared
     @State private var selectedCategory: SoundCategory = .whiteNoise
-    @State private var vipPromptTitle = ""
-    @State private var vipPromptKind: SleepVIPContentKind = .mindfulness
-    @State private var showVIPPrompt = false
+    @State private var vipPrompt: SleepVIPPromptContent?
     @State private var showMembershipAfterPrompt = false
     @State private var showMembership = false
 
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 2)
+    private let searchResultsAnchor = "sound-search-results"
+
+    private var isSearching: Bool {
+        !library.searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    private var hasMiniPlayer: Bool {
+        player.currentScene != nil || storyPlayer.currentStory != nil || mindfulnessPlayer.currentTrack != nil
+    }
 
     private let mindfulnessItems: [SoundHomeMindfulnessItem] = [
-        .init(title: "深度睡眠疗愈", subtitle: "卸下疲惫，沉入安稳梦境", imageName: "1", track: .deepSleep),
-        .init(title: "日间提神", subtitle: "唤醒精神，找回清晰专注", imageName: "2", track: .daytimeEnergy),
-        .init(title: "散步冥想", subtitle: "跟随脚步，感受此时此地", imageName: "7", track: .walking),
-        .init(title: "睡前释放情绪", subtitle: "温柔放下今天的情绪", imageName: "4", track: .emotionalRelease),
-        .init(title: "安定身心助眠", subtitle: "舒缓呼吸，让身体松下来", imageName: "5", track: .calmingSleep),
-        .init(title: "缓解疲倦", subtitle: "短暂休息，恢复身心能量", imageName: "6", track: .fatigueRelief),
-        .init(title: "快速入睡", subtitle: "平静思绪，更快进入睡眠", imageName: "7", track: .quickSleep),
-        .init(title: "考前失眠解放", subtitle: "减少紧张，安心迎接明天", imageName: "8", track: .examSleep)
+        .init(title: "深度睡眠疗愈", subtitle: "卸下疲惫，沉入安稳梦境", track: .deepSleep),
+        .init(title: "日间提神", subtitle: "唤醒精神，找回清晰专注", track: .daytimeEnergy),
+        .init(title: "散步冥想", subtitle: "跟随脚步，感受此时此地", track: .walking),
+        .init(title: "睡前释放情绪", subtitle: "温柔放下今天的情绪", track: .emotionalRelease),
+        .init(title: "安定身心助眠", subtitle: "舒缓呼吸，让身体松下来", track: .calmingSleep),
+        .init(title: "缓解疲倦", subtitle: "短暂休息，恢复身心能量", track: .fatigueRelief),
+        .init(title: "快速入睡", subtitle: "平静思绪，更快进入睡眠", track: .quickSleep),
+        .init(title: "考前失眠解放", subtitle: "减少紧张，安心迎接明天", track: .examSleep)
     ]
 
     private var displayedScenes: [SoundScene] {
-        selectedCategory.scenes(from: library.filteredScenes, library: library)
+        if isSearching { return library.filteredScenes }
+        let scenes = selectedCategory.scenes(from: library.scenes, library: library)
+        guard selectedCategory == .whiteNoise, !library.favorites.isEmpty else { return scenes }
+        return scenes.filter { library.isFavorite($0) } + scenes.filter { !library.isFavorite($0) }
     }
 
     private var sceneSections: [SoundHomeSection] {
         var sections: [SoundHomeSection] = []
         var sectionIndex = 0
         var startIndex = 0
+        let scenes = displayedScenes
 
-        while startIndex < displayedScenes.count {
-            let endIndex = min(startIndex + 6, displayedScenes.count)
-            let scenes = Array(displayedScenes[startIndex..<endIndex])
+        while startIndex < scenes.count {
+            let endIndex = min(startIndex + 6, scenes.count)
+            let sectionScenes = Array(scenes[startIndex..<endIndex])
             sectionIndex += 1
-            sections.append(SoundHomeSection(index: sectionIndex, scenes: scenes, showsAdAfter: scenes.count == 6))
+            sections.append(SoundHomeSection(index: sectionIndex, scenes: sectionScenes, showsAdAfter: sectionScenes.count == 6))
             startIndex = endIndex
         }
 
@@ -49,22 +76,32 @@ struct SoundHomeView: View {
 
     var body: some View {
         NavigationStack {
+            ScrollViewReader { scrollProxy in
             ScrollView {
-                VStack(spacing: 0) {
-                    soundSearchBar
-                    soundFeatureCategories
-
+                VStack(spacing: 16) {
                     LazyVStack(spacing: 16) {
-                        if selectedCategory == .whiteNoise {
+                        if !isSearching && selectedCategory == .whiteNoise {
+                            DailyInspirationCard()
                             mindfulnessSection
+                            if !membership.isVIPActive {
+                                membershipBanner
+                            }
                             WellnessHomeSection()
                                 .padding(.top, 8)
                         }
 
-                        soundSectionHeader
+                        if isSearching {
+                            Text("声音搜索结果")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(SoundHomeTextColor.title)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .id(searchResultsAnchor)
+                        } else {
+                            soundSectionHeader
+                        }
 
                         ForEach(sceneSections) { section in
-                            LazyVGrid(columns: columns, spacing: 16) {
+                            LazyVGrid(columns: columns, spacing: 12) {
                                 ForEach(section.scenes) { scene in
                                     soundCard(for: scene)
                                 }
@@ -75,50 +112,108 @@ struct SoundHomeView: View {
                             }
                         }
                     }
-                    .padding()
-                    .padding(.bottom, player.currentScene == nil && storyPlayer.currentStory == nil ? 0 : 88)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 16)
+                    .padding(.bottom, hasMiniPlayer ? miniPlayerOverlayInset : 0)
                 }
                 .frame(maxWidth: 1100)
                 .frame(maxWidth: .infinity)
             }
             .safeAreaInset(edge: .top, spacing: 0) {
-                soundTopBar
+                VStack(spacing: 0) {
+                    soundTopBar
+                    soundSearchBar
+                        .frame(maxWidth: 1100)
+                        .padding(.bottom, 12)
+                        .onSubmit { scrollToSearchResults(using: scrollProxy) }
+                }
                     .background(Color(.systemBackground).ignoresSafeArea(edges: .top))
+            }
+            .task(id: library.searchText) {
+                do {
+                    try await Task.sleep(nanoseconds: 250_000_000)
+                    scrollToSearchResults(using: scrollProxy)
+                } catch is CancellationError {
+                    // A newer query will position its own results.
+                } catch {}
+            }
+            .task(id: scenePhase == .active && settings.agreementAccepted) {
+                if scenePhase == .active && settings.agreementAccepted {
+                    weather.refresh()
+                }
             }
             .toolbar(.hidden, for: .navigationBar)
             .overlay {
                 if library.scenes.isEmpty {
                     EmptyStateView(title: "暂无声音资源", systemImage: "waveform", message: "请确认 SoundResources 已导入。")
                 } else if displayedScenes.isEmpty {
-                    EmptyStateView(title: "没有匹配的声音", systemImage: "magnifyingglass", message: selectedCategory.emptyMessage)
+                    EmptyStateView(title: "没有匹配的声音", systemImage: "magnifyingglass",
+                                   message: isSearching ? "试试更短的关键词，比如「雨」或「海浪」。" : selectedCategory.emptyMessage)
                 }
             }
             .onReceive(NotificationCenter.default.publisher(for: QuickActionService.didRequestNature)) { _ in
                 selectedCategory = .nature
                 library.searchText = ""
             }
+            }
+            .navigationDestination(for: WellnessDestination.self) { destination in
+                WellnessDestinationView(destination: destination)
+            }
         }
-        .sheet(isPresented: $showVIPPrompt, onDismiss: {
+        .sheet(item: $vipPrompt, onDismiss: {
             guard showMembershipAfterPrompt else { return }
             showMembershipAfterPrompt = false
             showMembership = true
-        }) {
+        }) { prompt in
             SleepVIPUpgradeSheet(
-                contentTitle: vipPromptTitle,
-                contentKind: vipPromptKind,
+                contentTitle: prompt.title,
+                contentKind: prompt.kind,
                 onUpgrade: {
                     showMembershipAfterPrompt = true
-                    showVIPPrompt = false
+                    vipPrompt = nil
                 },
-                onCancel: { showVIPPrompt = false }
+                onCancel: { vipPrompt = nil }
             )
-            .presentationDetents([.height(330)])
-            .presentationDragIndicator(.visible)
         }
         .fullScreenCover(isPresented: $showMembership) {
             NavigationStack { SleepMembershipView() }
                 .environmentObject(settings)
         }
+    }
+
+    private var membershipBanner: some View {
+        Button {
+            showMembership = true
+        } label: {
+            HStack(spacing: 10) {
+                SleepMembershipDiamond()
+                    .frame(width: 20, height: 16)
+                    .accessibilityHidden(true)
+
+                Text("解锁更多助眠声音与故事")
+                    .font(.system(size: membershipBannerFontSize))
+                    .foregroundStyle(Color(white: 0.67))
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Spacer(minLength: 4)
+
+                HStack(spacing: 5) {
+                    Text("开通会员")
+                        .font(.system(size: membershipBannerFontSize, weight: .medium))
+                        .fixedSize()
+                    Image(systemName: "chevron.right")
+                        .font(.caption2.weight(.semibold))
+                        .accessibilityHidden(true)
+                }
+                .foregroundStyle(Color(red: 0.70, green: 0.64, blue: 0.53))
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .frame(minHeight: 48)
+            .background(Color(white: 0.14), in: RoundedRectangle(cornerRadius: 12))
+            .contentShape(RoundedRectangle(cornerRadius: 12))
+        }
+        .buttonStyle(.plain)
     }
 
     private var mindfulnessSection: some View {
@@ -128,10 +223,12 @@ struct SoundHomeView: View {
             } label: {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("正念冥想").font(.system(size: 15, weight: .medium))
+                    Text("正念冥想")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(SoundHomeTextColor.title)
                     Text("跟随声音，把注意力带回当下")
                         .font(.system(size: 11))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(SoundHomeTextColor.detail)
                 }
 
                 Spacer()
@@ -142,7 +239,7 @@ struct SoundHomeView: View {
                             .font(.system(size: 10, weight: .semibold))
                     }
                     .font(.system(size: 12))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(SoundHomeTextColor.detail)
                     .padding(.top, 5)
             }
             .contentShape(Rectangle())
@@ -155,12 +252,21 @@ struct SoundHomeView: View {
                     spacing: 16
                 ) {
                     ForEach(mindfulnessItems.prefix(6)) { item in
-                        NavigationLink {
-                            MindfulnessPlayerView(track: item.track)
-                        } label: {
-                            mindfulnessCard(item)
+                        if item.track.requiresVIP && !membership.isVIPActive {
+                            Button {
+                                vipPrompt = SleepVIPPromptContent(title: item.title, kind: .mindfulness)
+                            } label: {
+                                mindfulnessCard(item)
+                            }
+                            .buttonStyle(.plain)
+                        } else {
+                            NavigationLink {
+                                MindfulnessPlayerView(track: item.track)
+                            } label: {
+                                mindfulnessCard(item)
+                            }
+                            .buttonStyle(.plain)
                         }
-                        .buttonStyle(.plain)
                     }
                 }
                 .padding(.horizontal, 2)
@@ -174,9 +280,7 @@ struct SoundHomeView: View {
     private func soundCard(for scene: SoundScene) -> some View {
         if scene.requiresVIP && !membership.isVIPActive {
             SoundCardView(scene: scene, isVIPContent: true) {
-                vipPromptTitle = scene.title
-                vipPromptKind = .sound
-                showVIPPrompt = true
+                vipPrompt = SleepVIPPromptContent(title: scene.title, kind: .sound)
             }
         } else {
             SoundCardView(scene: scene, isVIPContent: scene.requiresVIP)
@@ -190,8 +294,12 @@ struct SoundHomeView: View {
 
     private func sectionHeader(title: String, subtitle: String) -> some View {
         VStack(alignment: .leading, spacing: 3) {
-            Text(title).font(.system(size: 15, weight: .medium))
-            Text(subtitle).font(.system(size: 11)).foregroundStyle(.secondary)
+            Text(title)
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(SoundHomeTextColor.title)
+            Text(subtitle)
+                .font(.system(size: 11))
+                .foregroundStyle(SoundHomeTextColor.detail)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -199,7 +307,7 @@ struct SoundHomeView: View {
     private func mindfulnessCard(_ item: SoundHomeMindfulnessItem) -> some View {
         VStack(alignment: .leading, spacing: 11) {
             ZStack {
-                if let image = mindfulnessImage(named: item.imageName) {
+                if let index = item.track.coverIndex, let image = MindfulnessCover.image(at: index) {
                     Image(uiImage: image).resizable().scaledToFill()
                 } else {
                     LinearGradient(colors: [.indigo, .blue], startPoint: .topLeading, endPoint: .bottomTrailing)
@@ -208,6 +316,9 @@ struct SoundHomeView: View {
             }
             .frame(width: 150, height: 200)
             .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .overlay(alignment: .topLeading) {
+                if item.track.requiresVIP { MindfulnessVIPBadge().padding(9) }
+            }
             .overlay(alignment: .bottomTrailing) {
                 Image(systemName: "play.fill")
                     .font(.caption.bold())
@@ -220,21 +331,13 @@ struct SoundHomeView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(item.title)
                     .font(.system(size: 15, weight: .regular))
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(SoundHomeTextColor.title)
                     .lineLimit(1)
             }
             .frame(width: 150, alignment: .leading)
         }
     }
 
-    private func mindfulnessImage(named name: String) -> UIImage? {
-        guard let url = Bundle.main.url(
-            forResource: name,
-            withExtension: "png",
-            subdirectory: "SoundResources/Mindfulness/Covers"
-        ) else { return nil }
-        return UIImage(contentsOfFile: url.path)
-    }
 
     private var soundFeatureCategories: some View {
         LazyVGrid(
@@ -253,9 +356,7 @@ struct SoundHomeView: View {
                     }
                     .buttonStyle(.plain)
                 } else if feature == .relax || feature == .focus {
-                    NavigationLink {
-                        WellnessHubView()
-                    } label: {
+                    NavigationLink(value: WellnessDestination.hub) {
                         soundFeatureLabel(feature)
                     }
                     .buttonStyle(.plain)
@@ -293,7 +394,7 @@ struct SoundHomeView: View {
                     )
                     .frame(width: 56, height: 54)
                 Image(systemName: feature.icon)
-                    .font(.system(size: 26, weight: .medium))
+                    .font(.system(size: 26, weight: .bold))
                     .foregroundStyle(feature.color)
                     .frame(width: 48, height: 48)
                     .background(feature.color.opacity(0.12))
@@ -312,24 +413,81 @@ struct SoundHomeView: View {
     }
 
     private var soundTopBar: some View {
-        HStack {
-            soundHeader
+        HStack(spacing: 8) {
+            if settings.agreementAccepted && weather.isAvailable {
+                weatherBadge
+                    .fixedSize()
+            }
 
-            Spacer()
+            Text(greetingText)
+                .font(.system(size: greetingFontSize, weight: .bold))
+                .foregroundStyle(SoundHomeTextColor.title)
+                .multilineTextAlignment(.leading)
+                .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 1)
+                .minimumScaleFactor(0.75)
+
+            Spacer(minLength: 0)
 
             filterMenu
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 10)
-        .padding(.bottom, 18)
+        .padding(.horizontal, 16)
+        .padding(.top, 3)
+        .padding(.bottom, 13)
+    }
+
+    @ViewBuilder
+    private var weatherBadge: some View {
+        if weather.authorization == .notDetermined {
+            Button(action: weather.requestAccess) { weatherBadgeLabel }
+                .buttonStyle(.plain)
+                .accessibilityLabel("开启本地天气定位")
+        } else {
+            Menu {
+                if weather.authorization == .authorizedWhenInUse || weather.authorization == .authorizedAlways {
+                    Button("刷新天气", systemImage: "arrow.clockwise", action: weather.refresh)
+                } else {
+                    Button("在设置中开启定位", systemImage: "location") {
+                        if let url = URL(string: UIApplication.openSettingsURLString) { openURL(url) }
+                    }
+                }
+                Link("天气数据来自 Open-Meteo", destination: URL(string: "https://open-meteo.com/")!)
+            } label: {
+                weatherBadgeLabel
+            }
+            .accessibilityLabel(weather.current.map {
+                "\($0.appearance.description)，\($0.temperatureText) 摄氏度"
+            } ?? "本地天气暂不可用")
+        }
+    }
+
+    private var weatherBadgeLabel: some View {
+        let conditions = weather.current
+        return HStack(spacing: 4) {
+            Image(systemName: conditions?.appearance.symbol ?? "cloud.sun.fill")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(conditions?.appearance.tint ?? Color.orange)
+                .accessibilityHidden(true)
+            Text(conditions.map { "\($0.temperatureText)°" } ?? "--°")
+                .font(.system(size: 14, weight: .semibold))
+                .monospacedDigit()
+                .foregroundStyle(SoundHomeTextColor.title)
+        }
+        .padding(.horizontal, 9)
+        .frame(height: 32)
+        .background(.ultraThinMaterial, in: Capsule())
+        .frame(minHeight: 44)
+        .contentShape(Rectangle())
     }
 
     private var soundSearchBar: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(.secondary)
+                .frame(width: 20, height: 24)
+                .accessibilityHidden(true)
 
             TextField("搜索雨声、森林、海浪", text: $library.searchText)
+                .submitLabel(.search)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
 
@@ -339,8 +497,11 @@ struct SoundHomeView: View {
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundStyle(.secondary)
+                        .frame(width: 24, height: 40)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("清除搜索")
             }
         }
         .font(.subheadline)
@@ -348,8 +509,14 @@ struct SoundHomeView: View {
         .frame(height: 40)
         .background(Color(.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 8))
-        .padding(.horizontal)
-        .padding(.vertical, 8)
+        .padding(.horizontal, 16)
+    }
+
+    private func scrollToSearchResults(using proxy: ScrollViewProxy) {
+        guard isSearching, !displayedScenes.isEmpty else { return }
+        withAnimation(.easeOut(duration: 0.22)) {
+            proxy.scrollTo(searchResultsAnchor, anchor: .top)
+        }
     }
 
     private var soundCategoryBar: some View {
@@ -372,21 +539,6 @@ struct SoundHomeView: View {
             }
             .padding(.horizontal)
             .padding(.vertical, 8)
-        }
-    }
-
-    private var soundHeader: some View {
-        HStack(spacing: 12) {
-            Image("LauncherIcon")
-                .resizable()
-                .scaledToFill()
-                .frame(width: 30, height: 30)
-                .clipShape(RoundedRectangle(cornerRadius: 7))
-
-            VStack(alignment: .leading, spacing: 3) {
-                Text(greetingText)
-                    .font(.title2.weight(.regular))
-            }
         }
     }
 
@@ -422,7 +574,7 @@ struct SoundHomeView: View {
         default:
             greeting = "夜深了"
         }
-        return "\(greeting)，时光睡眠！"
+        return "\(greeting)，时光睡眠"
     }
 }
 
@@ -525,7 +677,6 @@ private struct SoundHomeMindfulnessItem: Identifiable {
     let id = UUID()
     let title: String
     let subtitle: String
-    let imageName: String
     let track: MindfulnessTrack
 }
 

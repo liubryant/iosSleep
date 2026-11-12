@@ -2,6 +2,46 @@ import Foundation
 import SwiftUI
 import UIKit
 
+struct MindfulnessVIPBadge: View {
+    var body: some View {
+        Label("VIP", systemImage: "crown.fill")
+            .font(.system(size: 9, weight: .bold))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 8)
+            .frame(height: 23)
+            .background(.black.opacity(0.65), in: Capsule())
+    }
+}
+
+struct MindfulnessVIPPrompt: ViewModifier {
+    @Binding var prompt: SleepVIPPromptContent?
+    @State private var openMembership = false
+    @State private var upgradeRequested = false
+
+    func body(content: Content) -> some View {
+        content
+            .sheet(item: $prompt, onDismiss: {
+                if upgradeRequested {
+                    upgradeRequested = false
+                    openMembership = true
+                }
+            }) { item in
+                SleepVIPUpgradeSheet(
+                    contentTitle: item.title,
+                    contentKind: item.kind,
+                    onUpgrade: {
+                        upgradeRequested = true
+                        prompt = nil
+                    },
+                    onCancel: { prompt = nil }
+                )
+            }
+            .fullScreenCover(isPresented: $openMembership) {
+                NavigationStack { SleepMembershipView() }
+            }
+    }
+}
+
 struct MindfulnessHomeView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var library: SoundLibrary
@@ -9,6 +49,8 @@ struct MindfulnessHomeView: View {
     @EnvironmentObject private var storyPlayer: StoryPlayerService
     @EnvironmentObject private var settings: AppSettings
     @StateObject private var remoteMindfulness = RemoteMindfulnessLibrary()
+    @ObservedObject private var membership = SleepMembershipSession.shared
+    @State private var vipPrompt: SleepVIPPromptContent?
     @State private var selectedBanner = 0
     @State private var pendingNatureSceneID: String?
     @State private var selectedNatureScene: SoundScene?
@@ -40,14 +82,14 @@ struct MindfulnessHomeView: View {
     ]
 
     private let meditationItems: [MindfulnessHomeItem] = [
-        .init(title: "深度睡眠疗愈", subtitle: "卸下疲惫，沉入安稳梦境", icon: "moon.stars.fill", colors: [.indigo, .blue], imageName: "1", track: .deepSleep),
-        .init(title: "日间提神", subtitle: "唤醒精神，找回清晰专注", icon: "sun.max.fill", colors: [.orange, .yellow], imageName: "2", track: .daytimeEnergy),
-        .init(title: "散步冥想", subtitle: "跟随脚步，感受此时此地", icon: "figure.walk", colors: [.green, .teal], imageName: "7", track: .walking),
-        .init(title: "睡前释放情绪", subtitle: "温柔放下今天的情绪", icon: "cloud.moon.fill", colors: [.purple, .indigo], imageName: "4", track: .emotionalRelease),
-        .init(title: "安定身心助眠", subtitle: "舒缓呼吸，让身体松下来", icon: "heart.circle.fill", colors: [.teal, .cyan], imageName: "5", track: .calmingSleep),
-        .init(title: "缓解疲倦", subtitle: "短暂休息，恢复身心能量", icon: "leaf.fill", colors: [.mint, .green], imageName: "6", track: .fatigueRelief),
-        .init(title: "快速入睡", subtitle: "平静思绪，更快进入睡眠", icon: "zzz", colors: [.blue, .indigo], imageName: "7", track: .quickSleep),
-        .init(title: "考前失眠解放", subtitle: "减少紧张，安心迎接明天", icon: "book.closed.fill", colors: [.pink, .purple], imageName: "8", track: .examSleep)
+        .init(title: "深度睡眠疗愈", subtitle: "卸下疲惫，沉入安稳梦境", icon: "moon.stars.fill", colors: [.indigo, .blue], track: .deepSleep),
+        .init(title: "日间提神", subtitle: "唤醒精神，找回清晰专注", icon: "sun.max.fill", colors: [.orange, .yellow], track: .daytimeEnergy),
+        .init(title: "散步冥想", subtitle: "跟随脚步，感受此时此地", icon: "figure.walk", colors: [.green, .teal], track: .walking),
+        .init(title: "睡前释放情绪", subtitle: "温柔放下今天的情绪", icon: "cloud.moon.fill", colors: [.purple, .indigo], track: .emotionalRelease),
+        .init(title: "安定身心助眠", subtitle: "舒缓呼吸，让身体松下来", icon: "heart.circle.fill", colors: [.teal, .cyan], track: .calmingSleep),
+        .init(title: "缓解疲倦", subtitle: "短暂休息，恢复身心能量", icon: "leaf.fill", colors: [.mint, .green], track: .fatigueRelief),
+        .init(title: "快速入睡", subtitle: "平静思绪，更快进入睡眠", icon: "zzz", colors: [.blue, .indigo], track: .quickSleep),
+        .init(title: "考前失眠解放", subtitle: "减少紧张，安心迎接明天", icon: "book.closed.fill", colors: [.pink, .purple], track: .examSleep)
     ]
 
     private var meditationGroups: [MindfulnessDisplayGroup] {
@@ -108,7 +150,6 @@ struct MindfulnessHomeView: View {
             subtitle: "云端正念 · 下载后离线播放",
             icon: "moon.stars.fill",
             colors: item.colors,
-            imageName: ["1", "2", "4", "5", "6", "7", "8"][Int(item.id.magnitude % 7)],
             remoteMindfulness: item
         )
     }
@@ -148,6 +189,7 @@ struct MindfulnessHomeView: View {
         .toolbar(.hidden, for: .navigationBar)
         .toolbar(.hidden, for: .tabBar)
         .preference(key: MindfulnessFlowVisibilityPreferenceKey.self, value: true)
+        .modifier(MindfulnessVIPPrompt(prompt: $vipPrompt))
         .navigationDestination(isPresented: Binding(
             get: { selectedNatureScene != nil },
             set: { if !$0 { selectedNatureScene = nil } }
@@ -362,7 +404,12 @@ struct MindfulnessHomeView: View {
         for item: MindfulnessHomeItem,
         usesHomeCardRatio: Bool
     ) -> some View {
-        if let track = item.track {
+        if item.requiresVIP && !membership.isVIPActive {
+            Button { vipPrompt = SleepVIPPromptContent(title: item.title, kind: .mindfulness) } label: {
+                card(item, usesHomeCardRatio: usesHomeCardRatio)
+            }
+            .buttonStyle(.plain)
+        } else if let track = item.track {
             NavigationLink { MindfulnessPlayerView(track: track) } label: {
                 card(item, usesHomeCardRatio: usesHomeCardRatio)
             }
@@ -410,7 +457,8 @@ struct MindfulnessHomeView: View {
                 if let scene = item.scene {
                     CoverImage(scene: scene)
                     LinearGradient(colors: [.clear, .black.opacity(0.24)], startPoint: .top, endPoint: .bottom)
-                } else if let imageName = item.imageName, let image = mindfulnessImage(named: imageName) {
+                } else if let index = item.track?.coverIndex ?? item.remoteMindfulness.map({ MindfulnessCover.remoteIndex(for: $0.id) }),
+                          let image = MindfulnessCover.image(at: index) {
                     Image(uiImage: image).resizable().scaledToFill()
                     LinearGradient(colors: [.clear, .black.opacity(0.18)], startPoint: .top, endPoint: .bottom)
                 } else {
@@ -421,6 +469,9 @@ struct MindfulnessHomeView: View {
             }
             .frame(width: 138, height: usesHomeCardRatio ? 184 : 138)
             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .overlay(alignment: .topLeading) {
+                if item.requiresVIP { MindfulnessVIPBadge().padding(7) }
+            }
             .overlay(alignment: .bottomTrailing) {
                 cardStatus(for: item, unavailable: unavailable).padding(7)
             }
@@ -465,7 +516,7 @@ struct MindfulnessHomeView: View {
 
     private func openRemoteMindfulness(_ item: RemoteMindfulnessItem) {
         guard item.requiresVIP != true || SleepMembershipSession.shared.isVIPActive else {
-            remoteMessage = "这段冥想仅限会员播放"
+            vipPrompt = SleepVIPPromptContent(title: item.title, kind: .mindfulness)
             return
         }
         if let activeID = pendingRemoteMindfulnessID {
@@ -517,14 +568,6 @@ struct MindfulnessHomeView: View {
         return palettes[max(index, 0) % palettes.count]
     }
 
-    private func mindfulnessImage(named name: String) -> UIImage? {
-        guard let url = Bundle.main.url(
-            forResource: name,
-            withExtension: "png",
-            subdirectory: "SoundResources/Mindfulness/Covers"
-        ) else { return nil }
-        return UIImage(contentsOfFile: url.path)
-    }
 }
 
 struct MindfulnessFlowVisibilityPreferenceKey: PreferenceKey {
@@ -548,17 +591,16 @@ private struct MindfulnessHomeItem: Identifiable {
     let subtitle: String
     let icon: String
     let colors: [Color]
-    var imageName: String?
     var track: MindfulnessTrack?
     var scene: SoundScene?
     var remoteMindfulness: RemoteMindfulnessItem?
+    var requiresVIP: Bool { track?.requiresVIP == true || remoteMindfulness?.requiresVIP == true }
 
     init(
         title: String,
         subtitle: String,
         icon: String,
         colors: [Color],
-        imageName: String? = nil,
         track: MindfulnessTrack? = nil,
         scene: SoundScene? = nil,
         remoteMindfulness: RemoteMindfulnessItem? = nil
@@ -576,7 +618,6 @@ private struct MindfulnessHomeItem: Identifiable {
         self.subtitle = subtitle
         self.icon = icon
         self.colors = colors
-        self.imageName = imageName
         self.track = track
         self.scene = scene
         self.remoteMindfulness = remoteMindfulness
@@ -599,7 +640,7 @@ struct RemoteMindfulnessItem: Decodable, Identifiable {
     let sizeBytes: Int64?
     let sortOrder: Int?
     let downloadUrl: String
-    let requiresVIP: Bool?
+    var requiresVIP: Bool?
 
     var trackID: String { "remote-\(id)" }
 
@@ -657,7 +698,7 @@ final class RemoteMindfulnessLibrary: ObservableObject {
                         description: group.description,
                         sortOrder: group.sortOrder,
                         itemCount: group.itemCount,
-                        items: validItems(group.items)
+                        items: validItems(group.items, groupName: group.name)
                     )
                 }
                 .filter { !$0.name.isEmpty && !$0.items.isEmpty }
@@ -673,7 +714,10 @@ final class RemoteMindfulnessLibrary: ObservableObject {
             }
             do {
                 let data = try await requestData(path: "api/mindfulness")
-                let legacyItems = validItems(try JSONDecoder().decode([RemoteMindfulnessItem].self, from: data))
+                let legacyItems = validItems(
+                    try JSONDecoder().decode([RemoteMindfulnessItem].self, from: data),
+                    groupName: "正念冥想"
+                )
                 groups = legacyItems.isEmpty ? [] : [
                     RemoteMindfulnessGroup(
                         id: 0,
@@ -707,9 +751,16 @@ final class RemoteMindfulnessLibrary: ObservableObject {
         return data
     }
 
-    private func validItems(_ items: [RemoteMindfulnessItem]) -> [RemoteMindfulnessItem] {
-        items.filter {
+    private func validItems(_ items: [RemoteMindfulnessItem], groupName: String) -> [RemoteMindfulnessItem] {
+        let isBeginnerCourse = groupName.trimmingCharacters(in: .whitespacesAndNewlines) == "冥想小白课程"
+        return items.filter {
             !$0.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !$0.downloadUrl.isEmpty
+        }
+        .enumerated()
+        .map { index, item in
+            var item = item
+            item.requiresVIP = !(isBeginnerCourse && index == 0)
+            return item
         }
     }
 
