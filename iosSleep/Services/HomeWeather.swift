@@ -24,8 +24,12 @@ final class HomeWeather: NSObject, ObservableObject {
     }
 
     func refresh() {
-        guard canUseLocation,
-              !isLocating, fetchTask == nil else { return }
+        guard isAvailable, ConsentStore.agreementAccepted else { return }
+        if authorization == .notDetermined {
+            requestAccess()
+            return
+        }
+        guard canUseLocation, !isLocating, fetchTask == nil else { return }
         restoreCachedConditions()
         isLocating = true
         locationManager.requestLocation()
@@ -63,14 +67,11 @@ final class HomeWeather: NSObject, ObservableObject {
 
     private static func forecastEndpoint() -> URL? {
         if let configured = Bundle.main.object(forInfoDictionaryKey: "OpenMeteoForecastURL") as? String,
+           !configured.contains("$("),
            let url = URL(string: configured), url.scheme == "https", url.host != nil {
             return url
         }
-        #if DEBUG
         return URL(string: "https://api.open-meteo.com/v1/forecast")
-        #else
-        return nil
-        #endif
     }
 
     private func fetch(at coordinate: CLLocationCoordinate2D) {

@@ -210,17 +210,53 @@ private struct InspirationQuote: View {
                 .frame(width: 26, height: 2)
                 .accessibilityHidden(true)
 
-            Text(entry.text)
-                .font(.system(.title, design: .serif).weight(.medium))
-                .lineSpacing(8)
-                .fixedSize(horizontal: false, vertical: true)
-                .accessibilityAddTraits(.isHeader)
+            JustifiedInspirationText(text: entry.text)
+                .frame(maxWidth: .infinity)
             Text("—  时光睡眠")
                 .font(.footnote.weight(.medium))
                 .tracking(2)
                 .foregroundStyle(.white.opacity(0.83))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+private struct JustifiedInspirationText: UIViewRepresentable {
+    let text: String
+
+    func makeUIView(context: Context) -> UILabel {
+        let label = UILabel()
+        label.numberOfLines = 0
+        label.adjustsFontForContentSizeCategory = true
+        label.setContentCompressionResistancePriority(.required, for: .vertical)
+        label.setContentHuggingPriority(.required, for: .vertical)
+        label.accessibilityTraits.insert(.header)
+        return label
+    }
+
+    func updateUIView(_ label: UILabel, context: Context) {
+        let descriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .title1)
+            .withDesign(.serif)?
+            .addingAttributes([.traits: [UIFontDescriptor.TraitKey.weight: UIFont.Weight.medium]])
+            ?? UIFontDescriptor.preferredFontDescriptor(withTextStyle: .title1)
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.alignment = .justified
+        paragraph.lineSpacing = 8
+        paragraph.lineBreakMode = .byWordWrapping
+        label.attributedText = NSAttributedString(
+            string: text,
+            attributes: [
+                .font: UIFont(descriptor: descriptor, size: 0),
+                .foregroundColor: UIColor.white,
+                .paragraphStyle: paragraph
+            ]
+        )
+        label.accessibilityLabel = text
+    }
+
+    func sizeThatFits(_ proposal: ProposedViewSize, uiView: UILabel, context: Context) -> CGSize? {
+        guard let width = proposal.width else { return nil }
+        return uiView.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude))
     }
 }
 
