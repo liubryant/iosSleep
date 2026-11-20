@@ -42,30 +42,30 @@ struct PrivacyAgreementView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 20) {
-                Text("个人信息保护")
+                Text(SleepL10n.text("个人信息保护"))
                     .font(.title3.weight(.semibold))
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 14) {
-                        Text("欢迎使用时光睡眠。我们非常重视您的个人信息与隐私保护。请您在使用前仔细阅读以下协议，了解我们如何为您提供睡眠监测、声音播放、HealthKit 数据同步等服务。")
+                        Text(SleepL10n.text("欢迎使用时光睡眠。我们非常重视您的个人信息与隐私保护。请您在使用前仔细阅读以下协议，了解我们如何为您提供睡眠监测、声音播放、HealthKit 数据同步等服务。"))
                             .padding(.top, 8)
                         HStack(spacing: 0) {
-                            Button("《用户协议》") {
+                            Button(SleepL10n.text("《用户协议》")) {
                                 presentedLegal = .agreement
                             }
                             .foregroundStyle(.blue)
 
-                            Text(" 和 ")
+                            Text(SleepL10n.text(" 和 "))
                                 .foregroundStyle(.primary)
 
-                            Button("《隐私政策》") {
+                            Button(SleepL10n.text("《隐私政策》")) {
                                 presentedLegal = .privacy
                             }
                             .foregroundStyle(.blue)
                         }
                         .buttonStyle(.plain)
-                        Text("在您点击“同意并继续”前，我们不会主动请求麦克风、HealthKit 等敏感权限，也不会开始睡眠声音监测。")
-                        Text("您可以点击上方蓝色协议名称查看完整内容。若您不同意相关条款，将无法继续使用本应用。")
+                        Text(SleepL10n.text("在您点击“同意并继续”前，我们不会主动请求麦克风、HealthKit 等敏感权限，也不会开始睡眠声音监测。"))
+                        Text(SleepL10n.text("您可以点击上方蓝色协议名称查看完整内容。若您不同意相关条款，将无法继续使用本应用。"))
                     }
                     .font(.body)
                     .foregroundStyle(.primary)
@@ -74,7 +74,7 @@ struct PrivacyAgreementView: View {
                 .frame(minHeight: 220, maxHeight: 320)
 
                 Toggle(isOn: $isChecked) {
-                    Text("我已阅读并同意《用户协议》和《隐私政策》")
+                    Text(SleepL10n.text("我已阅读并同意《用户协议》和《隐私政策》"))
                         .font(.callout)
                         .foregroundStyle(.secondary)
                 }
@@ -87,7 +87,7 @@ struct PrivacyAgreementView: View {
                     }
                     settings.acceptAgreement()
                 } label: {
-                    Text("同意并继续")
+                    Text(SleepL10n.text("同意并继续"))
                         .frame(maxWidth: .infinity)
                         .frame(height: 44)
                 }
@@ -95,7 +95,7 @@ struct PrivacyAgreementView: View {
                 .controlSize(.regular)
                 .padding(.horizontal, 24)
 
-                Button("不同意") {
+                Button(SleepL10n.text("不同意")) {
                     showDisagreeAlert = true
                 }
                 .foregroundStyle(.secondary)
@@ -110,27 +110,27 @@ struct PrivacyAgreementView: View {
                 LegalTextView(title: item.title, url: item.url)
                     .toolbar {
                         ToolbarItem(placement: .topBarLeading) {
-                            Button("关闭") {
+                            Button(SleepL10n.text("关闭")) {
                                 presentedLegal = nil
                             }
                         }
                     }
             }
         }
-        .alert("提示", isPresented: $showMustCheckAlert) {
-            Button("知道了", role: .cancel) {}
+        .alert(SleepL10n.text("提示"), isPresented: $showMustCheckAlert) {
+            Button(SleepL10n.text("知道了"), role: .cancel) {}
         } message: {
-            Text("请先阅读并勾选同意《用户协议》和《隐私政策》。")
+            Text(SleepL10n.text("请先阅读并勾选同意《用户协议》和《隐私政策》。"))
         }
-        .alert("提示", isPresented: $showDisagreeAlert) {
-            Button("查看协议", role: .cancel) {
+        .alert(SleepL10n.text("提示"), isPresented: $showDisagreeAlert) {
+            Button(SleepL10n.text("查看协议"), role: .cancel) {
                 presentedLegal = .agreement
             }
-            Button("退出App", role: .destructive) {
+            Button(SleepL10n.text("退出App"), role: .destructive) {
                 exit(0)
             }
         } message: {
-            Text("您需要同意《用户协议》和《隐私政策》后才能使用时光睡眠。")
+            Text(SleepL10n.text("您需要同意《用户协议》和《隐私政策》后才能使用时光睡眠。"))
         }
     }
 

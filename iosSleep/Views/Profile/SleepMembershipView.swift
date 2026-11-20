@@ -5,14 +5,14 @@ import SwiftUI
 final class SleepMembershipViewModel: ObservableObject {
     @Published var isRefreshing = false
     @Published var isProcessing = false
-    @Published var statusMessage = "正在加载 App Store 会员套餐…"
+    @Published var statusMessage = SleepL10n.text("正在加载 App Store 会员套餐…")
     @Published private(set) var displayPrices: [String: String] = [:]
     @Published private(set) var availableProductIDs = Set<String>()
 
     func loadData() {
         guard !isRefreshing else { return }
         isRefreshing = true
-        statusMessage = "正在加载 App Store 会员套餐…"
+        statusMessage = SleepL10n.text("正在加载 App Store 会员套餐…")
         Task {
             async let productsRequest = SleepStoreKitService.shared.loadProducts()
             if SleepMembershipSession.shared.effectiveAccessToken != nil {
@@ -23,18 +23,18 @@ final class SleepMembershipViewModel: ObservableObject {
             availableProductIDs = Set(products.map(\.id))
             isRefreshing = false
             if products.isEmpty {
-                statusMessage = "暂未获取到 App Store 商品，请稍后重试"
+                statusMessage = SleepL10n.text("暂未获取到 App Store 商品，请稍后重试")
             } else if SleepMembershipSession.shared.isVIPActive {
-                statusMessage = SleepMembershipSession.shared.expiresAt.map { "会员权益有效期至 \($0)" }
-                    ?? "会员权益已生效"
+                statusMessage = SleepMembershipSession.shared.expiresAt.map { SleepL10n.format("会员权益有效期至 {0}", [String(describing: $0)]) }
+                    ?? SleepL10n.text("会员权益已生效")
             } else {
-                statusMessage = "请选择套餐并通过 App Store 订阅"
+                statusMessage = SleepL10n.text("请选择套餐并通过 App Store 订阅")
             }
         }
     }
 
     func price(for plan: SleepMembershipPlan) -> String {
-        displayPrices[plan.productID] ?? "获取中…"
+        displayPrices[plan.productID] ?? SleepL10n.text("获取中…")
     }
 
     func isAvailable(_ plan: SleepMembershipPlan) -> Bool {
@@ -48,20 +48,20 @@ final class SleepMembershipViewModel: ObservableObject {
 
     func purchase(plan: SleepMembershipPlan, agreementsAccepted: Bool) {
         guard agreementsAccepted else {
-            statusMessage = "请先阅读并同意会员、自动续费、隐私政策和使用条款"
+            statusMessage = SleepL10n.text("请先阅读并同意会员、自动续费、隐私政策和使用条款")
             return
         }
         guard isAvailable(plan) else {
-            statusMessage = "该 App Store 商品暂不可购买，请稍后重试"
+            statusMessage = SleepL10n.text("该 App Store 商品暂不可购买，请稍后重试")
             return
         }
         guard !isCurrent(plan), !isProcessing else { return }
         isProcessing = true
-        statusMessage = "正在打开 App Store 支付…"
+        statusMessage = SleepL10n.text("正在打开 App Store 支付…")
         Task {
             do {
                 let signed = try await SleepStoreKitService.shared.purchase(productID: plan.productID)
-                statusMessage = "支付结果确认中…"
+                statusMessage = SleepL10n.text("支付结果确认中…")
                 let session = SleepMembershipSession.shared
                 let verified = try await SleepMembershipService.shared.verifyApplePurchase(
                     token: session.userAccessToken,
@@ -73,17 +73,17 @@ final class SleepMembershipViewModel: ObservableObject {
                 await SleepStoreKitService.shared.finish(transactionID: signed.transactionID)
                 isProcessing = false
                 if verified.transactionAlreadyProcessed {
-                    statusMessage = "当前订阅已生效，本次未生成新的续订周期"
+                    statusMessage = SleepL10n.text("当前订阅已生效，本次未生成新的续订周期")
                 } else if verified.active {
-                    statusMessage = verified.expiresAt.map { "支付成功，订阅有效期至 \($0)" }
-                        ?? "支付成功，会员已开通"
+                    statusMessage = verified.expiresAt.map { SleepL10n.format("支付成功，订阅有效期至 {0}", [String(describing: $0)]) }
+                        ?? SleepL10n.text("支付成功，会员已开通")
                 } else {
-                    statusMessage = "支付已完成，会员状态同步中…"
+                    statusMessage = SleepL10n.text("支付已完成，会员状态同步中…")
                     try? await session.refresh()
                 }
             } catch is CancellationError {
                 isProcessing = false
-                statusMessage = "已取消支付"
+                statusMessage = SleepL10n.text("已取消支付")
             } catch {
                 isProcessing = false
                 statusMessage = error.localizedDescription
@@ -94,7 +94,7 @@ final class SleepMembershipViewModel: ObservableObject {
     func restorePurchases() {
         guard !isProcessing else { return }
         isProcessing = true
-        statusMessage = "正在从 App Store 恢复购买…"
+        statusMessage = SleepL10n.text("正在从 App Store 恢复购买…")
         Task {
             do {
                 let transactions = try await SleepStoreKitService.shared.restore()
@@ -118,12 +118,12 @@ final class SleepMembershipViewModel: ObservableObject {
                 }
                 isProcessing = false
                 if restoredCount > 0 {
-                    statusMessage = SleepMembershipSession.shared.expiresAt.map { "会员权益已恢复，有效期至 \($0)" }
-                        ?? "会员权益已恢复"
+                    statusMessage = SleepMembershipSession.shared.expiresAt.map { SleepL10n.format("会员权益已恢复，有效期至 {0}", [String(describing: $0)]) }
+                        ?? SleepL10n.text("会员权益已恢复")
                 } else if let lastError {
                     statusMessage = lastError.localizedDescription
                 } else {
-                    statusMessage = "当前 Apple 账户没有可恢复的有效订阅"
+                    statusMessage = SleepL10n.text("当前 Apple 账户没有可恢复的有效订阅")
                 }
             } catch {
                 isProcessing = false
@@ -181,7 +181,7 @@ struct SleepMembershipView: View {
                 LegalTextView(title: document.title, url: document.url)
                     .toolbar {
                         ToolbarItem(placement: .topBarLeading) {
-                            Button("关闭") { legalDocument = nil }
+                            Button(SleepL10n.text("关闭")) { legalDocument = nil }
                         }
                     }
             }
@@ -208,12 +208,13 @@ struct SleepMembershipView: View {
         HStack {
             Button { dismiss() } label: {
                 Image(systemName: "chevron.left")
+                    .flipsForRightToLeftLayoutDirection(true)
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(.sleepMembershipLightGold)
                     .frame(width: 44, height: 44)
             }
             Spacer()
-            Text("VIP 会员")
+            Text(SleepL10n.text("VIP 会员"))
                 .font(.system(size: 17, weight: .bold))
                 .foregroundColor(.sleepMembershipLightGold)
             Spacer()
@@ -249,10 +250,10 @@ struct SleepMembershipView: View {
             .frame(width: 42, height: 42)
 
             VStack(alignment: .leading, spacing: 5) {
-                Text(hasSyncedLogin ? maskedPhone : "Apple 账户可直接订阅")
+                Text(SleepL10n.text(hasSyncedLogin ? maskedPhone : SleepL10n.text("Apple 账户可直接订阅")))
                     .font(.system(size: 16, weight: .bold))
                     .foregroundColor(.white)
-                Text(membershipSubtitle)
+                Text(verbatim: SleepL10n.text(membershipSubtitle))
                     .font(.system(size: 13))
                     .foregroundColor(session.isVIPActive ? .sleepMembershipLightGold : .sleepMembershipMutedGold)
                     .lineLimit(1)
@@ -260,7 +261,7 @@ struct SleepMembershipView: View {
             }
             Spacer()
             if !hasSyncedLogin {
-                Button("登录同步") { showLogin = true }
+                Button(SleepL10n.text("登录同步")) { showLogin = true }
                     .font(.system(size: 13, weight: .bold))
                     .foregroundColor(Color(red: 0.46, green: 0.25, blue: 0.10))
                     .padding(.horizontal, 14)
@@ -285,23 +286,23 @@ struct SleepMembershipView: View {
 
     private var membershipSubtitle: String {
         if session.isVIPActive {
-            return session.expiresAt.map { "有效期至 \($0)" } ?? "会员权益已生效"
+            return session.expiresAt.map { SleepL10n.format("有效期至 {0}", [String(describing: $0)]) } ?? SleepL10n.text("会员权益已生效")
         }
-        return "登录后会员同步到手机号账号"
+        return SleepL10n.text("登录后会员同步到手机号账号")
     }
 
     private var benefitsCard: some View {
         VStack(spacing: 17) {
             HStack {
-                Text("会员权益")
+                Text(SleepL10n.text("会员权益"))
                     .font(.system(size: 15, weight: .bold))
                     .foregroundColor(.sleepMembershipLightGold)
                 Spacer()
             }
             HStack(spacing: 0) {
-                benefit(icon: "figure.mind.and.body", title: "全部正念冥想", subtitle: "VIP 内容畅听")
-                benefit(icon: "waveform", title: "全部助眠声音", subtitle: "会员全部解锁")
-                benefit(icon: "sparkles", title: "内容持续更新", subtitle: "更多会员音频")
+                benefit(icon: "figure.mind.and.body", title: SleepL10n.text("全部正念冥想"), subtitle: SleepL10n.text("VIP 内容畅听"))
+                benefit(icon: "waveform", title: SleepL10n.text("全部助眠声音"), subtitle: SleepL10n.text("会员全部解锁"))
+                benefit(icon: "sparkles", title: SleepL10n.text("内容持续更新"), subtitle: SleepL10n.text("更多会员音频"))
             }
         }
         .padding(18)
@@ -324,15 +325,15 @@ struct SleepMembershipView: View {
                 .font(.system(size: 25, weight: .medium))
                 .foregroundColor(.sleepMembershipLightGold)
                 .frame(height: 30)
-            Text(title).font(.system(size: 12, weight: .bold)).foregroundColor(.white)
-            Text(subtitle).font(.system(size: 10)).foregroundColor(.sleepMembershipMutedGold)
+            Text(verbatim: SleepL10n.text(title)).font(.system(size: 12, weight: .bold)).foregroundColor(.white)
+            Text(verbatim: SleepL10n.text(subtitle)).font(.system(size: 10)).foregroundColor(.sleepMembershipMutedGold)
         }
         .frame(maxWidth: .infinity)
     }
 
     private var planSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("选择会员套餐")
+            Text(SleepL10n.text("选择会员套餐"))
                 .font(.system(size: 15, weight: .bold))
                 .foregroundColor(.sleepMembershipLightGold)
                 .padding(.horizontal, 18)
@@ -363,16 +364,16 @@ struct SleepMembershipView: View {
                             .frame(width: isPad ? 68 : 58, height: isPad ? 26 : 22)
                             .padding(.vertical, 3)
                     } else {
-                        Text(priceAndPeriod)
+                        Text(verbatim: SleepL10n.text(priceAndPeriod))
                             .font(.system(size: isPad ? 24 : 20, weight: .bold))
                             .foregroundColor(selected ? .sleepMembershipSelectedPrice : .sleepMembershipUnselectedPrice)
                             .lineLimit(1)
                             .minimumScaleFactor(0.72)
                     }
-                    Text(plan.name)
+                    Text(verbatim: SleepL10n.text(plan.name))
                         .font(.system(size: isPad ? 14 : 12, weight: .semibold))
                         .foregroundColor(selected ? .sleepMembershipSelectedTitle : .sleepMembershipUnselectedTitle)
-                    Text(plan.detail)
+                    Text(verbatim: SleepL10n.text(plan.detail))
                         .font(.system(size: isPad ? 12 : 10))
                         .foregroundColor(selected ? .sleepMembershipSelectedDetail : .sleepMembershipUnselectedDetail)
                         .multilineTextAlignment(.center)
@@ -398,7 +399,7 @@ struct SleepMembershipView: View {
                 )
                 .padding(.top, 16)
 
-                Text(badge.text)
+                Text(verbatim: SleepL10n.text(badge.text))
                     .font(.system(size: isPad ? 11 : 9.5, weight: .semibold))
                     .foregroundColor(.white)
                     .padding(.horizontal, 10)
@@ -417,7 +418,7 @@ struct SleepMembershipView: View {
         switch index {
         case 0: return ("限时特惠", Color(red: 0.612, green: 0.153, blue: 0.690), Color(red: 0.416, green: 0.106, blue: 0.604))
         case 1: return ("超值特惠", Color(red: 1.0, green: 0.702, blue: 0.0), Color(red: 0.961, green: 0.486, blue: 0.0))
-        default: return ("80%用户选择", Color(red: 1.0, green: 0.420, blue: 0.208), Color(red: 0.898, green: 0.224, blue: 0.208))
+        default: return (SleepL10n.text("80%用户选择"), Color(red: 1.0, green: 0.420, blue: 0.208), Color(red: 0.898, green: 0.224, blue: 0.208))
         }
     }
 
@@ -430,7 +431,7 @@ struct SleepMembershipView: View {
     private var statusArea: some View {
         HStack(spacing: 8) {
             if viewModel.isProcessing { ProgressView().tint(.sleepMembershipGold) }
-            Text(viewModel.statusMessage)
+            Text(verbatim: SleepL10n.text(viewModel.statusMessage))
                 .font(.system(size: 12))
                 .foregroundColor(.sleepMembershipReadableMuted)
                 .multilineTextAlignment(.center)
@@ -443,7 +444,7 @@ struct SleepMembershipView: View {
     private var payMethodDivider: some View {
         HStack(spacing: 10) {
             Rectangle().fill(Color(red: 0.32, green: 0.28, blue: 0.24)).frame(width: 20, height: 1)
-            Text("支付方式").font(.system(size: 12)).foregroundColor(.sleepMembershipReadableMuted)
+            Text(SleepL10n.text("支付方式")).font(.system(size: 12)).foregroundColor(.sleepMembershipReadableMuted)
             Rectangle().fill(Color(red: 0.32, green: 0.28, blue: 0.24)).frame(width: 20, height: 1)
         }
         .frame(maxWidth: .infinity)
@@ -454,7 +455,7 @@ struct SleepMembershipView: View {
         VStack(spacing: 10) {
             HStack(spacing: 8) {
                 Image(systemName: "applelogo").font(.system(size: 20, weight: .medium))
-                Text("通过 App Store 支付").font(.system(size: 14, weight: .medium))
+                Text(SleepL10n.text("通过 App Store 支付")).font(.system(size: 14, weight: .medium))
                 Spacer()
                 Image(systemName: "checkmark.circle.fill").font(.system(size: 18)).foregroundColor(.sleepMembershipGold)
             }
@@ -466,7 +467,7 @@ struct SleepMembershipView: View {
             .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.sleepMembershipGold, lineWidth: 1))
 
             Button(action: { viewModel.restorePurchases() }) {
-                Text("恢复购买")
+                Text(SleepL10n.text("恢复购买"))
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.sleepMembershipMutedGold)
                     .frame(maxWidth: .infinity)
@@ -481,10 +482,10 @@ struct SleepMembershipView: View {
 
     private var tipsCard: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Label("温馨提示", systemImage: "info.circle.fill")
+            Label(SleepL10n.text("温馨提示"), systemImage: "info.circle.fill")
                 .font(.system(size: 12, weight: .bold))
                 .foregroundColor(Color(red: 0.78, green: 0.61, blue: 0.36))
-            Text(warmTipsContent)
+            Text(verbatim: SleepL10n.text(warmTipsContent))
                 .font(.system(size: 11.5))
                 .foregroundColor(.sleepMembershipTipsText)
                 .lineSpacing(4)
@@ -520,12 +521,12 @@ struct SleepMembershipView: View {
                     if viewModel.isProcessing {
                         HStack(spacing: 10) {
                             ProgressView().tint(Color(red: 0.46, green: 0.25, blue: 0.10))
-                            Text(processingPaymentText).font(.system(size: isPad ? 14 : 13, weight: .bold))
+                            Text(verbatim: SleepL10n.text(processingPaymentText)).font(.system(size: isPad ? 14 : 13, weight: .bold))
                         }
                     } else {
                         HStack(spacing: 8) {
-                            Text(displayPriceAndPeriod(for: plan)).font(.system(size: isPad ? 21 : 19, weight: .bold))
-                            Text(isCurrent ? "当前套餐" : (session.isVIPActive ? "更换套餐" : "立即开通"))
+                            Text(SleepL10n.text(displayPriceAndPeriod(for: plan))).font(.system(size: isPad ? 21 : 19, weight: .bold))
+                            Text(SleepL10n.text(isCurrent ? SleepL10n.text("当前套餐") : (session.isVIPActive ? SleepL10n.text("更换套餐") : SleepL10n.text("立即开通"))))
                                 .font(.system(size: isPad ? 13 : 12, weight: .bold))
                         }
                     }
@@ -557,16 +558,16 @@ struct SleepMembershipView: View {
                         .frame(width: 32, height: 32)
                 }
                 .buttonStyle(.plain)
-                Text("请阅读并同意").font(.system(size: 12)).foregroundColor(.sleepMembershipReadableMuted)
-                Button("《会员服务协议》") { legalDocument = .vipAgreement }
-                Button("《自动续费协议》") { legalDocument = .autoRenewAgreement }
+                Text(SleepL10n.text("请阅读并同意")).font(.system(size: 12)).foregroundColor(.sleepMembershipReadableMuted)
+                Button(SleepL10n.text("《会员服务协议》")) { legalDocument = .vipAgreement }
+                Button(SleepL10n.text("《自动续费协议》")) { legalDocument = .autoRenewAgreement }
             }
             .font(.system(size: 11, weight: .bold))
             .foregroundColor(.sleepMembershipGold)
 
             HStack(spacing: 10) {
-                Button("《隐私政策》") { legalDocument = .privacyPolicy }
-                Button("《使用条款（EULA）》") {
+                Button(SleepL10n.text("《隐私政策》")) { legalDocument = .privacyPolicy }
+                Button(SleepL10n.text("《使用条款（EULA）》")) {
                     if let url = URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/") {
                         openURL(url)
                     }
@@ -582,7 +583,7 @@ struct SleepMembershipView: View {
     private var processingPaymentText: String {
         if viewModel.statusMessage.contains("确认") { return "支付结果确认中…" }
         if viewModel.statusMessage.contains("恢复") { return "正在恢复购买…" }
-        return "正在打开 App Store 支付…"
+        return SleepL10n.text("正在打开 App Store 支付…")
     }
 }
 
@@ -654,7 +655,7 @@ enum SleepVIPContentKind {
     func prompt(for contentTitle: String) -> String {
         if self == .mbti { return "你的 MBTI 测评已完成，开通会员即可查看结果。" }
         let title = contentTitle.trimmingCharacters(in: .whitespacesAndNewlines)
-        return title.isEmpty ? "开通会员即可播放" : "开通会员即可播放「\(title)」"
+        return title.isEmpty ? SleepL10n.text("开通会员即可播放") : SleepL10n.format("开通会员即可播放「{0}」", [String(describing: title)])
     }
 }
 
@@ -708,14 +709,14 @@ struct SleepVIPUpgradeSheet: View {
                 .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text("时光睡眠会员")
+                Text(SleepL10n.text("时光睡眠会员"))
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(gold)
-                Text(contentKind.title)
+                Text(verbatim: SleepL10n.text(contentKind.title))
                     .font(.title2.bold())
                     .foregroundStyle(.white)
                     .accessibilityAddTraits(.isHeader)
-                Text(contentKind.prompt(for: contentTitle))
+                Text(SleepL10n.text(contentKind.prompt(for: contentTitle)))
                     .font(.subheadline)
                     .foregroundStyle(Color(white: 0.75))
                     .fixedSize(horizontal: false, vertical: true)
@@ -731,10 +732,10 @@ struct SleepVIPUpgradeSheet: View {
                 .frame(width: 26)
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 3) {
-                Text(contentKind.benefitTitle)
+                Text(verbatim: SleepL10n.text(contentKind.benefitTitle))
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.white)
-                Text(contentKind.benefitDetail)
+                Text(verbatim: SleepL10n.text(contentKind.benefitDetail))
                     .font(.footnote)
                     .foregroundStyle(Color(white: 0.72))
             }
@@ -748,7 +749,7 @@ struct SleepVIPUpgradeSheet: View {
     private var actions: some View {
         VStack(spacing: 2) {
             Button(action: onUpgrade) {
-                Text("立即开通会员")
+                Text(SleepL10n.text("立即开通会员"))
                     .font(.headline)
                     .foregroundStyle(Color(red: 0.20, green: 0.12, blue: 0.06))
                     .padding(.vertical, 10)
@@ -758,7 +759,7 @@ struct SleepVIPUpgradeSheet: View {
             .buttonStyle(.plain)
 
             Button(action: onCancel) {
-                Text("稍后再说")
+                Text(SleepL10n.text("稍后再说"))
                     .font(.subheadline)
                     .foregroundStyle(Color(white: 0.72))
                     .frame(maxWidth: .infinity, minHeight: 44)
@@ -779,9 +780,9 @@ struct SleepMembershipPlan {
     var periodUnit: String { period.hasPrefix("每") ? String(period.dropFirst()) : period }
 
     static let all = [
-        SleepMembershipPlan(name: "周会员", detail: "短期体验 · 灵活续费", period: "每周", productID: "cn.sleep.vip.week", appleNumericID: "6806154887"),
-        SleepMembershipPlan(name: "月会员", detail: "热门之选 · 畅享全月", period: "每月", productID: "cn.sleep.vip.month", appleNumericID: "6805426537"),
-        SleepMembershipPlan(name: "年会员", detail: "超值长期 · 尊享一年", period: "每年", productID: "cn.sleep.vip.year", appleNumericID: "6805424822")
+        SleepMembershipPlan(name: SleepL10n.text("周会员"), detail: SleepL10n.text("短期体验 · 灵活续费"), period: SleepL10n.text("每周"), productID: "cn.sleep.vip.week", appleNumericID: "6806154887"),
+        SleepMembershipPlan(name: SleepL10n.text("月会员"), detail: SleepL10n.text("热门之选 · 畅享全月"), period: SleepL10n.text("每月"), productID: "cn.sleep.vip.month", appleNumericID: "6805426537"),
+        SleepMembershipPlan(name: SleepL10n.text("年会员"), detail: SleepL10n.text("超值长期 · 尊享一年"), period: SleepL10n.text("每年"), productID: "cn.sleep.vip.year", appleNumericID: "6805424822")
     ]
 }
 
@@ -792,17 +793,17 @@ private struct SleepMembershipLegalDocument: Identifiable {
 
     static let vipAgreement = SleepMembershipLegalDocument(
         id: "sleep_vip_agreement",
-        title: "会员服务协议",
+        title: SleepL10n.text("会员服务协议"),
         url: URL(string: "https://www.cjym123.cn/im/bot/sleep/vip/agreement/member")!
     )
     static let autoRenewAgreement = SleepMembershipLegalDocument(
         id: "sleep_auto_renew_agreement",
-        title: "自动续费服务协议",
+        title: SleepL10n.text("自动续费服务协议"),
         url: URL(string: "https://www.cjym123.cn/im/bot/sleep/vip/agreement/auto-renew")!
     )
     static let privacyPolicy = SleepMembershipLegalDocument(
         id: "sleep_privacy_policy",
-        title: "隐私政策",
+        title: SleepL10n.text("隐私政策"),
         url: LegalLinks.privacyPolicyURL
     )
 }

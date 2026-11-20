@@ -1,0 +1,354 @@
+{
+  "sourceLanguage": "zh-Hans",
+  "strings": {
+    "NSHealthShareUsageDescription": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "时光睡眠需要读取睡眠阶段、睡眠心率、心率变异性、呼吸频率、血氧和睡眠腕温，用于生成仅在本机展示的睡眠洞察。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Sleep needs to read sleep stages, sleep heart rate, heart rate variability, respiratory rate, blood oxygen and sleep wrist temperature to generate sleep insights that are only displayed on this device."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Sleep は、このデバイスにのみ表示される睡眠の洞察を生成するために、睡眠段階、睡眠心拍数、心拍数変動、呼吸数、血中酸素、睡眠時手首の温度を読み取る必要があります。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Sleep muss die Schlafstadien, die Schlafherzfrequenz, die Herzfrequenzvariabilität, die Atemfrequenz, den Blutsauerstoff und die Schlafhandgelenkstemperatur messen, um Erkenntnisse über den Schlaf zu gewinnen, die nur auf diesem Gerät angezeigt werden."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Sleep doit lire les étapes du sommeil, la fréquence cardiaque du sommeil, la variabilité de la fréquence cardiaque, la fréquence respiratoire, l'oxygène dans le sang et la température du poignet pendant le sommeil pour générer des informations sur le sommeil qui ne sont affichées que sur cet appareil."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Sleep necesita leer las etapas del sueño, la frecuencia cardíaca durante el sueño, la variabilidad de la frecuencia cardíaca, la frecuencia respiratoria, el oxígeno en la sangre y la temperatura de la muñeca durante el sueño para generar información sobre el sueño que solo se muestra en este dispositivo."
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "時光睡眠需要讀取睡眠階段、睡眠心率、心率變異性、呼吸頻率、血氧和睡眠腕溫，用於產生僅在本機展示的睡眠洞察。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Sleep은 이 장치에만 표시되는 수면 인사이트를 생성하기 위해 수면 단계, 수면 심박수, 심박수 변이도, 호흡수, 혈중 산소 및 수면 손목 온도를 읽어야 합니다."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يحتاج Time Sleep إلى قراءة مراحل النوم ومعدل ضربات القلب أثناء النوم وتقلب معدل ضربات القلب ومعدل التنفس والأكسجين في الدم ودرجة حرارة المعصم أثناء النوم لإنشاء رؤى النوم التي يتم عرضها فقط على هذا الجهاز."
+          }
+        }
+      }
+    },
+    "NSHealthUpdateUsageDescription": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "时光睡眠需要写入睡眠时段和正念练习时长，帮助你在健康 App 中统一查看睡眠与放松记录。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Sleep needs to write the sleep period and mindfulness practice duration to help you view your sleep and relaxation records in a unified way in the health app."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Sleep は、健康アプリで睡眠とリラクゼーションの記録を統一した方法で表示できるように、睡眠時間とマインドフルネスの実践時間を書き込む必要があります。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Sleep muss die Schlafdauer und die Dauer der Achtsamkeitsübungen aufzeichnen, damit Sie Ihre Schlaf- und Entspannungsaufzeichnungen in der Gesundheits-App einheitlich anzeigen können."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Sleep doit écrire la période de sommeil et la durée de la pratique de pleine conscience pour vous aider à visualiser vos enregistrements de sommeil et de relaxation de manière unifiée dans l'application santé."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Sleep necesita escribir el período de sueño y la duración de la práctica de atención plena para ayudarlo a ver sus registros de sueño y relajación de manera unificada en la aplicación de salud."
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "時光睡眠需要寫入睡眠時段和正念練習時長，幫助你在健康 App 中統一查看睡眠與放鬆記錄。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Sleep은 수면 시간과 마음챙김 연습 시간을 기록하여 건강 앱에서 수면 및 휴식 기록을 통합적으로 볼 수 있도록 도와줍니다."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يحتاج Time Sleep إلى كتابة فترة النوم ومدة ممارسة اليقظة الذهنية لمساعدتك في عرض سجلات نومك والاسترخاء بطريقة موحدة في تطبيق الصحة."
+          }
+        }
+      }
+    },
+    "NSMicrophoneUsageDescription": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "时光睡眠需要使用麦克风在本地识别打鼾、咳嗽、梦话、磨牙和环境噪音。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TimeSleep uses microphones to locally identify snoring, coughing, sleep talking, teeth grinding, and ambient noise."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TimeSleep はマイクを使用して、いびき、咳、寝言、歯ぎしり、周囲の騒音をローカルで識別します。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TimeSleep verwendet Mikrofone, um Schnarchen, Husten, Schlafgespräche, Zähneknirschen und Umgebungsgeräusche lokal zu erkennen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TimeSleep utilise des microphones pour identifier localement les ronflements, la toux, les conversations endormies, les grincements de dents et le bruit ambiant."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TimeSleep utiliza micrófonos para identificar localmente ronquidos, tos, hablar dormido, rechinar los dientes y ruido ambiental."
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "時光睡眠需要使用麥克風在本地識別打鼾、咳嗽、夢話、磨牙和環境噪音。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TimeSleep은 마이크를 사용하여 코골이, 기침, 잠꼬대, 이갈이 및 주변 소음을 국지적으로 식별합니다."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يستخدم TimeSleep الميكروفونات للتعرف محليًا على الشخير والسعال والحديث أثناء النوم وصرير الأسنان والضوضاء المحيطة."
+          }
+        }
+      }
+    },
+    "NSLocationWhenInUseUsageDescription": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "时光睡眠使用大致位置查询当地天气，在首页显示气温和天气图标。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Sleep uses the approximate location to check the local weather and displays the temperature and weather icons on the homepage."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Sleep は、おおよその位置情報を使用して地域の天気を確認し、ホームページに気温と天気のアイコンを表示します。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Sleep verwendet den ungefähren Standort, um das lokale Wetter zu überprüfen und zeigt die Temperatur- und Wettersymbole auf der Startseite an."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Sleep utilise l'emplacement approximatif pour vérifier la météo locale et affiche les icônes de température et de météo sur la page d'accueil."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Sleep utiliza la ubicación aproximada para verificar el clima local y muestra los íconos de temperatura y clima en la página de inicio."
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "時光睡眠使用大致位置查詢當地天氣，首頁顯示氣溫和天氣圖示。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "타임슬립은 대략적인 위치를 이용하여 현지 날씨를 확인하고, 홈페이지에 기온과 날씨 아이콘을 표시합니다."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يستخدم Time Sleep الموقع التقريبي للتحقق من الطقس المحلي ويعرض أيقونات درجة الحرارة والطقس على الصفحة الرئيسية."
+          }
+        }
+      }
+    },
+    "NSUserTrackingUsageDescription": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "时光睡眠希望获取您的授权，用于广告归因、广告效果衡量和统计分析。您可以拒绝授权，拒绝后不影响核心功能使用。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Sleep hopes to obtain your authorization for advertising attribution, advertising effect measurement and statistical analysis. You can refuse authorization, and the use of core functions will not be affected if you refuse."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Sleepは、広告の帰属、広告効果の測定、統計分析について、お客様の許可を得たいと考えています。承認を拒否することもできます。拒否してもコア機能の使用には影響しません。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Sleep hofft auf Ihre Genehmigung zur Werbezuordnung, Werbewirkungsmessung und statistischen Analyse. Sie können die Autorisierung verweigern. Die Nutzung der Kernfunktionen wird durch die Ablehnung nicht beeinträchtigt."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Sleep espère obtenir votre autorisation pour l’attribution publicitaire, la mesure de l’effet publicitaire et l’analyse statistique. Vous pouvez refuser l'autorisation et l'utilisation des fonctions principales ne sera pas affectée si vous refusez."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Sleep espera obtener su autorización para la atribución de publicidad, la medición del efecto publicitario y el análisis estadístico. Puede rechazar la autorización y el uso de las funciones principales no se verá afectado si la rechaza."
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "時光睡眠希望獲得您的授權，用於廣告歸因、廣告效果衡量和統計分析。您可以拒絕授權，拒絕後不影響核心功能使用。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "타임슬립은 광고귀속, 광고효과 측정, 통계분석을 위해 귀하의 승인을 받기를 희망합니다. 귀하는 승인을 거부할 수 있으며, 거부하더라도 핵심 기능 사용에는 영향을 미치지 않습니다."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تأمل Time Sleep في الحصول على ترخيص منك لإسناد الإعلانات وقياس تأثير الإعلان والتحليل الإحصائي. يمكنك رفض الترخيص، ولن يتأثر استخدام الوظائف الأساسية إذا رفضت."
+          }
+        }
+      }
+    },
+    "CFBundleDisplayName": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "时光睡眠"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Sleep"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Sleep"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Sleep"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Sleep"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Sleep"
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "時光睡眠"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Sleep"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Sleep"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

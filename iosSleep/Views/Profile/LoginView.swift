@@ -68,7 +68,7 @@ struct LoginView: View {
                 LegalTextView(title: document.title, url: document.url)
                     .toolbar {
                         ToolbarItem(placement: .confirmationAction) {
-                            Button("完成") { legalDocument = nil }
+                            Button(SleepL10n.text("完成")) { legalDocument = nil }
                         }
                     }
             }
@@ -82,6 +82,7 @@ struct LoginView: View {
         HStack {
             Button { dismiss() } label: {
                 Image(systemName: "chevron.left")
+                    .flipsForRightToLeftLayoutDirection(true)
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundStyle(.primary)
                     .frame(width: 44, height: 44)
@@ -90,7 +91,7 @@ struct LoginView: View {
 
             Spacer()
 
-            Text("登录账号")
+            Text(SleepL10n.text("登录账号"))
                 .font(.system(size: 17, weight: .bold))
 
             Spacer()
@@ -111,11 +112,11 @@ struct LoginView: View {
                         .frame(width: 68, height: 68)
                         .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
 
-                    Text(mode == .code ? "手机验证码快速登录" : "手机号密码登录")
+                    Text(SleepL10n.text(mode == .code ? "手机验证码快速登录" : "手机号密码登录"))
                         .font(.system(size: 15))
                         .foregroundStyle(.secondary)
 
-                    Text("登录为可选操作，不登录也可以正常使用声音播放与睡眠功能")
+                    Text(SleepL10n.text("登录为可选操作，不登录也可以正常使用声音播放与睡眠功能"))
                         .font(.system(size: 12))
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -123,28 +124,28 @@ struct LoginView: View {
                 .padding(.top, 26)
 
                 VStack(spacing: 16) {
-                    labeledField(title: "手机号") {
+                    labeledField(title: SleepL10n.text("手机号")) {
                         HStack(spacing: 10) {
-                            Text("+86")
+                            Text(SleepL10n.text("+86"))
                                 .font(.system(size: 15, weight: .semibold))
                                 .foregroundStyle(loginAccent)
                             Divider().frame(height: 20)
-                            TextField("请输入手机号", text: Binding(
+                            TextField(SleepL10n.text("请输入手机号"), text: Binding(
                                 get: { phone },
                                 set: { phone = normalizedPhoneNumber($0) }
-                            ), prompt: Text("请输入手机号").foregroundColor(.secondary))
+                            ), prompt: Text(SleepL10n.text("请输入手机号")).foregroundColor(.secondary))
                             .keyboardType(.numberPad)
                             .textContentType(mode == .password ? .username : .telephoneNumber)
                         }
                     }
 
                     if mode == .code {
-                        labeledField(title: "验证码") {
+                        labeledField(title: SleepL10n.text("验证码")) {
                             HStack {
-                                TextField("请输入6位验证码", text: Binding(
+                                TextField(SleepL10n.text("请输入6位验证码"), text: Binding(
                                     get: { code },
                                     set: { code = String($0.filter(\.isNumber).prefix(6)) }
-                                ), prompt: Text("请输入6位验证码").foregroundColor(.secondary))
+                                ), prompt: Text(SleepL10n.text("请输入6位验证码")).foregroundColor(.secondary))
                                 .keyboardType(.numberPad)
                                 .textContentType(.oneTimeCode)
 
@@ -156,27 +157,30 @@ struct LoginView: View {
                                             ProgressView()
                                                 .tint(loginAccent)
                                         } else {
-                                            Text(countdown > 0 ? "\(countdown)s" : "获取验证码")
+                                            Text(SleepL10n.text(countdown > 0 ? "\(countdown)s" : SleepL10n.text("获取验证码")))
                                         }
                                     }
                                     .font(.system(size: 13, weight: .semibold))
+                                    .lineLimit(2)
+                                    .multilineTextAlignment(.center)
+                                    .minimumScaleFactor(0.85)
                                     .foregroundStyle(canSendCode ? loginAccent : Color.secondary)
-                                    .frame(width: 78)
+                                    .frame(width: 96, height: 44)
                                 }
                                 .buttonStyle(.plain)
                                 .disabled(!canSendCode)
                             }
                         }
                     } else {
-                        labeledField(title: "密码") {
-                            SecureField("请输入密码（至少6位）", text: $password,
-                                        prompt: Text("请输入密码（至少6位）").foregroundColor(.secondary))
+                        labeledField(title: SleepL10n.text("密码")) {
+                            SecureField(SleepL10n.text("请输入密码（至少6位）"), text: $password,
+                                        prompt: Text(SleepL10n.text("请输入密码（至少6位）")).foregroundColor(.secondary))
                                 .textContentType(.password)
                         }
                     }
 
                     if let errorMessage {
-                        Text(errorMessage)
+                        Text(verbatim: SleepL10n.text(errorMessage))
                             .font(.system(size: 13))
                             .foregroundStyle(.red)
                             .multilineTextAlignment(.center)
@@ -187,7 +191,7 @@ struct LoginView: View {
                             if isLoggingIn {
                                 ProgressView().tint(.white)
                             } else {
-                                Text("登录")
+                                Text(SleepL10n.text("登录"))
                                     .font(.system(size: 16, weight: .bold))
                             }
                         }
@@ -208,7 +212,7 @@ struct LoginView: View {
                     .disabled(!canLogin)
 
                     Button { switchMode() } label: {
-                        Text(mode == .code ? "使用密码登录" : "使用验证码登录")
+                        Text(SleepL10n.text(mode == .code ? "使用密码登录" : "使用验证码登录"))
                             .font(.system(size: 13, weight: .semibold))
                             .foregroundStyle(loginAccent)
                     }
@@ -230,7 +234,7 @@ struct LoginView: View {
         @ViewBuilder content: () -> Content
     ) -> some View {
         VStack(alignment: .leading, spacing: 7) {
-            Text(title)
+            Text(verbatim: SleepL10n.text(title))
                 .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(.secondary)
 
@@ -252,15 +256,15 @@ struct LoginView: View {
 
     private var legalLinks: some View {
         VStack(spacing: 8) {
-            Text("登录即代表您已阅读并同意")
+            Text(SleepL10n.text("登录即代表您已阅读并同意"))
                 .font(.system(size: 12))
                 .foregroundStyle(.secondary)
 
             HStack(spacing: 14) {
-                Button("《用户协议》") {
+                Button(SleepL10n.text("《用户协议》")) {
                     legalDocument = .userAgreement
                 }
-                Button("《隐私政策》") {
+                Button(SleepL10n.text("《隐私政策》")) {
                     legalDocument = .privacyPolicy
                 }
             }
@@ -291,7 +295,7 @@ struct LoginView: View {
                 try await AuthAPI.requestVerificationCode(phone: phone)
                 startCountdown()
             } catch {
-                errorMessage = (error as? LocalizedError)?.errorDescription ?? "验证码发送失败，请稍后重试"
+                errorMessage = (error as? LocalizedError)?.errorDescription ?? SleepL10n.text("验证码发送失败，请稍后重试")
             }
             isSendingCode = false
         }
@@ -311,12 +315,12 @@ struct LoginView: View {
                     result = try await AuthAPI.login(phone: phone, password: password)
                 }
                 guard let accessToken = result.resolvedAccessToken else {
-                    throw AuthError.server("登录成功但未取得账号凭证，请稍后重试")
+                    throw AuthError.server(SleepL10n.text("登录成功但未取得账号凭证，请稍后重试"))
                 }
                 settings.login(phone: result.phone, accessToken: accessToken)
                 dismiss()
             } catch {
-                errorMessage = (error as? LocalizedError)?.errorDescription ?? "登录失败，请稍后重试"
+                errorMessage = (error as? LocalizedError)?.errorDescription ?? SleepL10n.text("登录失败，请稍后重试")
             }
             isLoggingIn = false
         }

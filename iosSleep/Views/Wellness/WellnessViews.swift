@@ -20,16 +20,16 @@ struct WellnessFeature: Identifiable, Hashable {
     let destination: WellnessDestination
 
     static let all: [WellnessFeature] = [
-        .init(id: "health", title: "睡眠洞察", subtitle: "读取 Apple 健康睡眠阶段", badge: "健康数据", icon: "heart.text.square.fill", colors: [.blue, .cyan], destination: .healthInsight),
-        .init(id: "sleep", title: "睡眠状态", subtitle: "了解近期睡眠困扰", badge: "8 道题", icon: "moon.zzz.fill", colors: [.indigo, .blue], destination: .assessment(.sleepHealth)),
-        .init(id: "mood", title: "情绪状态", subtitle: "PHQ-2 快速筛查", badge: "约 1 分钟", icon: "heart.fill", colors: [.pink, .orange], destination: .assessment(.mood)),
-        .init(id: "anxiety", title: "焦虑状态", subtitle: "GAD-7 觉察近期担忧", badge: "7 道题", icon: "wind", colors: [.cyan, .blue], destination: .assessment(.anxiety)),
-        .init(id: "mbti", title: "MBTI 人格", subtitle: "发现你的 16 型人格", badge: "36 道题", icon: "person.2.wave.2.fill", colors: [.purple, .pink], destination: .assessment(.mbti)),
-        .init(id: "bigfive", title: "大五性格", subtitle: "探索五种人格倾向", badge: "20 道题", icon: "person.crop.circle.fill", colors: [.purple, .indigo], destination: .assessment(.bigFive)),
-        .init(id: "stress", title: "压力自测", subtitle: "看看身心是否超负荷", badge: "8 道题", icon: "speedometer", colors: [.orange, .red], destination: .assessment(.stress)),
-        .init(id: "chronotype", title: "作息类型", subtitle: "晨型、弹性型还是夜型", badge: "节律探索", icon: "sun.and.horizon.fill", colors: [.yellow, .orange], destination: .assessment(.chronotype)),
-        .init(id: "breathing", title: "呼吸练习", subtitle: "用一分钟让身心慢下来", badge: "正念时长", icon: "lungs.fill", colors: [.mint, .teal], destination: .breathing),
-        .init(id: "devices", title: "智能设备", subtitle: "手表与睡眠设备连接指南", badge: "多平台", icon: "applewatch", colors: [.indigo, .purple], destination: .devices)
+        .init(id: "health", title: SleepL10n.text("睡眠洞察"), subtitle: SleepL10n.text("读取 Apple 健康睡眠阶段"), badge: SleepL10n.text("健康数据"), icon: "heart.text.square.fill", colors: [.blue, .cyan], destination: .healthInsight),
+        .init(id: "sleep", title: SleepL10n.text("睡眠状态"), subtitle: SleepL10n.text("了解近期睡眠困扰"), badge: SleepL10n.text("8 道题"), icon: "moon.zzz.fill", colors: [.indigo, .blue], destination: .assessment(.sleepHealth)),
+        .init(id: "mood", title: SleepL10n.text("情绪状态"), subtitle: SleepL10n.text("PHQ-2 快速筛查"), badge: SleepL10n.text("约 1 分钟"), icon: "heart.fill", colors: [.pink, .orange], destination: .assessment(.mood)),
+        .init(id: "anxiety", title: SleepL10n.text("焦虑状态"), subtitle: SleepL10n.text("GAD-7 觉察近期担忧"), badge: SleepL10n.text("7 道题"), icon: "wind", colors: [.cyan, .blue], destination: .assessment(.anxiety)),
+        .init(id: "mbti", title: SleepL10n.text("MBTI 人格"), subtitle: SleepL10n.text("发现你的 16 型人格"), badge: SleepL10n.text("36 道题"), icon: "person.2.wave.2.fill", colors: [.purple, .pink], destination: .assessment(.mbti)),
+        .init(id: "bigfive", title: SleepL10n.text("大五性格"), subtitle: SleepL10n.text("探索五种人格倾向"), badge: SleepL10n.text("20 道题"), icon: "person.crop.circle.fill", colors: [.purple, .indigo], destination: .assessment(.bigFive)),
+        .init(id: "stress", title: SleepL10n.text("压力自测"), subtitle: SleepL10n.text("看看身心是否超负荷"), badge: SleepL10n.text("8 道题"), icon: "speedometer", colors: [.orange, .red], destination: .assessment(.stress)),
+        .init(id: "chronotype", title: SleepL10n.text("作息类型"), subtitle: SleepL10n.text("晨型、弹性型还是夜型"), badge: SleepL10n.text("节律探索"), icon: "sun.and.horizon.fill", colors: [.yellow, .orange], destination: .assessment(.chronotype)),
+        .init(id: "breathing", title: SleepL10n.text("呼吸练习"), subtitle: SleepL10n.text("用一分钟让身心慢下来"), badge: SleepL10n.text("正念时长"), icon: "lungs.fill", colors: [.mint, .teal], destination: .breathing),
+        .init(id: "devices", title: SleepL10n.text("智能设备"), subtitle: SleepL10n.text("手表与睡眠设备连接指南"), badge: SleepL10n.text("多平台"), icon: "applewatch", colors: [.indigo, .purple], destination: .devices)
     ]
 
     static let sleepHealth = features(withIDs: ["health", "sleep", "chronotype"])
@@ -56,8 +56,8 @@ struct WellnessHomeSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 26) {
             featureSection(
-                title: "情绪与性格",
-                subtitle: "温柔觉察情绪、压力与内在倾向",
+                title: SleepL10n.text("情绪与性格"),
+                subtitle: SleepL10n.text("温柔觉察情绪、压力与内在倾向"),
                 features: WellnessFeature.mindAndPersonality
             )
         }
@@ -72,10 +72,10 @@ struct WellnessHomeSection: View {
             NavigationLink(value: WellnessDestination.hub) {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 3) {
-                        Text(title)
+                        Text(verbatim: SleepL10n.text(title))
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundStyle(SoundHomeTextColor.title)
-                        Text(subtitle)
+                        Text(verbatim: SleepL10n.text(subtitle))
                             .font(.system(size: 11))
                             .foregroundStyle(SoundHomeTextColor.detail)
                     }
@@ -83,8 +83,9 @@ struct WellnessHomeSection: View {
                     Spacer()
 
                     HStack(spacing: 4) {
-                        Text("全部")
+                        Text(SleepL10n.text("全部"))
                         Image(systemName: "chevron.right")
+                    .flipsForRightToLeftLayoutDirection(true)
                             .font(.system(size: 10, weight: .semibold))
                     }
                     .font(.system(size: 12))
@@ -134,7 +135,7 @@ private struct WellnessHomeCard: View {
 
             VStack(alignment: .leading, spacing: 0) {
                 HStack {
-                    Text(feature.badge)
+                    Text(verbatim: SleepL10n.text(feature.badge))
                         .font(.system(size: 10, weight: .medium))
                         .padding(.horizontal, 9)
                         .frame(height: 23)
@@ -148,9 +149,9 @@ private struct WellnessHomeCard: View {
 
                 Spacer()
 
-                Text(feature.title)
+                Text(verbatim: SleepL10n.text(feature.title))
                     .font(.system(size: 17, weight: .semibold))
-                Text(feature.subtitle)
+                Text(verbatim: SleepL10n.text(feature.subtitle))
                     .font(.system(size: 11))
                     .foregroundStyle(.white.opacity(0.74))
                     .lineLimit(1)
@@ -207,20 +208,20 @@ struct WellnessHubView: View {
                     hero
 
                     hubFeatureSection(
-                        title: "睡眠健康",
-                        subtitle: "睡眠数据、状态评估与日常记录",
+                        title: SleepL10n.text("睡眠健康"),
+                        subtitle: SleepL10n.text("睡眠数据、状态评估与日常记录"),
                         features: WellnessFeature.sleepHealth
                     )
 
                     hubFeatureSection(
-                        title: "情绪与性格",
-                        subtitle: "了解近期感受与稳定人格倾向",
+                        title: SleepL10n.text("情绪与性格"),
+                        subtitle: SleepL10n.text("了解近期感受与稳定人格倾向"),
                         features: WellnessFeature.mindAndPersonality
                     )
 
                     hubFeatureSection(
-                        title: "放松与设备",
-                        subtitle: "主动恢复并汇总更多健康数据",
+                        title: SleepL10n.text("放松与设备"),
+                        subtitle: SleepL10n.text("主动恢复并汇总更多健康数据"),
                         features: WellnessFeature.relaxAndDevices
                     )
 
@@ -236,7 +237,7 @@ struct WellnessHubView: View {
             }
         }
         .safeAreaInset(edge: .top, spacing: 0) {
-            WellnessTopBar(title: "身心探索")
+            WellnessTopBar(title: SleepL10n.text("身心探索"))
         }
         .appEdgeSwipeBack()
         .navigationBarBackButtonHidden(true)
@@ -246,9 +247,9 @@ struct WellnessHubView: View {
 
     private var hero: some View {
         VStack(alignment: .leading, spacing: 9) {
-            Text("给自己一点了解的时间")
+            Text(SleepL10n.text("给自己一点了解的时间"))
                 .font(.system(size: 20, weight: .semibold))
-            Text("从睡眠、情绪到性格节律，所有记录默认仅保存在 App 本地。")
+            Text(SleepL10n.text("从睡眠、情绪到性格节律，所有记录默认仅保存在 App 本地。"))
                 .font(.system(size: 13))
                 .foregroundStyle(.white.opacity(0.82))
                 .lineSpacing(3)
@@ -271,13 +272,14 @@ struct WellnessHubView: View {
                     .accessibilityHidden(true)
                 Spacer()
                 Image(systemName: "chevron.right")
+                    .flipsForRightToLeftLayoutDirection(true)
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.white.opacity(0.72))
                     .accessibilityHidden(true)
             }
-            Text(feature.title)
+            Text(verbatim: SleepL10n.text(feature.title))
                 .font(.system(size: 15, weight: .semibold))
-            Text(feature.subtitle)
+            Text(verbatim: SleepL10n.text(feature.subtitle))
                 .font(.system(size: 11))
                 .foregroundStyle(.white.opacity(0.8))
                 .lineLimit(2)
@@ -298,9 +300,9 @@ struct WellnessHubView: View {
     ) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
-                Text(title)
+                Text(verbatim: SleepL10n.text(title))
                     .font(.system(size: 18, weight: .semibold))
-                Text(subtitle)
+                Text(verbatim: SleepL10n.text(subtitle))
                     .font(.system(size: 12))
                     .foregroundStyle(.secondary)
             }
@@ -325,15 +327,16 @@ struct WellnessHubView: View {
                 .background(.black.opacity(0.30))
                 .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             VStack(alignment: .leading, spacing: 5) {
-                Text("测评记录")
+                Text(SleepL10n.text("测评记录"))
                     .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(.white)
-                Text(history.records.isEmpty ? "完成测评后，可在这里查看变化" : "已保存 \(history.records.count) 次测评结果")
+                Text(SleepL10n.text(history.records.isEmpty ? SleepL10n.text("完成测评后，可在这里查看变化") : SleepL10n.format("已保存 {0} 次测评结果", [String(describing: history.records.count)])))
                     .font(.system(size: 12))
                     .foregroundStyle(.white.opacity(0.8))
             }
             Spacer()
             Image(systemName: "chevron.right")
+                    .flipsForRightToLeftLayoutDirection(true)
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(.white.opacity(0.72))
         }
@@ -345,7 +348,7 @@ struct WellnessHubView: View {
 
     private var privacyNotice: some View {
         Label {
-            Text("测评结果默认仅保存在当前设备，不会用于广告推荐，仅用于自我觉察，不代替专业诊断。")
+            Text(SleepL10n.text("测评结果默认仅保存在当前设备，不会用于广告推荐，仅用于自我觉察，不代替专业诊断。"))
                 .font(.system(size: 11))
                 .foregroundStyle(.secondary)
         } icon: {
@@ -460,11 +463,11 @@ struct WellnessAssessmentView: View {
 
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
-                        Text("第 \(currentIndex + 1) 题")
+                        Text(SleepL10n.format("第 {0} 题", [String(describing: currentIndex + 1)]))
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(definition.colors.first?.color ?? .blue)
                         Spacer()
-                        Text("\(currentIndex + 1) / \(definition.questions.count)")
+                        Text(SleepL10n.text("\(currentIndex + 1) / \(definition.questions.count)"))
                             .font(.caption.monospacedDigit())
                             .foregroundStyle(.secondary)
                     }
@@ -472,7 +475,7 @@ struct WellnessAssessmentView: View {
                     ProgressView(value: Double(currentIndex + 1), total: Double(definition.questions.count))
                         .tint(definition.colors.first?.color ?? .blue)
 
-                    Text(question.text)
+                    Text(verbatim: SleepL10n.text(question.text))
                         .font(.system(size: 21, weight: .semibold))
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.top, 8)
@@ -485,7 +488,7 @@ struct WellnessAssessmentView: View {
                 }
 
                 HStack(spacing: 12) {
-                    Button("上一题") {
+                    Button(SleepL10n.text("上一题")) {
                         withAnimation(.easeInOut(duration: 0.2)) {
                             currentIndex = max(0, currentIndex - 1)
                         }
@@ -504,7 +507,7 @@ struct WellnessAssessmentView: View {
                 }
                 .controlSize(.large)
 
-                Text("本测评用于自我觉察，不构成医疗诊断或治疗建议。")
+                Text(SleepL10n.text("本测评用于自我觉察，不构成医疗诊断或治疗建议。"))
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -527,11 +530,11 @@ struct WellnessAssessmentView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 17, style: .continuous))
 
             VStack(alignment: .leading, spacing: 5) {
-                Text(definition.introduction)
+                Text(verbatim: SleepL10n.text(definition.introduction))
                     .font(.system(size: 13))
                     .foregroundStyle(image == nil ? Color.primary : .white)
                     .fixedSize(horizontal: false, vertical: true)
-                Text(definition.periodText)
+                Text(verbatim: SleepL10n.text(definition.periodText))
                     .font(.system(size: 11))
                     .foregroundStyle(image == nil ? Color.secondary : .white.opacity(0.8))
             }
@@ -552,7 +555,7 @@ struct WellnessAssessmentView: View {
             saveMBTIDraftIfNeeded()
         } label: {
             HStack {
-                Text(choice.text)
+                Text(verbatim: SleepL10n.text(choice.text))
                     .font(.system(size: 15, weight: isSelected ? .semibold : .regular))
                 Spacer()
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
@@ -622,18 +625,18 @@ struct WellnessAssessmentView: View {
                             )
                             .rotationEffect(.degrees(-90))
                         VStack(spacing: 2) {
-                            Text(definition.kind == .mbti ? mbtiCode(result.level) : "\(result.score)")
+                            Text(SleepL10n.text(definition.kind == .mbti ? mbtiCode(result.level) : "\(result.score)"))
                                 .font(.system(size: definition.kind == .mbti ? 27 : 32, weight: .bold, design: .rounded))
-                            Text(definition.kind == .mbti ? "人格类型" : (result.metrics.isEmpty ? "/ \(result.maximumScore)" : "综合画像"))
+                            Text(SleepL10n.text(definition.kind == .mbti ? "人格类型" : (result.metrics.isEmpty ? "/ \(result.maximumScore)" : "综合画像")))
                                 .font(.caption)
                                 .foregroundStyle(image == nil ? Color.secondary : .white.opacity(0.8))
                         }
                     }
                     .frame(width: 138, height: 138)
 
-                    Text(definition.kind == .mbti ? mbtiNickname(result.level) : result.level)
+                    Text(SleepL10n.text(definition.kind == .mbti ? mbtiNickname(result.level) : result.level))
                         .font(.title2.weight(.semibold))
-                    Text(result.summary)
+                    Text(verbatim: SleepL10n.text(result.summary))
                         .font(.system(size: 14))
                         .foregroundStyle(image == nil ? Color.secondary : .white.opacity(0.8))
                         .multilineTextAlignment(.center)
@@ -655,13 +658,13 @@ struct WellnessAssessmentView: View {
                         .foregroundStyle(.orange)
                     ForEach(Array(result.suggestions.enumerated()), id: \.offset) { index, suggestion in
                         HStack(alignment: .top, spacing: 11) {
-                            Text("\(index + 1)")
+                            Text(SleepL10n.text("\(index + 1)"))
                                 .font(.caption.bold())
                                 .foregroundStyle(.white)
                                 .frame(width: 22, height: 22)
                                 .background(definition.colors.first?.color ?? .blue)
                                 .clipShape(Circle())
-                            Text(suggestion)
+                            Text(verbatim: SleepL10n.text(suggestion))
                                 .font(.system(size: 14))
                                 .foregroundStyle(.primary)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -673,7 +676,7 @@ struct WellnessAssessmentView: View {
                 .background(Color(.secondarySystemGroupedBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
 
-                Button("重新测评") {
+                Button(SleepL10n.text("重新测评")) {
                     if definition.kind == .mbti {
                         history.removeRecords(for: WellnessAssessmentKind.mbti.rawValue)
                         MBTIAssessmentDraftStore.clear()
@@ -686,7 +689,7 @@ struct WellnessAssessmentView: View {
                 .buttonStyle(.bordered)
                 .controlSize(.large)
 
-                Text(definition.kind == .mbti ? "MBTI 结果反映当前作答呈现的人格偏好，不是能力判断或固定标签，也不是官方认证测评。" : "结果仅供自我观察，不用于疾病诊断。感受持续或明显影响生活时，请联系有资质的专业人员。")
+                Text(SleepL10n.text(definition.kind == .mbti ? "MBTI 结果反映当前作答呈现的人格偏好，不是能力判断或固定标签，也不是官方认证测评。" : "结果仅供自我观察，不用于疾病诊断。感受持续或明显影响生活时，请联系有资质的专业人员。"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -698,14 +701,14 @@ struct WellnessAssessmentView: View {
 
     private func metricSection(_ metrics: [WellnessMetricResult]) -> some View {
         VStack(alignment: .leading, spacing: 15) {
-            Text(definition.kind == .mbti ? "四维偏好强度" : "五维画像")
+            Text(SleepL10n.text(definition.kind == .mbti ? "四维偏好强度" : "五维画像"))
                 .font(.headline)
             ForEach(metrics) { metric in
                 VStack(alignment: .leading, spacing: 7) {
                     HStack {
-                        Text(metric.title).font(.system(size: 14, weight: .medium))
+                        Text(verbatim: SleepL10n.text(metric.title)).font(.system(size: 14, weight: .medium))
                         Spacer()
-                        Text("\(metric.value)%").font(.caption.monospacedDigit()).foregroundStyle(.secondary)
+                        Text(SleepL10n.text("\(metric.value)%")).font(.caption.monospacedDigit()).foregroundStyle(.secondary)
                     }
                     GeometryReader { geometry in
                         ZStack(alignment: .leading) {
@@ -765,7 +768,7 @@ struct WellnessHistoryView: View {
         ZStack {
             Color(.systemGroupedBackground).ignoresSafeArea()
             if history.records.isEmpty {
-                EmptyStateView(title: "暂无测评记录", systemImage: "clock.arrow.circlepath", message: "完成任意身心测评后，结果会保存在这里。")
+                EmptyStateView(title: SleepL10n.text("暂无测评记录"), systemImage: "clock.arrow.circlepath", message: SleepL10n.text("完成任意身心测评后，结果会保存在这里。"))
             } else {
                 ScrollView {
                     LazyVStack(spacing: 12) {
@@ -781,7 +784,7 @@ struct WellnessHistoryView: View {
                 }
             }
         }
-        .safeAreaInset(edge: .top, spacing: 0) { WellnessTopBar(title: "测评记录") }
+        .safeAreaInset(edge: .top, spacing: 0) { WellnessTopBar(title: SleepL10n.text("测评记录")) }
         .appEdgeSwipeBack()
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
@@ -792,25 +795,26 @@ struct WellnessHistoryView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(record.title).font(.headline)
-                    Text(record.date.formatted(date: .abbreviated, time: .shortened))
+                    Text(verbatim: SleepL10n.text(record.title)).font(.headline)
+                    Text(SleepL10n.text(record.date.formatted(date: .abbreviated, time: .shortened)))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
                 VStack(alignment: .trailing, spacing: 3) {
-                    Text(record.assessmentID == WellnessAssessmentKind.mbti.rawValue ? mbtiCode(record.level) : (record.metrics.isEmpty ? "\(record.score) 分" : "画像"))
+                    Text(SleepL10n.text(record.assessmentID == WellnessAssessmentKind.mbti.rawValue ? mbtiCode(record.level) : (record.metrics.isEmpty ? "\(record.score) 分" : "画像")))
                         .font(.headline.monospacedDigit())
                         .foregroundStyle(.blue)
-                    Text(record.assessmentID == WellnessAssessmentKind.mbti.rawValue ? mbtiNickname(record.level) : record.level)
+                    Text(SleepL10n.text(record.assessmentID == WellnessAssessmentKind.mbti.rawValue ? mbtiNickname(record.level) : record.level))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
                 Image(systemName: "chevron.right")
+                    .flipsForRightToLeftLayoutDirection(true)
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.tertiary)
             }
-            Text(record.summary)
+            Text(verbatim: SleepL10n.text(record.summary))
                 .font(.system(size: 13))
                 .foregroundStyle(.secondary)
                 .lineLimit(3)
@@ -858,14 +862,14 @@ struct WellnessRecordDetailView: View {
             ScrollView {
                 VStack(spacing: 16) {
                     VStack(spacing: 11) {
-                        Text(isMBTI ? mbtiCode : (record.metrics.isEmpty ? "\(record.score)" : "\(record.score)%"))
+                        Text(SleepL10n.text(isMBTI ? mbtiCode : (record.metrics.isEmpty ? "\(record.score)" : "\(record.score)%")))
                             .font(.system(size: 42, weight: .bold, design: .rounded))
                             .foregroundStyle(accentColor)
-                        Text(isMBTI ? mbtiNickname : record.level).font(.title3.weight(.semibold))
-                        Text(record.date.formatted(date: .long, time: .shortened))
+                        Text(SleepL10n.text(isMBTI ? mbtiNickname : record.level)).font(.title3.weight(.semibold))
+                        Text(SleepL10n.text(record.date.formatted(date: .long, time: .shortened)))
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                        Text(record.summary)
+                        Text(verbatim: SleepL10n.text(record.summary))
                             .font(.system(size: 14))
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
@@ -878,13 +882,13 @@ struct WellnessRecordDetailView: View {
 
                     if !record.metrics.isEmpty {
                         VStack(alignment: .leading, spacing: 15) {
-                            Text(isMBTI ? "四维偏好强度" : "五维画像").font(.headline)
+                            Text(SleepL10n.text(isMBTI ? SleepL10n.text("四维偏好强度") : SleepL10n.text("五维画像"))).font(.headline)
                             ForEach(record.metrics) { metric in
                                 VStack(alignment: .leading, spacing: 7) {
                                     HStack {
-                                        Text(metric.title).font(.subheadline.weight(.medium))
+                                        Text(verbatim: SleepL10n.text(metric.title)).font(.subheadline.weight(.medium))
                                         Spacer()
-                                        Text("\(metric.value)%").font(.caption.monospacedDigit()).foregroundStyle(.secondary)
+                                        Text(SleepL10n.text("\(metric.value)%")).font(.caption.monospacedDigit()).foregroundStyle(.secondary)
                                     }
                                     GeometryReader { geometry in
                                         ZStack(alignment: .leading) {
@@ -902,18 +906,18 @@ struct WellnessRecordDetailView: View {
                     }
 
                     VStack(alignment: .leading, spacing: 14) {
-                        Label(isMBTI ? "人格解读" : "建议", systemImage: "lightbulb.fill")
+                        Label(isMBTI ? SleepL10n.text("人格解读") : SleepL10n.text("建议"), systemImage: "lightbulb.fill")
                             .font(.headline)
                             .foregroundStyle(.orange)
                         ForEach(Array(record.suggestions.enumerated()), id: \.offset) { index, suggestion in
                             HStack(alignment: .top, spacing: 10) {
-                                Text("\(index + 1)")
+                                Text(SleepL10n.text("\(index + 1)"))
                                     .font(.caption.bold())
                                     .foregroundStyle(.white)
                                     .frame(width: 22, height: 22)
                                     .background(accentColor)
                                     .clipShape(Circle())
-                                Text(suggestion).font(.system(size: 14)).fixedSize(horizontal: false, vertical: true)
+                                Text(verbatim: SleepL10n.text(suggestion)).font(.system(size: 14)).fixedSize(horizontal: false, vertical: true)
                             }
                         }
                     }
@@ -922,7 +926,7 @@ struct WellnessRecordDetailView: View {
                     .background(Color(.secondarySystemGroupedBackground))
                     .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
 
-                    Text(isMBTI ? "人格类型是理解自己的参考，不代表能力高低，也不会限制你的成长。" : "历史结果仅用于自我观察，不构成医疗诊断。")
+                    Text(SleepL10n.text(isMBTI ? SleepL10n.text("人格类型是理解自己的参考，不代表能力高低，也不会限制你的成长。") : SleepL10n.text("历史结果仅用于自我观察，不构成医疗诊断。")))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -949,9 +953,9 @@ struct HealthSleepInsightView: View {
                 VStack(spacing: 16) {
                     healthHero
 
-                    Picker("统计周期", selection: $selectedDays) {
-                        Text("近 7 天").tag(7)
-                        Text("近 30 天").tag(30)
+                    Picker(SleepL10n.text("统计周期"), selection: $selectedDays) {
+                        Text(SleepL10n.text("近 7 天")).tag(7)
+                        Text(SleepL10n.text("近 30 天")).tag(30)
                     }
                     .pickerStyle(.segmented)
 
@@ -959,10 +963,10 @@ struct HealthSleepInsightView: View {
                         VStack(spacing: 14) {
                             ProgressView()
                                 .controlSize(.large)
-                            Text(healthKit.isRequestingAuthorization ? "等待 Apple 健康授权…" : "正在读取睡眠数据…")
+                            Text(SleepL10n.text(healthKit.isRequestingAuthorization ? SleepL10n.text("等待 Apple 健康授权…") : SleepL10n.text("正在读取睡眠数据…")))
                                 .font(.system(size: 14, weight: .medium))
                             if healthKit.isRequestingAuthorization {
-                                Text("请在弹出的系统授权页面选择允许；如果以前已经选择过，将直接开始读取。")
+                                Text(SleepL10n.text("请在弹出的系统授权页面选择允许；如果以前已经选择过，将直接开始读取。"))
                                     .font(.system(size: 12))
                                     .foregroundStyle(.secondary)
                                     .multilineTextAlignment(.center)
@@ -978,7 +982,7 @@ struct HealthSleepInsightView: View {
                         emptyHealthContent
                     }
 
-                    Label("数据仅在本机读取和分析，不会发送给广告或统计服务。不同设备可提供的数据类型可能不同。", systemImage: "lock.shield.fill")
+                    Label(SleepL10n.text("数据仅在本机读取和分析，不会发送给广告或统计服务。不同设备可提供的数据类型可能不同。"), systemImage: "lock.shield.fill")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .padding(.horizontal, 4)
@@ -987,7 +991,7 @@ struct HealthSleepInsightView: View {
                 .padding(.bottom, 28)
             }
         }
-        .safeAreaInset(edge: .top, spacing: 0) { WellnessTopBar(title: "睡眠洞察") }
+        .safeAreaInset(edge: .top, spacing: 0) { WellnessTopBar(title: SleepL10n.text("睡眠洞察")) }
         .appEdgeSwipeBack()
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
@@ -1006,12 +1010,12 @@ struct HealthSleepInsightView: View {
                 .frame(maxWidth: .infinity, alignment: .trailing)
                 .padding(.trailing, 24)
             VStack(alignment: .leading, spacing: 7) {
-                Text("来自 Apple 健康")
+                Text(SleepL10n.text("来自 Apple 健康"))
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.white.opacity(0.76))
-                Text("看见睡眠中的恢复")
+                Text(SleepL10n.text("看见睡眠中的恢复"))
                     .font(.system(size: 21, weight: .semibold))
-                Text("整合睡眠阶段与睡眠期间的身体指标")
+                Text(SleepL10n.text("整合睡眠阶段与睡眠期间的身体指标"))
                     .font(.system(size: 12))
                     .foregroundStyle(.white.opacity(0.82))
             }
@@ -1028,14 +1032,14 @@ struct HealthSleepInsightView: View {
             Image(systemName: "heart.text.square")
                 .font(.system(size: 42, weight: .light))
                 .foregroundStyle(.blue)
-            Text(healthKit.insightMessage ?? "授权后读取睡眠阶段、睡眠心率、HRV、呼吸频率和血氧等数据。")
+            Text(SleepL10n.text(healthKit.insightMessage ?? SleepL10n.text("授权后读取睡眠阶段、睡眠心率、HRV、呼吸频率和血氧等数据。")))
                 .font(.system(size: 14))
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
             Button {
                 Task { await healthKit.requestAndLoadRecentInsight(days: selectedDays) }
             } label: {
-                Label("授权并开始分析", systemImage: "heart.fill")
+                Label(SleepL10n.text("授权并开始分析"), systemImage: "heart.fill")
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
@@ -1051,21 +1055,21 @@ struct HealthSleepInsightView: View {
     @ViewBuilder
     private func insightContent(_ insight: HealthSleepInsight) -> some View {
         HStack(spacing: 12) {
-            insightMetric(title: "平均睡眠", value: durationText(insight.averageSleep), icon: "bed.double.fill", color: .indigo)
-            insightMetric(title: "记录夜数", value: "\(insight.nights) 晚", icon: "calendar", color: .blue)
+            insightMetric(title: SleepL10n.text("平均睡眠"), value: durationText(insight.averageSleep), icon: "bed.double.fill", color: .indigo)
+            insightMetric(title: SleepL10n.text("记录夜数"), value: SleepL10n.format("{0} 晚", [String(describing: insight.nights)]), icon: "calendar", color: .blue)
         }
 
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("睡眠阶段").font(.headline)
+                Text(SleepL10n.text("睡眠阶段")).font(.headline)
                 Spacer()
-                Text("近 \(selectedDays) 天").font(.caption).foregroundStyle(.secondary)
+                Text(SleepL10n.format("近 {0} 天", [String(describing: selectedDays)])).font(.caption).foregroundStyle(.secondary)
             }
-            stageRow("深度睡眠", duration: insight.deepSleep, percentage: insight.deepPercentage, color: .indigo)
-            stageRow("核心睡眠", duration: insight.coreSleep, percentage: insight.corePercentage, color: .blue)
-            stageRow("快速眼动", duration: insight.remSleep, percentage: insight.remPercentage, color: .cyan)
+            stageRow(SleepL10n.text("深度睡眠"), duration: insight.deepSleep, percentage: insight.deepPercentage, color: .indigo)
+            stageRow(SleepL10n.text("核心睡眠"), duration: insight.coreSleep, percentage: insight.corePercentage, color: .blue)
+            stageRow(SleepL10n.text("快速眼动"), duration: insight.remSleep, percentage: insight.remPercentage, color: .cyan)
             if insight.awakeTime > 0 {
-                stageRow("睡中清醒", duration: insight.awakeTime, percentage: min(100, insight.awakeTime / max(insight.totalSleep + insight.awakeTime, 1) * 100), color: .orange)
+                stageRow(SleepL10n.text("睡中清醒"), duration: insight.awakeTime, percentage: min(100, insight.awakeTime / max(insight.totalSleep + insight.awakeTime, 1) * 100), color: .orange)
             }
         }
         .padding(18)
@@ -1075,13 +1079,13 @@ struct HealthSleepInsightView: View {
         let bodyMetrics = healthBodyMetrics(insight)
         if !bodyMetrics.isEmpty {
             VStack(alignment: .leading, spacing: 14) {
-                Text("睡眠期间身体指标").font(.headline)
+                Text(SleepL10n.text("睡眠期间身体指标")).font(.headline)
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                     ForEach(bodyMetrics) { metric in
                         VStack(alignment: .leading, spacing: 7) {
                             Image(systemName: metric.icon).foregroundStyle(metric.color)
-                            Text(metric.value).font(.system(size: 18, weight: .semibold, design: .rounded))
-                            Text(metric.title).font(.caption).foregroundStyle(.secondary)
+                            Text(verbatim: SleepL10n.text(metric.value)).font(.system(size: 18, weight: .semibold, design: .rounded))
+                            Text(verbatim: SleepL10n.text(metric.title)).font(.caption).foregroundStyle(.secondary)
                         }
                         .padding(14)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -1098,7 +1102,7 @@ struct HealthSleepInsightView: View {
         Button {
             Task { await healthKit.loadRecentInsight(days: selectedDays) }
         } label: {
-            Label("刷新健康数据", systemImage: "arrow.clockwise")
+            Label(SleepL10n.text("刷新健康数据"), systemImage: "arrow.clockwise")
                 .frame(maxWidth: .infinity)
         }
         .buttonStyle(.bordered)
@@ -1108,8 +1112,8 @@ struct HealthSleepInsightView: View {
     private func insightMetric(title: String, value: String, icon: String, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 9) {
             Image(systemName: icon).foregroundStyle(color)
-            Text(value).font(.system(size: 22, weight: .semibold, design: .rounded))
-            Text(title).font(.caption).foregroundStyle(.secondary)
+            Text(verbatim: SleepL10n.text(value)).font(.system(size: 22, weight: .semibold, design: .rounded))
+            Text(verbatim: SleepL10n.text(title)).font(.caption).foregroundStyle(.secondary)
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -1120,9 +1124,9 @@ struct HealthSleepInsightView: View {
     private func stageRow(_ title: String, duration: TimeInterval, percentage: Double, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 7) {
             HStack {
-                Text(title).font(.system(size: 13, weight: .medium))
+                Text(verbatim: SleepL10n.text(title)).font(.system(size: 13, weight: .medium))
                 Spacer()
-                Text("\(durationText(duration)) · \(Int(percentage.rounded()))%")
+                Text(SleepL10n.text("\(durationText(duration)) · \(Int(percentage.rounded()))%"))
                     .font(.caption.monospacedDigit())
                     .foregroundStyle(.secondary)
             }
@@ -1139,26 +1143,26 @@ struct HealthSleepInsightView: View {
     private func healthBodyMetrics(_ insight: HealthSleepInsight) -> [HealthBodyMetric] {
         var metrics: [HealthBodyMetric] = []
         if let value = insight.averageHeartRate {
-            metrics.append(.init(title: "平均心率", value: "\(Int(value.rounded())) 次/分", icon: "heart.fill", color: .pink))
+            metrics.append(.init(title: SleepL10n.text("平均心率"), value: SleepL10n.format("{0} 次/分", [String(describing: Int(value.rounded()))]), icon: "heart.fill", color: .pink))
         }
         if let value = insight.averageHRV {
-            metrics.append(.init(title: "心率变异性", value: String(format: "%.0f 毫秒", value), icon: "waveform.path.ecg", color: .red))
+            metrics.append(.init(title: SleepL10n.text("心率变异性"), value: String(format: SleepL10n.text("%.0f 毫秒"), value), icon: "waveform.path.ecg", color: .red))
         }
         if let value = insight.averageRespiratoryRate {
-            metrics.append(.init(title: "呼吸频率", value: String(format: "%.1f 次/分", value), icon: "lungs.fill", color: .teal))
+            metrics.append(.init(title: SleepL10n.text("呼吸频率"), value: String(format: SleepL10n.text("%.1f 次/分"), value), icon: "lungs.fill", color: .teal))
         }
         if let value = insight.averageOxygenSaturation {
-            metrics.append(.init(title: "血氧饱和度", value: String(format: "%.1f%%", value), icon: "drop.fill", color: .blue))
+            metrics.append(.init(title: SleepL10n.text("血氧饱和度"), value: String(format: "%.1f%%", value), icon: "drop.fill", color: .blue))
         }
         if let value = insight.averageWristTemperature {
-            metrics.append(.init(title: "睡眠腕温", value: String(format: "%.1f℃", value), icon: "thermometer.medium", color: .orange))
+            metrics.append(.init(title: SleepL10n.text("睡眠腕温"), value: String(format: "%.1f℃", value), icon: "thermometer.medium", color: .orange))
         }
         return metrics
     }
 
     private func durationText(_ duration: TimeInterval) -> String {
         let minutes = max(0, Int(duration / 60))
-        return "\(minutes / 60)小时\(minutes % 60)分"
+        return SleepL10n.format("{0}小时{1}分", [String(describing: minutes / 60), String(describing: minutes % 60)])
     }
 }
 
@@ -1205,10 +1209,10 @@ struct BreathingExerciseView: View {
             .ignoresSafeArea()
 
             VStack(spacing: 28) {
-                Picker("练习时长", selection: $selectedDuration) {
-                    Text("1 分钟").tag(60)
-                    Text("3 分钟").tag(180)
-                    Text("5 分钟").tag(300)
+                Picker(SleepL10n.text("练习时长"), selection: $selectedDuration) {
+                    Text(SleepL10n.text("1 分钟")).tag(60)
+                    Text(SleepL10n.text("3 分钟")).tag(180)
+                    Text(SleepL10n.text("5 分钟")).tag(300)
                 }
                 .pickerStyle(.segmented)
                 .padding(.horizontal, 22)
@@ -1229,16 +1233,16 @@ struct BreathingExerciseView: View {
                         .animation(.easeInOut(duration: phaseAnimationDuration), value: phaseStep)
 
                     VStack(spacing: 8) {
-                        Text(phaseText)
+                        Text(verbatim: SleepL10n.text(phaseText))
                             .font(.system(size: 25, weight: .semibold))
-                        Text(timeText)
+                        Text(verbatim: SleepL10n.text(timeText))
                             .font(.system(size: 17, weight: .medium, design: .rounded))
                             .foregroundStyle(.primary.opacity(0.82))
                             .monospacedDigit()
                     }
                 }
 
-                Text(phaseHint)
+                Text(verbatim: SleepL10n.text(phaseHint))
                     .font(.system(size: 14))
                     .foregroundStyle(.primary.opacity(0.85))
                     .multilineTextAlignment(.center)
@@ -1259,7 +1263,7 @@ struct BreathingExerciseView: View {
                     Button {
                         toggleRunning()
                     } label: {
-                        Label(isRunning ? "暂停" : (remaining == selectedDuration ? "开始练习" : "继续"), systemImage: isRunning ? "pause.fill" : "play.fill")
+                        Label(isRunning ? SleepL10n.text("暂停") : (remaining == selectedDuration ? "开始练习" : "继续"), systemImage: isRunning ? "pause.fill" : "play.fill")
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.borderedProminent)
@@ -1269,7 +1273,7 @@ struct BreathingExerciseView: View {
                 }
                 .padding(.horizontal, 24)
 
-                Text("完成后可在获得授权的情况下写入 Apple 健康正念时长")
+                Text(SleepL10n.text("完成后可在获得授权的情况下写入 Apple 健康正念时长"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -1278,7 +1282,7 @@ struct BreathingExerciseView: View {
             }
             .padding(.top, 22)
         }
-        .safeAreaInset(edge: .top, spacing: 0) { WellnessTopBar(title: "呼吸练习") }
+        .safeAreaInset(edge: .top, spacing: 0) { WellnessTopBar(title: SleepL10n.text("呼吸练习")) }
         .appEdgeSwipeBack()
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
@@ -1289,13 +1293,13 @@ struct BreathingExerciseView: View {
             phaseStep = 0
         }
         .onReceive(timer) { _ in tick() }
-        .alert("练习完成", isPresented: Binding(
+        .alert(SleepL10n.text("练习完成"), isPresented: Binding(
             get: { completionMessage != nil },
             set: { if !$0 { completionMessage = nil } }
         )) {
-            Button("完成", role: .cancel) { completionMessage = nil }
+            Button(SleepL10n.text("完成"), role: .cancel) { completionMessage = nil }
         } message: {
-            Text(completionMessage ?? "")
+            Text(SleepL10n.text(completionMessage ?? ""))
         }
     }
 
@@ -1304,14 +1308,14 @@ struct BreathingExerciseView: View {
         switch cyclePosition {
         case 0...3: return "慢慢吸气"
         case 4...5: return "轻轻停留"
-        default: return "缓缓呼气"
+        default: return SleepL10n.text("缓缓呼气")
         }
     }
     private var phaseHint: String {
         switch cyclePosition {
         case 0...3: return "让空气自然进入身体，不需要刻意用力"
         case 4...5: return "放松肩膀，感受这一刻的安静"
-        default: return "比吸气更慢一点，把紧绷轻轻放下"
+        default: return SleepL10n.text("比吸气更慢一点，把紧绷轻轻放下")
         }
     }
     private var circleScale: CGFloat {
@@ -1350,7 +1354,7 @@ struct BreathingExerciseView: View {
         let start = end.addingTimeInterval(-Double(selectedDuration))
         Task {
             let saved = await healthKit.saveMindfulSession(start: start, end: end)
-            completionMessage = saved ? "本次练习已写入 Apple 健康正念时长。" : "本次练习已完成。你可以在系统设置中允许时光睡眠写入正念时长。"
+            completionMessage = saved ? SleepL10n.text("本次练习已写入 Apple 健康正念时长。") : SleepL10n.text("本次练习已完成。你可以在系统设置中允许时光睡眠写入正念时长。")
         }
     }
 }
@@ -1360,11 +1364,11 @@ struct ConnectedHealthDevicesView: View {
     @State private var selectedProvider: HealthDeviceProvider?
 
     private let providers: [HealthDeviceProvider] = [
-        .init(name: "Oura", detail: "睡眠阶段、恢复、心率与血氧", icon: "circle.hexagongrid.fill", color: .purple, website: URL(string: "https://support.ouraring.com/")!),
-        .init(name: "Fitbit", detail: "睡眠记录、活动与身体指标", icon: "diamond.fill", color: .teal, website: URL(string: "https://support.google.com/fitbit/")!),
-        .init(name: "Withings", detail: "睡眠、心率、体重与健康设备", icon: "bed.double.fill", color: .blue, website: URL(string: "https://support.withings.com/")!),
-        .init(name: "Garmin", detail: "睡眠、压力、血氧与身体电量", icon: "triangle.fill", color: .blue, website: URL(string: "https://support.garmin.com/")!),
-        .init(name: "WHOOP", detail: "睡眠表现、恢复与心率变异性", icon: "waveform.path.ecg", color: .red, website: URL(string: "https://support.whoop.com/")!)
+        .init(name: "Oura", detail: SleepL10n.text("睡眠阶段、恢复、心率与血氧"), icon: "circle.hexagongrid.fill", color: .purple, website: URL(string: "https://support.ouraring.com/")!),
+        .init(name: "Fitbit", detail: SleepL10n.text("睡眠记录、活动与身体指标"), icon: "diamond.fill", color: .teal, website: URL(string: "https://support.google.com/fitbit/")!),
+        .init(name: "Withings", detail: SleepL10n.text("睡眠、心率、体重与健康设备"), icon: "bed.double.fill", color: .blue, website: URL(string: "https://support.withings.com/")!),
+        .init(name: "Garmin", detail: SleepL10n.text("睡眠、压力、血氧与身体电量"), icon: "triangle.fill", color: .blue, website: URL(string: "https://support.garmin.com/")!),
+        .init(name: "WHOOP", detail: SleepL10n.text("睡眠表现、恢复与心率变异性"), icon: "waveform.path.ecg", color: .red, website: URL(string: "https://support.whoop.com/")!)
     ]
 
     var body: some View {
@@ -1375,8 +1379,8 @@ struct ConnectedHealthDevicesView: View {
                     appleHealthCard
 
                     VStack(alignment: .leading, spacing: 5) {
-                        Text("更多健康设备").font(.headline)
-                        Text("优先通过厂商 App 与 Apple 健康同步，无需把账号密码交给时光睡眠。")
+                        Text(SleepL10n.text("更多健康设备")).font(.headline)
+                        Text(SleepL10n.text("优先通过厂商 App 与 Apple 健康同步，无需把账号密码交给时光睡眠。"))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -1390,7 +1394,7 @@ struct ConnectedHealthDevicesView: View {
                         .buttonStyle(.plain)
                     }
 
-                    Label("部分厂商或设备不会向 Apple 健康写入完整睡眠阶段。直接云端连接需要厂商审核、OAuth 凭据和服务端支持，未完成前不会显示虚假的“已连接”。", systemImage: "info.circle.fill")
+                    Label(SleepL10n.text("部分厂商或设备不会向 Apple 健康写入完整睡眠阶段。直接云端连接需要厂商审核、OAuth 凭据和服务端支持，未完成前不会显示虚假的“已连接”。"), systemImage: "info.circle.fill")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .padding(4)
@@ -1399,7 +1403,7 @@ struct ConnectedHealthDevicesView: View {
                 .padding(.bottom, 28)
             }
         }
-        .safeAreaInset(edge: .top, spacing: 0) { WellnessTopBar(title: "智能设备") }
+        .safeAreaInset(edge: .top, spacing: 0) { WellnessTopBar(title: SleepL10n.text("智能设备")) }
         .appEdgeSwipeBack()
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
@@ -1419,15 +1423,15 @@ struct ConnectedHealthDevicesView: View {
                 .frame(maxWidth: .infinity, alignment: .trailing)
                 .padding(.trailing, 22)
             VStack(alignment: .leading, spacing: 8) {
-                Text("Apple 健康")
+                Text(SleepL10n.text("Apple 健康"))
                     .font(.system(size: 20, weight: .semibold))
-                Text("汇总 Apple Watch 与其他健康设备的数据")
+                Text(SleepL10n.text("汇总 Apple Watch 与其他健康设备的数据"))
                     .font(.system(size: 12))
                     .foregroundStyle(.white.opacity(0.82))
                 Button {
                     Task { await healthKit.requestAndLoadRecentInsight() }
                 } label: {
-                    Text(healthKit.isAuthorized ? "刷新同步" : "立即授权")
+                    Text(SleepL10n.text(healthKit.isAuthorized ? SleepL10n.text("刷新同步") : SleepL10n.text("立即授权")))
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.red)
                         .padding(.horizontal, 16)
@@ -1455,11 +1459,11 @@ struct ConnectedHealthDevicesView: View {
                 .background(provider.color.opacity(0.1))
                 .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             VStack(alignment: .leading, spacing: 5) {
-                Text(provider.name).font(.headline).foregroundStyle(.primary)
-                Text(provider.detail).font(.caption).foregroundStyle(.secondary)
+                Text(verbatim: SleepL10n.text(provider.name)).font(.headline).foregroundStyle(.primary)
+                Text(verbatim: SleepL10n.text(provider.detail)).font(.caption).foregroundStyle(.secondary)
             }
             Spacer()
-            Text("连接指南")
+            Text(SleepL10n.text("连接指南"))
                 .font(.caption.weight(.medium))
                 .foregroundStyle(.blue)
         }
@@ -1479,19 +1483,19 @@ struct ConnectedHealthDevicesView: View {
                         .background(provider.color.opacity(0.1))
                         .clipShape(RoundedRectangle(cornerRadius: 17, style: .continuous))
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(provider.name).font(.title3.weight(.semibold))
-                        Text(provider.detail).font(.caption).foregroundStyle(.secondary)
+                        Text(verbatim: SleepL10n.text(provider.name)).font(.title3.weight(.semibold))
+                        Text(verbatim: SleepL10n.text(provider.detail)).font(.caption).foregroundStyle(.secondary)
                     }
                 }
 
                 VStack(alignment: .leading, spacing: 12) {
-                    guideStep(1, "打开 \(provider.name) 官方 App，并确认设备已经完成同步。")
-                    guideStep(2, "在厂商 App 的健康共享设置中查看是否可以连接 Apple 健康。")
-                    guideStep(3, "允许写入睡眠和相关身体指标后，回到时光睡眠的“睡眠洞察”授权读取。")
+                    guideStep(1, SleepL10n.format("打开 {0} 官方 App，并确认设备已经完成同步。", [String(describing: provider.name)]))
+                    guideStep(2, SleepL10n.text("在厂商 App 的健康共享设置中查看是否可以连接 Apple 健康。"))
+                    guideStep(3, SleepL10n.text("允许写入睡眠和相关身体指标后，回到时光睡眠的“睡眠洞察”授权读取。"))
                 }
 
                 Link(destination: provider.website) {
-                    Label("查看官方帮助", systemImage: "safari")
+                    Label(SleepL10n.text("查看官方帮助"), systemImage: "safari")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
@@ -1500,20 +1504,20 @@ struct ConnectedHealthDevicesView: View {
                 Spacer()
             }
             .padding(20)
-            .navigationTitle("\(provider.name) 连接指南")
+            .navigationTitle(SleepL10n.format("{0} 连接指南", [String(describing: provider.name)]))
             .navigationBarTitleDisplayMode(.inline)
         }
     }
 
     private func guideStep(_ number: Int, _ text: String) -> some View {
         HStack(alignment: .top, spacing: 11) {
-            Text("\(number)")
+            Text(SleepL10n.text("\(number)"))
                 .font(.caption.bold())
                 .foregroundStyle(.white)
                 .frame(width: 23, height: 23)
                 .background(.blue)
                 .clipShape(Circle())
-            Text(text).font(.system(size: 14)).fixedSize(horizontal: false, vertical: true)
+            Text(verbatim: SleepL10n.text(text)).font(.system(size: 14)).fixedSize(horizontal: false, vertical: true)
         }
     }
 }
@@ -1536,13 +1540,14 @@ struct WellnessTopBar: View {
         HStack {
             Button { dismiss() } label: {
                 Image(systemName: "chevron.left")
+                    .flipsForRightToLeftLayoutDirection(true)
                     .font(.system(size: 18, weight: .semibold))
                     .frame(width: 42, height: 42)
                     .background(.ultraThinMaterial)
                     .clipShape(Circle())
             }
             Spacer()
-            Text(title)
+            Text(verbatim: SleepL10n.text(title))
                 .font(.headline.weight(.semibold))
                 .lineLimit(1)
             Spacer()

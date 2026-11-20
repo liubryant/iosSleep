@@ -4,7 +4,7 @@ import UIKit
 
 struct MindfulnessVIPBadge: View {
     var body: some View {
-        Label("VIP", systemImage: "crown.fill")
+        Label(SleepL10n.text("VIP"), systemImage: "crown.fill")
             .font(.system(size: 9, weight: .bold))
             .foregroundStyle(.white)
             .padding(.horizontal, 8)
@@ -62,34 +62,34 @@ struct MindfulnessHomeView: View {
     private let bannerTimer = Timer.publish(every: 3, on: .main, in: .common).autoconnect()
     private let banners: [MindfulnessBanner] = [
         .init(
-            eyebrow: "认识正念", title: "正念，是温柔地回到此刻",
-            detail: "不评判此刻的感受，只是留意呼吸、身体与正在发生的一切。",
+            eyebrow: SleepL10n.text("认识正念"), title: SleepL10n.text("正念，是温柔地回到此刻"),
+            detail: SleepL10n.text("不评判此刻的感受，只是留意呼吸、身体与正在发生的一切。"),
             icon: "figure.mind.and.body",
             colors: [Color(red: 0.10, green: 0.34, blue: 0.36), Color(red: 0.35, green: 0.58, blue: 0.51)]
         ),
         .init(
-            eyebrow: "开始练习", title: "从一次自然呼吸开始",
-            detail: "找一个舒服的姿势，闭上眼睛，跟随声音，把注意力放在呼吸上。",
+            eyebrow: SleepL10n.text("开始练习"), title: SleepL10n.text("从一次自然呼吸开始"),
+            detail: SleepL10n.text("找一个舒服的姿势，闭上眼睛，跟随声音，把注意力放在呼吸上。"),
             icon: "wind",
             colors: [Color(red: 0.25, green: 0.27, blue: 0.48), Color(red: 0.49, green: 0.48, blue: 0.70)]
         ),
         .init(
-            eyebrow: "练习提示", title: "走神了，也完全没关系",
-            detail: "发现思绪飘走时，不必责备自己，轻轻觉察，再慢慢回到当下。",
+            eyebrow: SleepL10n.text("练习提示"), title: SleepL10n.text("走神了，也完全没关系"),
+            detail: SleepL10n.text("发现思绪飘走时，不必责备自己，轻轻觉察，再慢慢回到当下。"),
             icon: "leaf.fill",
             colors: [Color(red: 0.42, green: 0.29, blue: 0.20), Color(red: 0.69, green: 0.51, blue: 0.34)]
         )
     ]
 
     private let meditationItems: [MindfulnessHomeItem] = [
-        .init(title: "深度睡眠疗愈", subtitle: "卸下疲惫，沉入安稳梦境", icon: "moon.stars.fill", colors: [.indigo, .blue], track: .deepSleep),
-        .init(title: "日间提神", subtitle: "唤醒精神，找回清晰专注", icon: "sun.max.fill", colors: [.orange, .yellow], track: .daytimeEnergy),
-        .init(title: "散步冥想", subtitle: "跟随脚步，感受此时此地", icon: "figure.walk", colors: [.green, .teal], track: .walking),
-        .init(title: "睡前释放情绪", subtitle: "温柔放下今天的情绪", icon: "cloud.moon.fill", colors: [.purple, .indigo], track: .emotionalRelease),
-        .init(title: "安定身心助眠", subtitle: "舒缓呼吸，让身体松下来", icon: "heart.circle.fill", colors: [.teal, .cyan], track: .calmingSleep),
-        .init(title: "缓解疲倦", subtitle: "短暂休息，恢复身心能量", icon: "leaf.fill", colors: [.mint, .green], track: .fatigueRelief),
-        .init(title: "快速入睡", subtitle: "平静思绪，更快进入睡眠", icon: "zzz", colors: [.blue, .indigo], track: .quickSleep),
-        .init(title: "考前失眠解放", subtitle: "减少紧张，安心迎接明天", icon: "book.closed.fill", colors: [.pink, .purple], track: .examSleep)
+        .init(title: SleepL10n.text("深度睡眠疗愈"), subtitle: SleepL10n.text("卸下疲惫，沉入安稳梦境"), icon: "moon.stars.fill", colors: [.indigo, .blue], track: .deepSleep),
+        .init(title: SleepL10n.text("日间提神"), subtitle: SleepL10n.text("唤醒精神，找回清晰专注"), icon: "sun.max.fill", colors: [.orange, .yellow], track: .daytimeEnergy),
+        .init(title: SleepL10n.text("散步冥想"), subtitle: SleepL10n.text("跟随脚步，感受此时此地"), icon: "figure.walk", colors: [.green, .teal], track: .walking),
+        .init(title: SleepL10n.text("睡前释放情绪"), subtitle: SleepL10n.text("温柔放下今天的情绪"), icon: "cloud.moon.fill", colors: [.purple, .indigo], track: .emotionalRelease),
+        .init(title: SleepL10n.text("安定身心助眠"), subtitle: SleepL10n.text("舒缓呼吸，让身体松下来"), icon: "heart.circle.fill", colors: [.teal, .cyan], track: .calmingSleep),
+        .init(title: SleepL10n.text("缓解疲倦"), subtitle: SleepL10n.text("短暂休息，恢复身心能量"), icon: "leaf.fill", colors: [.mint, .green], track: .fatigueRelief),
+        .init(title: SleepL10n.text("快速入睡"), subtitle: SleepL10n.text("平静思绪，更快进入睡眠"), icon: "zzz", colors: [.blue, .indigo], track: .quickSleep),
+        .init(title: SleepL10n.text("考前失眠解放"), subtitle: SleepL10n.text("减少紧张，安心迎接明天"), icon: "book.closed.fill", colors: [.pink, .purple], track: .examSleep)
     ]
 
     private var meditationGroups: [MindfulnessDisplayGroup] {
@@ -112,8 +112,8 @@ struct MindfulnessHomeView: View {
             result.append(
                 MindfulnessDisplayGroup(
                     id: "local-mindfulness",
-                    title: "正念冥想",
-                    subtitle: "跟随声音，把注意力带回当下",
+                    title: SleepL10n.text("正念冥想"),
+                    subtitle: SleepL10n.text("跟随声音，把注意力带回当下"),
                     items: meditationItems
                 )
             )
@@ -136,7 +136,7 @@ struct MindfulnessHomeView: View {
         library.scenes.suffix(20).filter { SoundLibrary.isIncludedInNatureSleep($0) }.map { scene in
             MindfulnessHomeItem(
                 title: scene.title,
-                subtitle: scene.subtitle.isEmpty ? "聆听自然，安然入眠" : scene.subtitle,
+                subtitle: scene.subtitle.isEmpty ? SleepL10n.text("聆听自然，安然入眠") : scene.subtitle,
                 icon: "leaf.fill",
                 colors: natureColors(for: scene.index),
                 scene: scene
@@ -147,7 +147,7 @@ struct MindfulnessHomeView: View {
     private func remoteHomeItem(_ item: RemoteMindfulnessItem) -> MindfulnessHomeItem {
         MindfulnessHomeItem(
             title: item.title,
-            subtitle: "云端正念 · 下载后离线播放",
+            subtitle: SleepL10n.text("云端正念 · 下载后离线播放"),
             icon: "moon.stars.fill",
             colors: item.colors,
             remoteMindfulness: item
@@ -156,7 +156,7 @@ struct MindfulnessHomeView: View {
 
     private func groupSubtitle(_ description: String?) -> String {
         let value = description?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        return value.isEmpty ? "跟随声音，把注意力带回当下" : value
+        return value.isEmpty ? SleepL10n.text("跟随声音，把注意力带回当下") : value
     }
 
     var body: some View {
@@ -176,7 +176,7 @@ struct MindfulnessHomeView: View {
                         )
                         .padding(.top, index == 0 ? -10 : 0)
                     }
-                    contentSection(title: "大自然中入眠", subtitle: "枕着山海风雨，慢慢沉入梦乡", items: natureItems)
+                    contentSection(title: SleepL10n.text("大自然中入眠"), subtitle: SleepL10n.text("枕着山海风雨，慢慢沉入梦乡"), items: natureItems)
                 }
                 .padding(.bottom, 34)
                 .frame(maxWidth: 1100)
@@ -222,13 +222,13 @@ struct MindfulnessHomeView: View {
             pendingNatureSceneID = nil
             selectedNatureScene = scene
         }
-        .alert("提示", isPresented: Binding(
+        .alert(SleepL10n.text("提示"), isPresented: Binding(
             get: { remoteMessage != nil },
             set: { if !$0 { remoteMessage = nil } }
         )) {
-            Button("知道了", role: .cancel) { remoteMessage = nil }
+            Button(SleepL10n.text("知道了"), role: .cancel) { remoteMessage = nil }
         } message: {
-            Text(remoteMessage ?? "")
+            Text(SleepL10n.text(remoteMessage ?? ""))
         }
     }
 
@@ -236,13 +236,14 @@ struct MindfulnessHomeView: View {
         HStack {
             Button { dismiss() } label: {
                 Image(systemName: "chevron.left")
+                    .flipsForRightToLeftLayoutDirection(true)
                     .font(.system(size: 18, weight: .semibold))
                     .frame(width: 42, height: 42)
                     .background(.ultraThinMaterial)
                     .clipShape(Circle())
             }
             Spacer()
-            Text("自在正念").font(.headline.weight(.semibold))
+            Text(SleepL10n.text("自在正念")).font(.headline.weight(.semibold))
             Spacer()
             Color.clear.frame(width: 42, height: 42)
         }
@@ -303,10 +304,10 @@ struct MindfulnessHomeView: View {
                 .padding(.trailing, 26)
 
             VStack(alignment: .leading, spacing: 11) {
-                Text(banner.title)
+                Text(verbatim: SleepL10n.text(banner.title))
                     .font(.system(size: 18, weight: .bold))
                     .lineLimit(1)
-                Text(banner.detail)
+                Text(verbatim: SleepL10n.text(banner.detail))
                     .font(.system(size: 13, weight: .regular))
                     .foregroundStyle(.white.opacity(0.82))
                     .lineSpacing(3)
@@ -359,8 +360,8 @@ struct MindfulnessHomeView: View {
         return VStack(alignment: .leading, spacing: 14) {
             HStack(alignment: .center, spacing: 12) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(title).font(.title2.bold())
-                    Text(subtitle).font(.subheadline).foregroundStyle(.secondary).lineLimit(1)
+                    Text(verbatim: SleepL10n.text(title)).font(.title2.bold())
+                    Text(verbatim: SleepL10n.text(subtitle)).font(.subheadline).foregroundStyle(.secondary).lineLimit(1)
                 }
                 .layoutPriority(1)
 
@@ -370,7 +371,7 @@ struct MindfulnessHomeView: View {
                     NavigationLink {
                         VoiceCharactersView()
                     } label: {
-                        Label("认识声音人物", systemImage: "person.2.fill")
+                        Label(SleepL10n.text("认识声音人物"), systemImage: "person.2.fill")
                             .font(.system(size: 11, weight: .semibold))
                             .foregroundStyle(Color(red: 0.37, green: 0.31, blue: 0.53))
                             .padding(.horizontal, 10)
@@ -476,8 +477,8 @@ struct MindfulnessHomeView: View {
                 cardStatus(for: item, unavailable: unavailable).padding(7)
             }
             VStack(alignment: .leading, spacing: 3) {
-                Text(item.title).font(.system(size: 12, weight: .semibold)).foregroundStyle(.primary).lineLimit(1)
-                Text(unavailable ? "音频即将上线" : item.subtitle).font(.system(size: 10)).foregroundStyle(.secondary).lineLimit(1)
+                Text(verbatim: SleepL10n.text(item.title)).font(.system(size: 12, weight: .semibold)).foregroundStyle(.primary).lineLimit(1)
+                Text(SleepL10n.text(unavailable ? SleepL10n.text("音频即将上线") : item.subtitle)).font(.system(size: 10)).foregroundStyle(.secondary).lineLimit(1)
             }.frame(width: 138, alignment: .leading)
         }
     }
@@ -509,7 +510,7 @@ struct MindfulnessHomeView: View {
         ZStack {
             Circle().stroke(.white.opacity(0.30), lineWidth: 2)
             Circle().trim(from: 0, to: progress).stroke(.white, style: StrokeStyle(lineWidth: 2, lineCap: .round)).rotationEffect(.degrees(-90))
-            Text("\(Int(progress * 100))").font(.system(size: 6, weight: .bold)).foregroundStyle(.white)
+            Text(SleepL10n.text("\(Int(progress * 100))")).font(.system(size: 6, weight: .bold)).foregroundStyle(.white)
         }
         .frame(width: 26, height: 26).padding(4).background(.black.opacity(0.36)).clipShape(Circle())
     }
@@ -521,7 +522,7 @@ struct MindfulnessHomeView: View {
         }
         if let activeID = pendingRemoteMindfulnessID {
             if activeID != item.id {
-                remoteMessage = "当前正念音频正在下载，请稍候"
+                remoteMessage = SleepL10n.text("当前正念音频正在下载，请稍候")
             }
             return
         }
@@ -542,7 +543,7 @@ struct MindfulnessHomeView: View {
                 pendingRemoteMindfulnessID = nil
             } catch {
                 pendingRemoteMindfulnessID = nil
-                remoteMessage = "正念音频下载失败，请检查网络后重试"
+                remoteMessage = SleepL10n.text("正念音频下载失败，请检查网络后重试")
             }
         }
     }
@@ -654,7 +655,7 @@ struct RemoteMindfulnessItem: Decodable, Identifiable {
         return MindfulnessTrack(
             id: trackID,
             title: title,
-            subtitle: "云端正念 · 离线播放",
+            subtitle: SleepL10n.text("云端正念 · 离线播放"),
             resourceName: trackID,
             resourceExtension: fileExtension,
             subdirectory: "",
@@ -716,13 +717,13 @@ final class RemoteMindfulnessLibrary: ObservableObject {
                 let data = try await requestData(path: "api/mindfulness")
                 let legacyItems = validItems(
                     try JSONDecoder().decode([RemoteMindfulnessItem].self, from: data),
-                    groupName: "正念冥想"
+                    groupName: SleepL10n.text("正念冥想")
                 )
                 groups = legacyItems.isEmpty ? [] : [
                     RemoteMindfulnessGroup(
                         id: 0,
                         name: "正念冥想",
-                        description: "跟随声音，把注意力带回当下",
+                        description: SleepL10n.text("跟随声音，把注意力带回当下"),
                         sortOrder: 0,
                         itemCount: legacyItems.count,
                         items: legacyItems

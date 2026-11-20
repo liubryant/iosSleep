@@ -14,7 +14,7 @@ struct SleepReportView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             if isSample {
-                Text("示例报告 · 开始睡眠监测后将生成你的专属报告")
+                Text(SleepL10n.text("示例报告 · 开始睡眠监测后将生成你的专属报告"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 10)
@@ -24,27 +24,27 @@ struct SleepReportView: View {
             }
 
             HStack(alignment: .firstTextBaseline) {
-                Text("睡眠报告")
+                Text(SleepL10n.text("睡眠报告"))
                     .font(.title3.weight(.semibold))
                 Spacer()
-                Text("\(session.sleepScore)")
+                Text(SleepL10n.text("\(session.sleepScore)"))
                     .font(.system(size: 34, weight: .bold, design: .rounded))
                     .foregroundStyle(scoreColor)
-                Text("分")
+                Text(SleepL10n.text("分"))
                     .font(.headline)
                     .foregroundStyle(.secondary)
             }
 
             HStack(spacing: 12) {
-                metric(title: "时长", value: durationText)
-                metric(title: "平均噪音", value: "\(Int(session.averageNoise)) dB")
-                metric(title: "峰值", value: "\(Int(session.maxNoise)) dB")
+                metric(title: SleepL10n.text("时长"), value: durationText)
+                metric(title: SleepL10n.text("平均噪音"), value: "\(Int(session.averageNoise)) dB")
+                metric(title: SleepL10n.text("峰值"), value: "\(Int(session.maxNoise)) dB")
             }
 
             HStack(spacing: 12) {
-                metric(title: "睡眠效率", value: "\(Int(session.sleepEfficiency.rounded()))%")
-                metric(title: "睡眠年龄", value: "\(session.sleepAge) 岁")
-                metric(title: "深睡时长", value: stageDurationText(.deep))
+                metric(title: SleepL10n.text("睡眠效率"), value: "\(Int(session.sleepEfficiency.rounded()))%")
+                metric(title: SleepL10n.text("睡眠年龄"), value: SleepL10n.format("{0} 岁", [String(describing: session.sleepAge)]))
+                metric(title: SleepL10n.text("深睡时长"), value: stageDurationText(.deep))
             }
 
             recordingControl
@@ -61,7 +61,7 @@ struct SleepReportView: View {
             sleepDistributionSection
 
             VStack(alignment: .leading, spacing: 10) {
-                Text("事件列表")
+                Text(SleepL10n.text("事件列表"))
                     .font(.headline)
                 ForEach(session.events.suffix(20).reversed()) { event in
                     HStack {
@@ -69,14 +69,14 @@ struct SleepReportView: View {
                             .foregroundStyle(.blue)
                             .frame(width: 28)
                         VStack(alignment: .leading) {
-                            Text(event.type.title)
+                            Text(verbatim: SleepL10n.text(event.type.title))
                                 .font(.subheadline.weight(.medium))
                             Text(event.startTime, style: .time)
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                         Spacer()
-                        Text("\(Int(event.confidence * 100))%")
+                        Text(SleepL10n.text("\(Int(event.confidence * 100))%"))
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(.secondary)
                     }
@@ -84,7 +84,7 @@ struct SleepReportView: View {
                 }
             }
 
-            Text("本应用仅提供睡眠数据记录与参考分析，不提供医疗诊断、治疗或健康评估服务。如有健康问题请咨询专业医生。")
+            Text(SleepL10n.text("本应用仅提供睡眠数据记录与参考分析，不提供医疗诊断、治疗或健康评估服务。如有健康问题请咨询专业医生。"))
                 .font(.caption2)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.leading)
@@ -108,9 +108,9 @@ struct SleepReportView: View {
                     .frame(width: 34)
 
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("睡眠录音")
+                    Text(SleepL10n.text("睡眠录音"))
                         .font(.headline.weight(.semibold))
-                    Text(recordingAvailabilityText)
+                    Text(verbatim: SleepL10n.text(recordingAvailabilityText))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -142,20 +142,20 @@ struct SleepReportView: View {
         .padding(14)
         .background(Color(.tertiarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 8))
-        .alert("暂时无法播放录音", isPresented: $showRewardFailedAlert) {
-            Button("知道了", role: .cancel) {}
+        .alert(SleepL10n.text("暂时无法播放录音"), isPresented: $showRewardFailedAlert) {
+            Button(SleepL10n.text("知道了"), role: .cancel) {}
         } message: {
-            Text("需要先完成激励视频或点击跳过，之后才能播放睡眠录音。")
+            Text(SleepL10n.text("需要先完成激励视频或点击跳过，之后才能播放睡眠录音。"))
         }
     }
 
     private var eventChart: some View {
         Chart(session.events) { event in
             PointMark(
-                x: .value("时间", event.startTime),
-                y: .value("类型", event.type.title)
+                x: .value(SleepL10n.text("时间"), event.startTime),
+                y: .value(SleepL10n.text("类型"), event.type.title)
             )
-            .foregroundStyle(by: .value("事件", event.type.title))
+            .foregroundStyle(by: .value(SleepL10n.text("事件"), event.type.title))
         }
         .frame(height: 180)
         .chartLegend(position: .bottom)
@@ -173,9 +173,9 @@ struct SleepReportView: View {
         VStack(alignment: .leading, spacing: 6) {
             Image(systemName: type.symbolName)
                 .foregroundStyle(.blue)
-            Text("\(session.eventCount(for: type))")
+            Text(SleepL10n.text("\(session.eventCount(for: type))"))
                 .font(.title3.weight(.semibold))
-            Text(type.title)
+            Text(verbatim: SleepL10n.text(type.title))
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -188,13 +188,13 @@ struct SleepReportView: View {
     private var noiseChart: some View {
         Chart(session.noiseSamples) { sample in
             LineMark(
-                x: .value("时间", sample.time),
-                y: .value("分贝", sample.decibel)
+                x: .value(SleepL10n.text("时间"), sample.time),
+                y: .value(SleepL10n.text("分贝"), sample.decibel)
             )
             .foregroundStyle(.blue)
             AreaMark(
-                x: .value("时间", sample.time),
-                y: .value("分贝", sample.decibel)
+                x: .value(SleepL10n.text("时间"), sample.time),
+                y: .value(SleepL10n.text("分贝"), sample.decibel)
             )
             .foregroundStyle(.blue.opacity(0.12))
         }
@@ -207,11 +207,11 @@ struct SleepReportView: View {
 
     private var sleepDistributionSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("睡眠分布")
+            Text(SleepL10n.text("睡眠分布"))
                 .font(.headline)
 
             if distribution.totalDuration <= 0 {
-                Text("暂无足够数据生成睡眠分布。")
+                Text(SleepL10n.text("暂无足够数据生成睡眠分布。"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             } else {
@@ -226,19 +226,19 @@ struct SleepReportView: View {
                     }
                 }
 
-                Text(distributionAnalysisText)
+                Text(verbatim: SleepL10n.text(distributionAnalysisText))
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
 
                 Link(destination: URL(string: "https://www.sleepfoundation.org/stages-of-sleep")!) {
-                    Text("参考来源：Sleep Foundation《Stages of Sleep》")
+                    Text(SleepL10n.text("参考来源：Sleep Foundation《Stages of Sleep》"))
                         .font(.caption2)
                         .foregroundStyle(.blue)
                 }
 
                 Link(destination: URL(string: "http://www.zgsmyjh.org/")!) {
-                    Text("参考来源：中国睡眠研究会")
+                    Text(SleepL10n.text("参考来源：中国睡眠研究会"))
                         .font(.caption2)
                         .foregroundStyle(.blue)
                 }
@@ -256,12 +256,12 @@ struct SleepReportView: View {
             Circle()
                 .fill(stage.color)
                 .frame(width: 10, height: 10)
-            Text(stage.title)
+            Text(verbatim: SleepL10n.text(stage.title))
                 .font(.subheadline)
             Spacer()
-            Text("\(minutes) 分钟")
+            Text(SleepL10n.format("{0} 分钟", [String(describing: minutes)]))
                 .font(.subheadline.weight(.medium))
-            Text("\(percent)%")
+            Text(SleepL10n.text("\(percent)%"))
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -269,29 +269,29 @@ struct SleepReportView: View {
 
     private func stageDurationText(_ stage: SleepStage) -> String {
         let minutes = Int(distribution.duration(for: stage) / 60)
-        return minutes < 60 ? "\(minutes) 分钟" : "\(minutes / 60) 小时 \(minutes % 60) 分"
+        return minutes < 60 ? SleepL10n.format("{0} 分钟", [String(describing: minutes)]) : SleepL10n.format("{0} 小时 {1} 分", [String(describing: minutes / 60), String(describing: minutes % 60)])
     }
 
     private var distributionAnalysisText: String {
         var lines: [String] = []
 
         if let fallAsleep = distribution.fallAsleepTime, let wake = distribution.wakeTime {
-            lines.append("您在 \(Self.timeFormatter.string(from: fallAsleep)) 开始入睡，\(Self.timeFormatter.string(from: wake)) 结束睡眠。")
+            lines.append(SleepL10n.format("您在 {0} 开始入睡，{1} 结束睡眠。", [String(describing: Self.timeFormatter.string(from: fallAsleep)), String(describing: Self.timeFormatter.string(from: wake))]))
         }
 
         let deepMinutes = Int(distribution.duration(for: .deep) / 60)
-        let deepNote = deepMinutes >= 90 ? "已达到健康参考值" : "低于参考值 90 分钟"
-        lines.append("深度睡眠 \(deepMinutes) 分钟（参考值 >90 分钟，\(deepNote)）。")
+        let deepNote = deepMinutes >= 90 ? SleepL10n.text("已达到健康参考值") : SleepL10n.text("低于参考值 90 分钟")
+        lines.append(SleepL10n.format("深度睡眠 {0} 分钟（参考值 >90 分钟，{1}）。", [String(describing: deepMinutes), String(describing: deepNote)]))
 
         let lightMinutes = Int(distribution.duration(for: .light) / 60)
-        lines.append("浅睡眠 \(lightMinutes) 分钟。")
+        lines.append(SleepL10n.format("浅睡眠 {0} 分钟。", [String(describing: lightMinutes)]))
 
         let remMinutes = Int(distribution.duration(for: .rem) / 60)
-        lines.append("做梦 \(remMinutes) 分钟。")
+        lines.append(SleepL10n.format("做梦 {0} 分钟。", [String(describing: remMinutes)]))
 
         let awakeMinutes = Int(distribution.duration(for: .awake) / 60)
         if awakeMinutes > 0 {
-            lines.append("睡眠中觉醒约 \(awakeMinutes) 分钟。")
+            lines.append(SleepL10n.format("睡眠中觉醒约 {0} 分钟。", [String(describing: awakeMinutes)]))
         }
 
         return lines.joined(separator: "\n")
@@ -305,10 +305,10 @@ struct SleepReportView: View {
 
     private func metric(title: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(title)
+            Text(verbatim: SleepL10n.text(title))
                 .font(.caption)
                 .foregroundStyle(.secondary)
-            Text(value)
+            Text(verbatim: SleepL10n.text(value))
                 .font(.headline)
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
@@ -321,7 +321,7 @@ struct SleepReportView: View {
 
     private var durationText: String {
         let minutes = Int(session.duration / 60)
-        return minutes < 60 ? "\(minutes) 分钟" : "\(minutes / 60) 小时 \(minutes % 60) 分"
+        return minutes < 60 ? SleepL10n.format("{0} 分钟", [String(describing: minutes)]) : SleepL10n.format("{0} 小时 {1} 分", [String(describing: minutes / 60), String(describing: minutes % 60)])
     }
 
     private var recordingURL: URL? {
@@ -332,7 +332,7 @@ struct SleepReportView: View {
 
     private var recordingAvailabilityText: String {
         if recordingURL == nil { return "暂无可播放录音" }
-        return hasUnlockedRecordingPlayback ? "已解锁，可回放夜间声音" : "观看激励视频后可播放，允许跳过"
+        return hasUnlockedRecordingPlayback ? SleepL10n.text("已解锁，可回放夜间声音") : SleepL10n.text("观看激励视频后可播放，允许跳过")
     }
 
     private func requestRecordingPlayback() {
@@ -408,7 +408,7 @@ private struct RecordingWaveformView: View {
             }
             .frame(maxWidth: .infinity)
         }
-        .accessibilityLabel("睡眠录音正在播放")
+        .accessibilityLabel(SleepL10n.text("睡眠录音正在播放"))
     }
 
     private func barHeight(index: Int, time: TimeInterval) -> CGFloat {

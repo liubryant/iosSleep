@@ -40,14 +40,14 @@ struct SoundHomeView: View {
     }
 
     private let mindfulnessItems: [SoundHomeMindfulnessItem] = [
-        .init(title: "深度睡眠疗愈", subtitle: "卸下疲惫，沉入安稳梦境", track: .deepSleep),
-        .init(title: "日间提神", subtitle: "唤醒精神，找回清晰专注", track: .daytimeEnergy),
-        .init(title: "散步冥想", subtitle: "跟随脚步，感受此时此地", track: .walking),
-        .init(title: "睡前释放情绪", subtitle: "温柔放下今天的情绪", track: .emotionalRelease),
-        .init(title: "安定身心助眠", subtitle: "舒缓呼吸，让身体松下来", track: .calmingSleep),
-        .init(title: "缓解疲倦", subtitle: "短暂休息，恢复身心能量", track: .fatigueRelief),
-        .init(title: "快速入睡", subtitle: "平静思绪，更快进入睡眠", track: .quickSleep),
-        .init(title: "考前失眠解放", subtitle: "减少紧张，安心迎接明天", track: .examSleep)
+        .init(title: SleepL10n.text("深度睡眠疗愈"), subtitle: SleepL10n.text("卸下疲惫，沉入安稳梦境"), track: .deepSleep),
+        .init(title: SleepL10n.text("日间提神"), subtitle: SleepL10n.text("唤醒精神，找回清晰专注"), track: .daytimeEnergy),
+        .init(title: SleepL10n.text("散步冥想"), subtitle: SleepL10n.text("跟随脚步，感受此时此地"), track: .walking),
+        .init(title: SleepL10n.text("睡前释放情绪"), subtitle: SleepL10n.text("温柔放下今天的情绪"), track: .emotionalRelease),
+        .init(title: SleepL10n.text("安定身心助眠"), subtitle: SleepL10n.text("舒缓呼吸，让身体松下来"), track: .calmingSleep),
+        .init(title: SleepL10n.text("缓解疲倦"), subtitle: SleepL10n.text("短暂休息，恢复身心能量"), track: .fatigueRelief),
+        .init(title: SleepL10n.text("快速入睡"), subtitle: SleepL10n.text("平静思绪，更快进入睡眠"), track: .quickSleep),
+        .init(title: SleepL10n.text("考前失眠解放"), subtitle: SleepL10n.text("减少紧张，安心迎接明天"), track: .examSleep)
     ]
 
     private var displayedScenes: [SoundScene] {
@@ -91,7 +91,7 @@ struct SoundHomeView: View {
                         }
 
                         if isSearching {
-                            Text("声音搜索结果")
+                            Text(SleepL10n.text("声音搜索结果"))
                                 .font(.subheadline.weight(.semibold))
                                 .foregroundStyle(SoundHomeTextColor.title)
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -145,10 +145,10 @@ struct SoundHomeView: View {
             .toolbar(.hidden, for: .navigationBar)
             .overlay {
                 if library.scenes.isEmpty {
-                    EmptyStateView(title: "暂无声音资源", systemImage: "waveform", message: "请确认 SoundResources 已导入。")
+                    EmptyStateView(title: SleepL10n.text("暂无声音资源"), systemImage: "waveform", message: SleepL10n.text("请确认 SoundResources 已导入。"))
                 } else if displayedScenes.isEmpty {
-                    EmptyStateView(title: "没有匹配的声音", systemImage: "magnifyingglass",
-                                   message: isSearching ? "试试更短的关键词，比如「雨」或「海浪」。" : selectedCategory.emptyMessage)
+                    EmptyStateView(title: SleepL10n.text("没有匹配的声音"), systemImage: "magnifyingglass",
+                                   message: isSearching ? SleepL10n.text("试试更短的关键词，比如「雨」或「海浪」。") : selectedCategory.emptyMessage)
                 }
             }
             .onReceive(NotificationCenter.default.publisher(for: QuickActionService.didRequestNature)) { _ in
@@ -190,7 +190,7 @@ struct SoundHomeView: View {
                     .frame(width: 20, height: 16)
                     .accessibilityHidden(true)
 
-                Text("解锁更多助眠声音与故事")
+                Text(SleepL10n.text("解锁更多助眠声音与故事"))
                     .font(.system(size: membershipBannerFontSize))
                     .foregroundStyle(Color(white: 0.67))
                     .fixedSize(horizontal: false, vertical: true)
@@ -198,10 +198,11 @@ struct SoundHomeView: View {
                 Spacer(minLength: 4)
 
                 HStack(spacing: 5) {
-                    Text("开通会员")
+                    Text(SleepL10n.text("开通会员"))
                         .font(.system(size: membershipBannerFontSize, weight: .medium))
                         .fixedSize()
                     Image(systemName: "chevron.right")
+                    .flipsForRightToLeftLayoutDirection(true)
                         .font(.caption2.weight(.semibold))
                         .accessibilityHidden(true)
                 }
@@ -223,10 +224,10 @@ struct SoundHomeView: View {
             } label: {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("正念冥想")
+                    Text(SleepL10n.text("正念冥想"))
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundStyle(SoundHomeTextColor.title)
-                    Text("跟随声音，把注意力带回当下")
+                    Text(SleepL10n.text("跟随声音，把注意力带回当下"))
                         .font(.system(size: 11))
                         .foregroundStyle(SoundHomeTextColor.detail)
                 }
@@ -234,8 +235,9 @@ struct SoundHomeView: View {
                 Spacer()
 
                     HStack(spacing: 4) {
-                        Text("更多")
+                        Text(SleepL10n.text("更多"))
                         Image(systemName: "chevron.right")
+                    .flipsForRightToLeftLayoutDirection(true)
                             .font(.system(size: 10, weight: .semibold))
                     }
                     .font(.system(size: 12))
@@ -288,16 +290,16 @@ struct SoundHomeView: View {
     }
 
     private var soundSectionHeader: some View {
-        sectionHeader(title: "大自然入眠", subtitle: "枕着山海风雨，慢慢沉入梦乡")
+        sectionHeader(title: SleepL10n.text("大自然入眠"), subtitle: SleepL10n.text("枕着山海风雨，慢慢沉入梦乡"))
             .padding(.top, selectedCategory == .whiteNoise ? 8 : 0)
     }
 
     private func sectionHeader(title: String, subtitle: String) -> some View {
         VStack(alignment: .leading, spacing: 3) {
-            Text(title)
+            Text(verbatim: SleepL10n.text(title))
                 .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(SoundHomeTextColor.title)
-            Text(subtitle)
+            Text(verbatim: SleepL10n.text(subtitle))
                 .font(.system(size: 11))
                 .foregroundStyle(SoundHomeTextColor.detail)
         }
@@ -329,7 +331,7 @@ struct SoundHomeView: View {
                     .padding(9)
             }
             VStack(alignment: .leading, spacing: 4) {
-                Text(item.title)
+                Text(verbatim: SleepL10n.text(item.title))
                     .font(.system(size: 15, weight: .regular))
                     .foregroundStyle(SoundHomeTextColor.title)
                     .lineLimit(1)
@@ -401,7 +403,7 @@ struct SoundHomeView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 15))
             }
 
-            Text(feature.title)
+            Text(verbatim: SleepL10n.text(feature.title))
                 .font(.caption)
                 .fontWeight(feature.category == selectedCategory ? .semibold : .regular)
                 .foregroundStyle(feature.category == selectedCategory ? Color.blue : Color.secondary)
@@ -419,7 +421,7 @@ struct SoundHomeView: View {
                     .fixedSize()
             }
 
-            Text(greetingText)
+            Text(verbatim: SleepL10n.text(greetingText))
                 .font(.system(size: greetingFontSize, weight: .bold))
                 .foregroundStyle(SoundHomeTextColor.title)
                 .multilineTextAlignment(.leading)
@@ -440,23 +442,23 @@ struct SoundHomeView: View {
         if weather.authorization == .notDetermined {
             Button(action: weather.requestAccess) { weatherBadgeLabel }
                 .buttonStyle(.plain)
-                .accessibilityLabel("开启本地天气定位")
+                .accessibilityLabel(SleepL10n.text("开启本地天气定位"))
         } else {
             Menu {
                 if weather.authorization == .authorizedWhenInUse || weather.authorization == .authorizedAlways {
-                    Button("刷新天气", systemImage: "arrow.clockwise", action: weather.refresh)
+                    Button(SleepL10n.text("刷新天气"), systemImage: "arrow.clockwise", action: weather.refresh)
                 } else {
-                    Button("在设置中开启定位", systemImage: "location") {
+                    Button(SleepL10n.text("在设置中开启定位"), systemImage: "location") {
                         if let url = URL(string: UIApplication.openSettingsURLString) { openURL(url) }
                     }
                 }
-                Link("天气数据来自 Open-Meteo", destination: URL(string: "https://open-meteo.com/")!)
+                Link(SleepL10n.text("天气数据来自 Open-Meteo"), destination: URL(string: "https://open-meteo.com/")!)
             } label: {
                 weatherBadgeLabel
             }
             .accessibilityLabel(weather.current.map {
-                "\($0.appearance.description)，\($0.temperatureText) 摄氏度"
-            } ?? "本地天气暂不可用")
+                SleepL10n.format("{0}，{1} 摄氏度", [String(describing: $0.appearance.description), String(describing: $0.temperatureText)])
+            } ?? SleepL10n.text("本地天气暂不可用"))
         }
     }
 
@@ -467,7 +469,7 @@ struct SoundHomeView: View {
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundStyle(conditions?.appearance.tint ?? Color.orange)
                 .accessibilityHidden(true)
-            Text(conditions.map { "\($0.temperatureText)°" } ?? "--°")
+            Text(SleepL10n.text(conditions.map { "\($0.temperatureText)°" } ?? "--°"))
                 .font(.system(size: 14, weight: .semibold))
                 .monospacedDigit()
                 .foregroundStyle(SoundHomeTextColor.title)
@@ -486,7 +488,7 @@ struct SoundHomeView: View {
                 .frame(width: 20, height: 24)
                 .accessibilityHidden(true)
 
-            TextField("搜索雨声、森林、海浪", text: $library.searchText)
+            TextField(SleepL10n.text("搜索雨声、森林、海浪"), text: $library.searchText)
                 .submitLabel(.search)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
@@ -501,7 +503,7 @@ struct SoundHomeView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("清除搜索")
+                .accessibilityLabel(SleepL10n.text("清除搜索"))
             }
         }
         .font(.subheadline)
@@ -526,7 +528,7 @@ struct SoundHomeView: View {
                     Button {
                         selectedCategory = category
                     } label: {
-                        Text(category.title)
+                        Text(verbatim: SleepL10n.text(category.title))
                             .font(.subheadline.weight(selectedCategory == category ? .semibold : .regular))
                             .foregroundStyle(selectedCategory == category ? .white : .primary)
                             .padding(.horizontal, 14)
@@ -560,21 +562,21 @@ struct SoundHomeView: View {
         let greeting: String
         switch hour {
         case 5..<8:
-            greeting = "早上好"
+            greeting = SleepL10n.text("早上好")
         case 8..<12:
-            greeting = "上午好"
+            greeting = SleepL10n.text("上午好")
         case 12..<14:
-            greeting = "中午好"
+            greeting = SleepL10n.text("中午好")
         case 14..<18:
-            greeting = "下午好"
+            greeting = SleepL10n.text("下午好")
         case 18..<21:
-            greeting = "傍晚好"
+            greeting = SleepL10n.text("傍晚好")
         case 21..<24:
-            greeting = "晚上好"
+            greeting = SleepL10n.text("晚上好")
         default:
-            greeting = "夜深了"
+            greeting = SleepL10n.text("夜深了")
         }
-        return "\(greeting)，时光睡眠"
+        return SleepL10n.format("{0}，时光睡眠", [String(describing: greeting)])
     }
 }
 
@@ -604,7 +606,7 @@ private struct SoundOptionsMenuButton: UIViewRepresentable {
         button.contentHorizontalAlignment = .center
         button.contentVerticalAlignment = .center
         button.showsMenuAsPrimaryAction = true
-        button.accessibilityLabel = "声音筛选与定时"
+        button.accessibilityLabel = SleepL10n.text("声音筛选与定时")
         button.menu = context.coordinator.makeMenu()
         return button
     }
@@ -651,14 +653,14 @@ private struct SoundOptionsMenuButton: UIViewRepresentable {
 
         func makeMenu() -> UIMenu {
             let filters = UIMenu(options: .displayInline, children: [
-                UIAction(title: "全部") { [weak self] _ in self?.onShowAll() },
-                UIAction(title: "收藏") { [weak self] _ in self?.onShowFavorites() }
+                UIAction(title: SleepL10n.text("全部")) { [weak self] _ in self?.onShowAll() },
+                UIAction(title: SleepL10n.text("收藏")) { [weak self] _ in self?.onShowFavorites() }
             ])
             let timers = UIMenu(options: .displayInline, children: [
-                UIAction(title: "15 分钟后停止") { [weak self] _ in self?.onSetTimer(15) },
-                UIAction(title: "30 分钟后停止") { [weak self] _ in self?.onSetTimer(30) },
-                UIAction(title: "60 分钟后停止") { [weak self] _ in self?.onSetTimer(60) },
-                UIAction(title: "取消定时", attributes: .destructive) { [weak self] _ in self?.onCancelTimer() }
+                UIAction(title: SleepL10n.text("15 分钟后停止")) { [weak self] _ in self?.onSetTimer(15) },
+                UIAction(title: SleepL10n.text("30 分钟后停止")) { [weak self] _ in self?.onSetTimer(30) },
+                UIAction(title: SleepL10n.text("60 分钟后停止")) { [weak self] _ in self?.onSetTimer(60) },
+                UIAction(title: SleepL10n.text("取消定时"), attributes: .destructive) { [weak self] _ in self?.onCancelTimer() }
             ])
             return UIMenu(children: [filters, timers])
         }
@@ -712,9 +714,9 @@ private enum SoundCategory: String, CaseIterable, Identifiable {
     var emptyMessage: String {
         switch self {
         case .favorites:
-            return "收藏喜欢的声音后会显示在这里。"
+            return SleepL10n.text("收藏喜欢的声音后会显示在这里。")
         default:
-            return "换个关键词或查看全部声音。"
+            return SleepL10n.text("换个关键词或查看全部声音。")
         }
     }
 
@@ -728,19 +730,19 @@ private enum SoundCategory: String, CaseIterable, Identifiable {
         case .all:
             return scenes
         case .meditation:
-            return limitedMatches(in: scenes, keywords: ["冥想", "声音浴", "钵", "寺", "钟", "光蕴", "七弦", "八音盒", "呼吸", "静"])
+            return limitedMatches(in: scenes, keywords: [SleepL10n.text("冥想"), SleepL10n.text("声音浴"), SleepL10n.text("钵"), SleepL10n.text("寺"), SleepL10n.text("钟"), SleepL10n.text("光蕴"), SleepL10n.text("七弦"), SleepL10n.text("八音盒"), SleepL10n.text("呼吸"), SleepL10n.text("静")])
         case .sleep:
             return Array(scenes.filter { $0.category == "sleep" }.prefix(30))
         case .nature:
-            return limitedMatches(in: scenes, keywords: ["雨", "风", "海", "山", "林", "森林", "竹林", "溪", "泉", "河", "湖", "岛", "星", "月", "雪", "虫", "鸟"])
+            return limitedMatches(in: scenes, keywords: [SleepL10n.text("雨"), SleepL10n.text("风"), SleepL10n.text("海"), SleepL10n.text("山"), SleepL10n.text("林"), SleepL10n.text("森林"), SleepL10n.text("竹林"), SleepL10n.text("溪"), SleepL10n.text("泉"), SleepL10n.text("河"), SleepL10n.text("湖"), SleepL10n.text("岛"), SleepL10n.text("星"), SleepL10n.text("月"), SleepL10n.text("雪"), SleepL10n.text("虫"), SleepL10n.text("鸟")])
         case .whisper:
-            return limitedMatches(in: scenes, keywords: ["耳", "低语", "风铃", "键盘", "铅笔", "磨砚", "手谈", "切菜", "打字机", "心跳", "静电"])
+            return limitedMatches(in: scenes, keywords: [SleepL10n.text("耳"), SleepL10n.text("低语"), SleepL10n.text("风铃"), SleepL10n.text("键盘"), SleepL10n.text("铅笔"), SleepL10n.text("磨砚"), SleepL10n.text("手谈"), SleepL10n.text("切菜"), SleepL10n.text("打字机"), SleepL10n.text("心跳"), SleepL10n.text("静电")])
         case .whiteNoise:
             return scenes.filter { SoundLibrary.isIncludedInNatureSleep($0) }
         case .dream:
-            return limitedMatches(in: scenes, keywords: ["梦", "夜", "月", "星", "幻", "蓝色", "浮空", "云", "微光", "深睡", "睡吧"])
+            return limitedMatches(in: scenes, keywords: [SleepL10n.text("梦"), SleepL10n.text("夜"), SleepL10n.text("月"), SleepL10n.text("星"), SleepL10n.text("幻"), SleepL10n.text("蓝色"), SleepL10n.text("浮空"), SleepL10n.text("云"), SleepL10n.text("微光"), SleepL10n.text("深睡"), SleepL10n.text("睡吧")])
         case .mindfulness:
-            return limitedMatches(in: scenes, keywords: ["正念", "冥想", "钵", "声音浴", "寺庙", "山泉", "竹林", "远山", "须臾", "柔软", "静"])
+            return limitedMatches(in: scenes, keywords: [SleepL10n.text("正念"), SleepL10n.text("冥想"), SleepL10n.text("钵"), SleepL10n.text("声音浴"), SleepL10n.text("寺庙"), SleepL10n.text("山泉"), SleepL10n.text("竹林"), SleepL10n.text("远山"), SleepL10n.text("须臾"), SleepL10n.text("柔软"), SleepL10n.text("静")])
         }
     }
 

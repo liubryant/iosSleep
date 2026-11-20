@@ -23,11 +23,12 @@ final class SoundLibrary: ObservableObject {
         guard !tokens.isEmpty else { return scenes }
         let phrase = tokens.joined()
         return scenes.compactMap { scene -> (scene: SoundScene, rank: Int)? in
-            let title = normalized(scene.title)
+            let title = normalized(SleepL10n.text(scene.title))
             if title == phrase { return (scene, 0) }
             if title.hasPrefix(phrase) { return (scene, 1) }
             if title.contains(phrase) { return (scene, 2) }
-            let details = [title, normalized(scene.subtitle), normalized(scene.category)]
+            let details = [title, normalized(scene.title), normalized(scene.subtitle), normalized(scene.category),
+                           normalized(SleepL10n.text(scene.subtitle)), normalized(SleepL10n.text(scene.category))]
             if tokens.allSatisfy({ token in details.contains(where: { $0.contains(token) }) }) {
                 return (scene, 3)
             }

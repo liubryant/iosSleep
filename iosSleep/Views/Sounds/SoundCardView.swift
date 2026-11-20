@@ -34,7 +34,7 @@ struct SoundCardView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 8))
 
                     if isVIPContent {
-                        Label("VIP", systemImage: "crown.fill")
+                        Label(SleepL10n.text("VIP"), systemImage: "crown.fill")
                             .font(.system(size: 9, weight: .bold))
                             .foregroundStyle(.white)
                             .padding(.horizontal, 8)
@@ -61,7 +61,7 @@ struct SoundCardView: View {
                         VStack(spacing: 6) {
                             ProgressView(value: progress)
                                 .tint(.white)
-                            Text("\(Int(progress * 100))%")
+                            Text(SleepL10n.text("\(Int(progress * 100))%"))
                                 .font(.caption2.weight(.semibold))
                                 .foregroundStyle(.white)
                         }
@@ -93,12 +93,12 @@ struct SoundCardView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(scene.title)
+                    Text(verbatim: SleepL10n.text(scene.title))
                         .font(.headline)
                         .foregroundStyle(SoundHomeTextColor.title)
                         .lineLimit(1)
 
-                    Text(scene.subtitle.isEmpty ? "助眠声音" : scene.subtitle)
+                    Text(SleepL10n.text(scene.subtitle.isEmpty ? SleepL10n.text("助眠声音") : scene.subtitle))
                         .font(.caption)
                         .foregroundStyle(SoundHomeTextColor.detail)
                         .lineLimit(2)

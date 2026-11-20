@@ -27,38 +27,38 @@ struct ProfileView: View {
                     .listRowBackground(Color.clear)
                 }
 
-                Section("权限") {
+                Section(SleepL10n.text("权限")) {
                     HStack {
-                        Label("麦克风", systemImage: "mic.fill")
+                        Label(SleepL10n.text("麦克风"), systemImage: "mic.fill")
                         Spacer()
-                        Text("使用时申请")
+                        Text(SleepL10n.text("使用时申请"))
                             .foregroundStyle(.secondary)
                     }
                     HStack {
-                        Label("HealthKit", systemImage: "heart.fill")
+                        Label(SleepL10n.text("HealthKit"), systemImage: "heart.fill")
                         Spacer()
-                        Text(healthKit.statusText)
+                        Text(verbatim: SleepL10n.text(healthKit.statusText))
                             .foregroundStyle(healthKit.isAuthorized ? .green : .secondary)
                     }
-                    Button("继续") {
+                    Button(SleepL10n.text("继续")) {
                         Task { await healthKit.requestAuthorization() }
                     }
                 }
 
-                Section("睡眠监测") {
-                    Toggle("保存识别片段", isOn: $settings.saveAudioClips)
+                Section(SleepL10n.text("睡眠监测")) {
+                    Toggle(SleepL10n.text("保存识别片段"), isOn: $settings.saveAudioClips)
                     VStack(alignment: .leading) {
                         HStack {
-                            Text("识别灵敏度")
+                            Text(SleepL10n.text("识别灵敏度"))
                             Spacer()
-                            Text("\(Int(settings.sensitivity * 100))%")
+                            Text(SleepL10n.text("\(Int(settings.sensitivity * 100))%"))
                                 .foregroundStyle(.secondary)
                         }
                         Slider(value: $settings.sensitivity, in: 0.3...0.95)
                     }
                 }
 
-                Section("提醒") {
+                Section(SleepL10n.text("提醒")) {
                     Toggle(isOn: Binding(
                         get: { settings.storyReminderEnabled },
                         set: { enabled in
@@ -77,8 +77,8 @@ struct ProfileView: View {
                     )) {
                         Label {
                             VStack(alignment: .leading, spacing: 3) {
-                                Text("故事提醒")
-                                Text("每天 \(StoryNotificationService.reminderScheduleText) 精选故事")
+                                Text(SleepL10n.text("故事提醒"))
+                                Text(SleepL10n.format("每天 {0} 精选故事", [String(describing: StoryNotificationService.reminderScheduleText)]))
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
@@ -88,31 +88,31 @@ struct ProfileView: View {
                     }
                 }
 
-                Section("数据") {
+                Section(SleepL10n.text("数据")) {
                     HStack {
-                        Label("数据大小", systemImage: "internaldrive")
+                        Label(SleepL10n.text("数据大小"), systemImage: "internaldrive")
                         Spacer()
-                        Text(cacheSize)
+                        Text(verbatim: SleepL10n.text(cacheSize))
                             .foregroundStyle(.secondary)
                     }
                     Button(role: .destructive) {
                         showingClearAlert = true
                     } label: {
-                        Label("清除数据", systemImage: "trash")
+                        Label(SleepL10n.text("清除数据"), systemImage: "trash")
                     }
                 }
 
-                Section("关于") {
-                    NavigationLink("用户协议") {
-                        LegalTextView(title: "用户协议", url: LegalLinks.userAgreementURL)
+                Section(SleepL10n.text("关于")) {
+                    NavigationLink(SleepL10n.text("用户协议")) {
+                        LegalTextView(title: SleepL10n.text("用户协议"), url: LegalLinks.userAgreementURL)
                     }
-                    NavigationLink("隐私政策") {
-                        LegalTextView(title: "隐私政策", url: LegalLinks.privacyPolicyURL)
+                    NavigationLink(SleepL10n.text("隐私政策")) {
+                        LegalTextView(title: SleepL10n.text("隐私政策"), url: LegalLinks.privacyPolicyURL)
                     }
                     HStack {
-                        Text("版本")
+                        Text(SleepL10n.text("版本"))
                         Spacer()
-                        Text(appVersion)
+                        Text(verbatim: SleepL10n.text(appVersion))
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -130,15 +130,15 @@ struct ProfileView: View {
                 cacheSize = CacheService.formattedSize(CacheService.cacheSize())
                 membership.refreshSilently()
             }
-            .alert("清除数据？", isPresented: $showingClearAlert) {
-                Button("取消", role: .cancel) {}
-                Button("清除", role: .destructive) {
+            .alert(SleepL10n.text("清除数据？"), isPresented: $showingClearAlert) {
+                Button(SleepL10n.text("取消"), role: .cancel) {}
+                Button(SleepL10n.text("清除"), role: .destructive) {
                     CacheService.clearCache()
                     sleepMonitor.clearAllData()
                     cacheSize = CacheService.formattedSize(CacheService.cacheSize())
                 }
             } message: {
-                Text("将删除所有睡眠监测保存的录音声音数据，以及临时缓存文件，不会删除内置声音资源。此操作不可恢复。")
+                Text(SleepL10n.text("将删除所有睡眠监测保存的录音声音数据，以及临时缓存文件，不会删除内置声音资源。此操作不可恢复。"))
             }
             .fullScreenCover(isPresented: $showingAccountManagement) {
                 SleepAccountManagementDialog()
@@ -185,11 +185,11 @@ struct ProfileView: View {
             }
 
             VStack(alignment: .leading, spacing: 5) {
-                Text(settings.isLoggedIn ? maskedPhone : "登录时光睡眠")
+                Text(SleepL10n.text(settings.isLoggedIn ? maskedPhone : SleepL10n.text("登录时光睡眠")))
                     .font(.system(size: cardFontSize(19), weight: .semibold))
                     .foregroundStyle(.white)
                     .lineLimit(1)
-                Text(settings.isLoggedIn ? "账号已登录" : "登录后同步睡眠数据与会员权益")
+                Text(SleepL10n.text(settings.isLoggedIn ? SleepL10n.text("账号已登录") : SleepL10n.text("登录后同步睡眠数据与会员权益")))
                     .font(.system(size: cardFontSize(12)))
                     .foregroundStyle(Color(profileHex: "#E3CBB2"))
             }
@@ -197,7 +197,7 @@ struct ProfileView: View {
             Spacer()
 
             if settings.isLoggedIn {
-                Text("账号")
+                Text(SleepL10n.text("账号"))
                     .font(.system(size: cardFontSize(13), weight: .medium))
                     .foregroundStyle(Color(profileHex: "#F4D8AE"))
                     .padding(.horizontal, 16)
@@ -205,7 +205,7 @@ struct ProfileView: View {
                     .background(.white.opacity(0.12))
                     .clipShape(Capsule())
             } else {
-                Text("登录")
+                Text(SleepL10n.text("登录"))
                     .font(.system(size: cardFontSize(13), weight: .medium))
                     .foregroundStyle(.white)
                     .padding(.horizontal, 16)
@@ -246,21 +246,21 @@ struct ProfileView: View {
                     .frame(width: 44, height: 44)
                     .clipShape(Circle())
 
-                    Text("✦")
+                    Text(SleepL10n.text("✦"))
                         .font(.system(size: cardFontSize(21)))
                         .foregroundStyle(Color(profileHex: "#4B2A12"))
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("时光睡眠会员")
+                    Text(SleepL10n.text("时光睡眠会员"))
                         .font(.system(size: cardFontSize(17), weight: .bold))
                         .foregroundStyle(Color(profileHex: "#FFF2D2"))
 
                     Group {
                         if membership.isVIPActive, let expiresAt = membership.expiresAt {
-                            Text("有效期至 \(expiresAt)")
+                            Text(SleepL10n.format("有效期至 {0}", [String(describing: expiresAt)]))
                         } else {
-                            Text(settings.isLoggedIn ? "开通会员，解锁全部正念内容" : "登录后会员同步到手机号账号")
+                            Text(SleepL10n.text(settings.isLoggedIn ? SleepL10n.text("开通会员，解锁全部正念内容") : SleepL10n.text("登录后会员同步到手机号账号")))
                         }
                     }
                     .font(.system(size: cardFontSize(11)))
@@ -271,7 +271,7 @@ struct ProfileView: View {
 
                 Spacer()
 
-                Text("查看权益")
+                Text(SleepL10n.text("查看权益"))
                     .font(.system(size: cardFontSize(12), weight: .semibold))
                     .foregroundStyle(Color(profileHex: "#4F2D16"))
                     .padding(.horizontal, 15)
@@ -298,11 +298,11 @@ struct ProfileView: View {
                 .padding(.bottom, 10)
 
             HStack(spacing: 0) {
-                vipBenefit("✦ 全部正念冥想")
+                vipBenefit(SleepL10n.text("✦ 全部正念冥想"))
                 vipBenefitDivider
-                vipBenefit("✦ 自然声音畅听")
+                vipBenefit(SleepL10n.text("✦ 自然声音畅听"))
                 vipBenefitDivider
-                vipBenefit("✦ 专享内容更新")
+                vipBenefit(SleepL10n.text("✦ 专享内容更新"))
             }
             .padding(.bottom, 14)
         }
@@ -322,7 +322,7 @@ struct ProfileView: View {
     }
 
     private func vipBenefit(_ title: String) -> some View {
-        Text(title)
+        Text(verbatim: SleepL10n.text(title))
             .font(.system(size: cardFontSize(11)))
             .foregroundStyle(Color(profileHex: "#EECC9A"))
             .lineLimit(1)
@@ -385,10 +385,10 @@ private struct SleepAccountManagementDialog: View {
                 VStack(alignment: .leading, spacing: 0) {
                     HStack(alignment: .center, spacing: 12) {
                         VStack(alignment: .leading, spacing: 6) {
-                            Text("账号管理")
+                            Text(SleepL10n.text("账号管理"))
                                 .font(.system(size: 22, weight: .bold))
                                 .foregroundStyle(Color(red: 0.067, green: 0.094, blue: 0.153))
-                            Text("管理当前登录账号")
+                            Text(SleepL10n.text("管理当前登录账号"))
                                 .font(.system(size: 13))
                                 .foregroundStyle(Color(red: 0.42, green: 0.45, blue: 0.50))
                         }
@@ -424,10 +424,10 @@ private struct SleepAccountManagementDialog: View {
                         }
 
                         VStack(alignment: .leading, spacing: 5) {
-                            Text("已登录")
+                            Text(SleepL10n.text("已登录"))
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundStyle(Color(red: 0.086, green: 0.63, blue: 0.42))
-                            Text(maskedPhone)
+                            Text(verbatim: SleepL10n.text(maskedPhone))
                                 .font(.system(size: 16, weight: .semibold))
                                 .foregroundStyle(Color(red: 0.067, green: 0.094, blue: 0.153))
                         }
@@ -454,10 +454,11 @@ private struct SleepAccountManagementDialog: View {
                         HStack(spacing: 10) {
                             Image(systemName: "person.crop.circle.badge.xmark")
                                 .font(.system(size: 16, weight: .semibold))
-                            Text("注销账号")
+                            Text(SleepL10n.text("注销账号"))
                                 .font(.system(size: 15, weight: .bold))
                             Spacer()
                             Image(systemName: "chevron.right")
+                    .flipsForRightToLeftLayoutDirection(true)
                                 .font(.system(size: 12, weight: .bold))
                         }
                         .foregroundStyle(Color(red: 0.76, green: 0.25, blue: 0.047))
@@ -474,7 +475,7 @@ private struct SleepAccountManagementDialog: View {
                     .buttonStyle(.plain)
 
                     Button { accountAction = .setPassword } label: {
-                        Text("设置或修改密码")
+                        Text(SleepL10n.text("设置或修改密码"))
                             .font(.system(size: 15, weight: .bold))
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity, minHeight: 46)
@@ -498,7 +499,7 @@ private struct SleepAccountManagementDialog: View {
                         settings.logout()
                         dismiss()
                     } label: {
-                        Text("退出登录")
+                        Text(SleepL10n.text("退出登录"))
                             .font(.system(size: 15, weight: .bold))
                             .foregroundStyle(Color(red: 0.76, green: 0.25, blue: 0.047))
                             .frame(maxWidth: .infinity, minHeight: 46)

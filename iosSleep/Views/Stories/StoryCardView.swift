@@ -19,11 +19,11 @@ struct StoryCardView: View {
                 .allowsHitTesting(false)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(story.title)
+                    Text(verbatim: SleepL10n.text(story.title))
                         .font(.headline)
                         .lineLimit(1)
 
-                    Text(story.author?.isEmpty == false ? story.author! : statusText)
+                    Text(SleepL10n.text(story.author?.isEmpty == false ? story.author! : statusText))
                         .font(.caption)
                         .lineLimit(1)
                 }
@@ -32,7 +32,7 @@ struct StoryCardView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(10)
 
-                Text(story.isArticle ? "散文" : "故事")
+                Text(SleepL10n.text(story.isArticle ? SleepL10n.text("散文") : SleepL10n.text("故事")))
                     .font(.caption2.weight(.bold))
                     .foregroundStyle(.white)
                     .padding(.horizontal, 8)
@@ -66,7 +66,7 @@ struct StoryCardView: View {
     }
 
     private var statusText: String {
-        player.isBundledOrCached(story) ? "点击播放" : "免费朗读"
+        player.isBundledOrCached(story) ? SleepL10n.text("点击播放") : SleepL10n.text("免费朗读")
     }
 }
 

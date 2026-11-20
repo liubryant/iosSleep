@@ -23,17 +23,17 @@ struct SetPasswordView: View {
     var body: some View {
         VStack(spacing: 22) {
             VStack(spacing: 8) {
-                Text("修改登录密码")
+                Text(SleepL10n.text("修改登录密码"))
                     .font(.title2.weight(.semibold))
                     .padding(.top, 36)
-                Text("验证手机号 \(settings.phoneNumber) 后修改密码，之后可使用密码登录")
+                Text(SleepL10n.format("验证手机号 {0} 后修改密码，之后可使用密码登录", [String(describing: settings.phoneNumber)]))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
             }
 
             HStack(spacing: 12) {
-                TextField("请输入验证码", text: $code)
+                TextField(SleepL10n.text("请输入验证码"), text: $code)
                     .keyboardType(.numberPad)
                     .textContentType(.oneTimeCode)
                     .padding()
@@ -51,9 +51,9 @@ struct SetPasswordView: View {
                         if isSendingCode {
                             ProgressView()
                         } else if countdown > 0 {
-                            Text("\(countdown)s")
+                            Text(SleepL10n.text("\(countdown)s"))
                         } else {
-                            Text("获取验证码")
+                            Text(SleepL10n.text("获取验证码"))
                         }
                     }
                     .frame(width: 92)
@@ -62,20 +62,20 @@ struct SetPasswordView: View {
                 .disabled(isSendingCode || countdown > 0)
             }
 
-            SecureField("请输入新密码（至少6位）", text: $password)
+            SecureField(SleepL10n.text("请输入新密码（至少6位）"), text: $password)
                 .textContentType(.newPassword)
                 .padding()
                 .background(Color(.secondarySystemBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
 
             if let errorMessage {
-                Text(errorMessage)
+                Text(verbatim: SleepL10n.text(errorMessage))
                     .font(.caption)
                     .foregroundStyle(.red)
             }
 
             if let successMessage {
-                Text(successMessage)
+                Text(verbatim: SleepL10n.text(successMessage))
                     .font(.caption)
                     .foregroundStyle(.green)
             }
@@ -87,7 +87,7 @@ struct SetPasswordView: View {
                     if isSubmitting {
                         ProgressView()
                     } else {
-                        Text("确认设置")
+                        Text(SleepL10n.text("确认设置"))
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -100,12 +100,12 @@ struct SetPasswordView: View {
             Spacer()
         }
         .padding()
-        .navigationTitle("修改密码")
+        .navigationTitle(SleepL10n.text("修改密码"))
         .navigationBarTitleDisplayMode(.inline)
         .appEdgeSwipeBack()
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
-                Button("关闭") { dismiss() }
+                Button(SleepL10n.text("关闭")) { dismiss() }
             }
         }
     }
@@ -119,7 +119,7 @@ struct SetPasswordView: View {
                 try await AuthAPI.requestVerificationCode(phone: settings.phoneNumber)
                 startCountdown()
             } catch {
-                errorMessage = (error as? LocalizedError)?.errorDescription ?? "验证码发送失败，请稍后重试"
+                errorMessage = (error as? LocalizedError)?.errorDescription ?? SleepL10n.text("验证码发送失败，请稍后重试")
             }
             isSendingCode = false
         }
@@ -132,11 +132,11 @@ struct SetPasswordView: View {
         Task {
             do {
                 _ = try await AuthAPI.setPassword(phone: settings.phoneNumber, code: code, password: password)
-                successMessage = "密码设置成功"
+                successMessage = SleepL10n.text("密码设置成功")
                 code = ""
                 password = ""
             } catch {
-                errorMessage = (error as? LocalizedError)?.errorDescription ?? "设置失败，请稍后重试"
+                errorMessage = (error as? LocalizedError)?.errorDescription ?? SleepL10n.text("设置失败，请稍后重试")
             }
             isSubmitting = false
         }

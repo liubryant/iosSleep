@@ -56,7 +56,7 @@ struct StoryPlayerView: View {
                     .padding(.top, proxy.size.height < 600 ? 2 : 8)
 
                     StoryPlaybackTextView(
-                        text: storyText.isEmpty ? "暂无故事正文" : storyText,
+                        text: storyText.isEmpty ? SleepL10n.text("暂无故事正文") : storyText,
                         currentTime: isCurrent ? player.currentTime : 0,
                         duration: isCurrent ? player.duration : 0
                     )
@@ -118,13 +118,13 @@ struct StoryPlayerView: View {
     private var sleepTimerMenu: some View {
         Menu {
             ForEach([15, 30, 60], id: \.self) { minutes in
-                Button("\(minutes) 分钟") {
+                Button(SleepL10n.format("{0} 分钟", [String(describing: minutes)])) {
                     startSleepTimer(minutes: minutes)
                 }
             }
             if sleepTimerMinutes != nil {
                 Divider()
-                Button("关闭定时", role: .destructive) {
+                Button(SleepL10n.text("关闭定时"), role: .destructive) {
                     cancelSleepTimer()
                 }
             }
@@ -142,7 +142,7 @@ struct StoryPlayerView: View {
             if let progress = player.downloadProgress[story.id] {
                 ProgressView(value: progress)
                     .tint(.blue)
-                Text("正在下载… \(Int(progress * 100))%")
+                Text(SleepL10n.format("正在下载… {0}%", [String(describing: Int(progress * 100))]))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } else {
@@ -161,11 +161,11 @@ struct StoryPlayerView: View {
                 )
 
                 HStack {
-                    Text(timeText(isCurrent ? (isSeeking ? seekValue : player.currentTime) : 0))
+                    Text(SleepL10n.text(timeText(isCurrent ? (isSeeking ? seekValue : player.currentTime) : 0)))
                         .font(.caption.monospacedDigit())
                         .foregroundStyle(.white.opacity(0.72))
                     Spacer()
-                    Text(timeText(isCurrent ? player.duration : 0))
+                    Text(SleepL10n.text(timeText(isCurrent ? player.duration : 0)))
                         .font(.caption.monospacedDigit())
                         .foregroundStyle(.white.opacity(0.72))
                 }
@@ -215,11 +215,11 @@ struct StoryPlayerView: View {
             }
 
             if shouldUseLocalAudio, let error = player.downloadErrors[story.id] {
-                Text(error + "，该故事尚未开放下载，请稍后再试")
+                Text(SleepL10n.text(error + SleepL10n.text("，该故事尚未开放下载，请稍后再试")))
                     .font(.caption)
                     .foregroundStyle(.red)
             } else if !shouldUseLocalAudio {
-                Text("正在使用系统语音朗读本地故事文本")
+                Text(SleepL10n.text("正在使用系统语音朗读本地故事文本"))
                     .font(.caption)
                     .foregroundStyle(.white.opacity(0.58))
             }
@@ -237,8 +237,8 @@ struct StoryPlayerView: View {
 
     private var playbackOrderControls: some View {
         HStack(spacing: 10) {
-            playbackOrderButton(title: "顺序播放", systemImage: "repeat", order: .sequential)
-            playbackOrderButton(title: "随机播放", systemImage: "shuffle", order: .random)
+            playbackOrderButton(title: SleepL10n.text("顺序播放"), systemImage: "repeat", order: .sequential)
+            playbackOrderButton(title: SleepL10n.text("随机播放"), systemImage: "shuffle", order: .random)
         }
     }
 
@@ -251,7 +251,7 @@ struct StoryPlayerView: View {
         return Button {
             playbackOrder = order.rawValue
         } label: {
-            Label(title, systemImage: systemImage)
+            Label(SleepL10n.text(title), systemImage: systemImage)
                 .font(.subheadline.weight(.semibold))
                 .frame(maxWidth: .infinity)
                 .frame(height: 38)
@@ -354,7 +354,7 @@ private struct StoryPlaybackTextView: View {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 7) {
                     ForEach(chunks.indices, id: \.self) { index in
-                        Text(chunks[index])
+                        Text(SleepL10n.text(chunks[index]))
                             .font(.body)
                             .lineSpacing(7)
                             .foregroundStyle(.white.opacity(0.94))
@@ -528,8 +528,8 @@ private struct StorySeekBar: View {
             )
         }
         .frame(height: 30)
-        .accessibilityLabel("播放进度")
-        .accessibilityValue("\(Int(value))秒")
+        .accessibilityLabel(SleepL10n.text("播放进度"))
+        .accessibilityValue(SleepL10n.format("{0}秒", [String(describing: Int(value))]))
     }
 
     private func time(at x: CGFloat, width: CGFloat) -> TimeInterval {

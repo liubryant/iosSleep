@@ -41,9 +41,9 @@ struct StoryHomeView: View {
                     storySearchBar
 
                     if library.articlesEnabled {
-                        storySection(title: "故事推荐", stories: filteredStories)
+                        storySection(title: SleepL10n.text("故事推荐"), stories: filteredStories)
                     } else {
-                        storySection(title: "睡前故事", stories: filteredStories)
+                        storySection(title: SleepL10n.text("睡前故事"), stories: filteredStories)
                     }
                 }
                 .padding(.horizontal)
@@ -53,12 +53,12 @@ struct StoryHomeView: View {
             }
             .overlay {
                 if library.stories.isEmpty {
-                    ProgressView("正在加载故事…")
+                    ProgressView(SleepL10n.text("正在加载故事…"))
                 } else if filteredStories.isEmpty {
-                    EmptyStateView(title: "未找到相关内容", systemImage: "magnifyingglass", message: "换个标题或作者试试。")
+                    EmptyStateView(title: SleepL10n.text("未找到相关内容"), systemImage: "magnifyingglass", message: SleepL10n.text("换个标题或作者试试。"))
                 }
             }
-            .navigationTitle("故事")
+            .navigationTitle(SleepL10n.text("故事"))
             .navigationDestination(for: StoryItem.self) { story in
                 StoryPlayerView(story: story) { nextStory in
                     navigationPath = [nextStory]
@@ -118,7 +118,7 @@ struct StoryHomeView: View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(.secondary)
-            TextField("搜索故事、文章", text: $searchText)
+            TextField(SleepL10n.text("搜索故事、文章"), text: $searchText)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
             if !searchText.isEmpty {
@@ -143,10 +143,10 @@ struct StoryHomeView: View {
         if !stories.isEmpty {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
-                    Text(title)
+                    Text(verbatim: SleepL10n.text(title))
                         .font(.title3.weight(.semibold))
                     Spacer()
-                    Text("\(stories.count)篇")
+                    Text(SleepL10n.format("{0}篇", [String(describing: stories.count)]))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -174,7 +174,7 @@ struct StoryHomeView: View {
                             }
                             .buttonStyle(.plain)
                             .padding(7)
-                            .accessibilityLabel(library.isFavorite(story) ? "取消收藏\(story.title)" : "收藏\(story.title)")
+                            .accessibilityLabel(library.isFavorite(story) ? SleepL10n.format("取消收藏{0}", [String(describing: story.title)]) : SleepL10n.format("收藏{0}", [String(describing: story.title)]))
                         }
                         .frame(maxWidth: .infinity)
                     }

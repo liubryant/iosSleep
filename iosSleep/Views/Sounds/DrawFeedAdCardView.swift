@@ -15,7 +15,7 @@ struct DrawFeedAdCardView: View {
                             NativeAdRepresentable(presentation: presentation)
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
                                 .overlay(alignment: .topLeading) {
-                                    Text("广告")
+                                    Text(SleepL10n.text("广告"))
                                         .font(.caption2)
                                         .foregroundStyle(.white)
                                         .padding(.horizontal, 6)

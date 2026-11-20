@@ -9,16 +9,16 @@ struct DailyInspirationCard: View {
                 DailyInspirationView(entry: entry)
             } label: {
                 VStack(alignment: .leading, spacing: 15) {
-                    Label("今日灵感", systemImage: "sparkle")
+                    Label(SleepL10n.text("今日灵感"), systemImage: "sparkle")
                         .font(.subheadline.weight(.semibold))
 
-                    Text(entry.text)
+                    Text(verbatim: SleepL10n.text(entry.text))
                         .font(.system(.title3, design: .serif).weight(.semibold))
                         .lineSpacing(5)
                         .frame(maxWidth: 480, alignment: .leading)
                         .fixedSize(horizontal: false, vertical: true)
 
-                    Text("\(entry.date.formatted(.dateTime.month().day().locale(DailyInspiration.displayLocale)))  ·  \(entry.theme.rawValue)")
+                    Text(SleepL10n.text("\(entry.date.formatted(.dateTime.month().day().locale(DailyInspiration.displayLocale)))  ·  \(SleepL10n.text(entry.theme.rawValue))"))
                         .font(.caption.monospacedDigit())
                         .foregroundStyle(.white.opacity(0.74))
                 }
@@ -63,7 +63,7 @@ private struct DailyInspirationView: View {
                     InspirationQuote(entry: entry)
                     HStack(spacing: 12) {
                         Button(action: toggleFavorite) {
-                            Label(isFavorite ? "已收藏" : "收藏", systemImage: isFavorite ? "heart.fill" : "heart")
+                            Label(isFavorite ? SleepL10n.text("已收藏") : SleepL10n.text("收藏"), systemImage: isFavorite ? "heart.fill" : "heart")
                                 .foregroundStyle(isFavorite ? Color(red: 1, green: 0.78, blue: 0.73) : .white)
                                 .modifier(InspirationCapsule())
                         }
@@ -74,7 +74,7 @@ private struct DailyInspirationView: View {
                     if let practice = entry.practice {
                         if practice.requiresVIP && !membership.isVIPActive {
                             Button { vipPrompt = SleepVIPPromptContent(title: practice.title, kind: .mindfulness) } label: {
-                                Label("听一段练习 · \(practice.title)", systemImage: "play.circle")
+                                Label(SleepL10n.format("听一段练习 · {0}", [String(describing: practice.title)]), systemImage: "play.circle")
                                     .modifier(InspirationCapsule())
                             }
                             .buttonStyle(.plain)
@@ -82,7 +82,7 @@ private struct DailyInspirationView: View {
                             NavigationLink {
                                 MindfulnessPlayerView(track: practice)
                             } label: {
-                                Label("听一段练习 · \(practice.title)", systemImage: "play.circle")
+                                Label(SleepL10n.format("听一段练习 · {0}", [String(describing: practice.title)]), systemImage: "play.circle")
                                     .modifier(InspirationCapsule())
                             }
                             .buttonStyle(.plain)
@@ -103,17 +103,17 @@ private struct DailyInspirationView: View {
         }
         .safeAreaInset(edge: .top, spacing: 0) {
             HStack {
-                iconButton("返回", icon: "chevron.left") { dismiss() }
+                iconButton(SleepL10n.text("返回"), icon: "chevron.left") { dismiss() }
                 Spacer()
-                iconButton("日历与收藏", icon: "calendar") { showArchive = true }
-                iconButton("分享图片", icon: "square.and.arrow.up", action: share)
+                iconButton(SleepL10n.text("日历与收藏"), icon: "calendar") { showArchive = true }
+                iconButton(SleepL10n.text("分享图片"), icon: "square.and.arrow.up", action: share)
             }
             .padding(.horizontal, 18)
             .padding(.vertical, 8)
             .frame(maxWidth: 650)
             .frame(maxWidth: .infinity)
             .overlay {
-                Text("今日灵感")
+                Text(SleepL10n.text("今日灵感"))
                     .font(.headline.weight(.semibold))
                     .accessibilityAddTraits(.isHeader)
                     .allowsHitTesting(false)
@@ -133,8 +133,8 @@ private struct DailyInspirationView: View {
             InspirationShareSheet(image: image.image)
                 .presentationDetents([.medium, .large])
         }
-        .alert("暂时无法生成分享图片", isPresented: $showShareError) {
-            Button("好", role: .cancel) {}
+        .alert(SleepL10n.text("暂时无法生成分享图片"), isPresented: $showShareError) {
+            Button(SleepL10n.text("好"), role: .cancel) {}
         }
     }
 
@@ -160,9 +160,9 @@ private struct DailyInspirationView: View {
         let renderer = ImageRenderer(content:
             VStack {
                 HStack {
-                    Label("今日灵感", systemImage: "sparkle")
+                    Label(SleepL10n.text("今日灵感"), systemImage: "sparkle")
                     Spacer()
-                    Text("DAILY NOTES")
+                    Text(SleepL10n.text("DAILY NOTES"))
                         .font(.caption.monospaced())
                         .tracking(3)
                 }
@@ -193,13 +193,13 @@ private struct InspirationQuote: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .center, spacing: 14) {
-                Text(entry.date.formatted(.dateTime.day().locale(Locale(identifier: "en_US_POSIX"))))
+                Text(SleepL10n.text(entry.date.formatted(.dateTime.day().locale(Locale(identifier: "en_US_POSIX")))))
                     .font(.system(size: 60, weight: .ultraLight, design: .serif))
                     .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 5) {
-                    Text(entry.date.formatted(.dateTime.year().month().day().locale(DailyInspiration.displayLocale)))
+                    Text(SleepL10n.text(entry.date.formatted(.dateTime.year().month().day().locale(DailyInspiration.displayLocale))))
                         .font(.caption.monospacedDigit())
-                    Text(entry.theme.rawValue)
+                    Text(verbatim: SleepL10n.text(entry.theme.rawValue))
                         .font(.caption.weight(.medium))
                 }
                 .foregroundStyle(.white.opacity(0.86))
@@ -212,7 +212,7 @@ private struct InspirationQuote: View {
 
             JustifiedInspirationText(text: entry.text)
                 .frame(maxWidth: .infinity)
-            Text("—  时光睡眠")
+            Text(SleepL10n.text("—  时光睡眠"))
                 .font(.footnote.weight(.medium))
                 .tracking(2)
                 .foregroundStyle(.white.opacity(0.83))
@@ -244,14 +244,14 @@ private struct JustifiedInspirationText: UIViewRepresentable {
         paragraph.lineSpacing = 8
         paragraph.lineBreakMode = .byWordWrapping
         label.attributedText = NSAttributedString(
-            string: text,
+            string: SleepL10n.text(text),
             attributes: [
                 .font: UIFont(descriptor: descriptor, size: 0),
                 .foregroundColor: UIColor.white,
                 .paragraphStyle: paragraph
             ]
         )
-        label.accessibilityLabel = text
+        label.accessibilityLabel = SleepL10n.text(text)
     }
 
     func sizeThatFits(_ proposal: ProposedViewSize, uiView: UILabel, context: Context) -> CGSize? {
@@ -329,9 +329,9 @@ private struct InspirationArchive: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 16) {
-                Picker("查看", selection: $showingFavorites) {
-                    Text("往期日历").tag(false)
-                    Text("我的收藏").tag(true)
+                Picker(SleepL10n.text("查看"), selection: $showingFavorites) {
+                    Text(SleepL10n.text("往期日历")).tag(false)
+                    Text(SleepL10n.text("我的收藏")).tag(true)
                 }
                 .pickerStyle(.segmented)
                 .padding(.horizontal)
@@ -341,7 +341,7 @@ private struct InspirationArchive: View {
                         VStack(spacing: 12) {
                             Image(systemName: "heart")
                                 .font(.title)
-                            Text("收藏的灵感会留在这里")
+                            Text(SleepL10n.text("收藏的灵感会留在这里"))
                                 .font(.subheadline)
                         }
                         .foregroundStyle(.secondary)
@@ -351,10 +351,10 @@ private struct InspirationArchive: View {
                             let entry = DailyInspiration(day: day)
                             Button { open(day) } label: {
                                 VStack(alignment: .leading, spacing: 6) {
-                                    Text(entry.date.formatted(.dateTime.year().month().day().locale(DailyInspiration.displayLocale)))
+                                    Text(SleepL10n.text(entry.date.formatted(.dateTime.year().month().day().locale(DailyInspiration.displayLocale))))
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
-                                    Text(entry.text)
+                                    Text(verbatim: SleepL10n.text(entry.text))
                                         .foregroundStyle(.primary)
                                 }
                                 .padding(.vertical, 4)
@@ -365,13 +365,13 @@ private struct InspirationArchive: View {
                 } else {
                     ScrollView {
                         VStack(spacing: 16) {
-                            DatePicker("选择日期", selection: $selection,
+                            DatePicker(SleepL10n.text("选择日期"), selection: $selection,
                                        in: DailyInspiration.firstDate...DailyInspiration(day: today).date,
                                        displayedComponents: .date)
                                 .datePickerStyle(.graphical)
                                 .environment(\.calendar, DailyInspiration.calendar)
                                 .environment(\.locale, DailyInspiration.displayLocale)
-                            Button("查看这一天") { open(DailyInspiration.day(for: selection)) }
+                            Button(SleepL10n.text("查看这一天")) { open(DailyInspiration.day(for: selection)) }
                                 .buttonStyle(.borderedProminent)
                         }
                         .frame(maxWidth: 440)
@@ -381,11 +381,11 @@ private struct InspirationArchive: View {
                 }
             }
             .padding(.top, 10)
-            .navigationTitle("灵感手记")
+            .navigationTitle(SleepL10n.text("灵感手记"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("完成") { dismiss() }
+                    Button(SleepL10n.text("完成")) { dismiss() }
                 }
             }
         }

@@ -60,56 +60,56 @@ struct MindfulnessTrack: Identifiable {
     }
 
     static let deepSleep = MindfulnessTrack(
-        id: "deep-sleep-healing", title: "深度睡眠疗愈", subtitle: "正念引导 · 安稳入眠",
+        id: "deep-sleep-healing", title: SleepL10n.text("深度睡眠疗愈"), subtitle: SleepL10n.text("正念引导 · 安稳入眠"),
         resourceName: "深度睡眠", resourceExtension: "mp3", subdirectory: "SoundResources/Mindfulness",
         colors: [Color(red: 0.17, green: 0.31, blue: 0.34), Color(red: 0.23, green: 0.39, blue: 0.40), Color(red: 0.12, green: 0.23, blue: 0.27)],
         accent: .mint, icon: "moon.stars.fill"
     )
 
     static let daytimeEnergy = MindfulnessTrack(
-        id: "daytime-energy", title: "日间提神", subtitle: "正念引导 · 清醒专注",
+        id: "daytime-energy", title: SleepL10n.text("日间提神"), subtitle: SleepL10n.text("正念引导 · 清醒专注"),
         resourceName: "日间提神", resourceExtension: "mp3", subdirectory: "SoundResources/Mindfulness",
         colors: [Color(red: 0.50, green: 0.34, blue: 0.18), Color(red: 0.72, green: 0.52, blue: 0.27), Color(red: 0.34, green: 0.25, blue: 0.18)],
         accent: .orange, icon: "sun.max.fill"
     )
 
     static let walking = MindfulnessTrack(
-        id: "walking-meditation", title: "散步冥想", subtitle: "正念引导 · 感受脚下",
+        id: "walking-meditation", title: SleepL10n.text("散步冥想"), subtitle: SleepL10n.text("正念引导 · 感受脚下"),
         resourceName: "散步冥想", resourceExtension: "mp3", subdirectory: "SoundResources/Mindfulness",
         colors: [Color(red: 0.18, green: 0.38, blue: 0.27), Color(red: 0.34, green: 0.55, blue: 0.39), Color(red: 0.12, green: 0.27, blue: 0.22)],
         accent: .green, icon: "figure.walk", requiresVIP: true
     )
 
     static let emotionalRelease = MindfulnessTrack(
-        id: "emotional-release", title: "睡前释放情绪", subtitle: "正念引导 · 温柔放下",
+        id: "emotional-release", title: SleepL10n.text("睡前释放情绪"), subtitle: SleepL10n.text("正念引导 · 温柔放下"),
         resourceName: "睡前释放情绪", resourceExtension: "mp3", subdirectory: "SoundResources/Mindfulness",
         colors: [Color(red: 0.34, green: 0.24, blue: 0.43), Color(red: 0.51, green: 0.38, blue: 0.58), Color(red: 0.22, green: 0.17, blue: 0.34)],
         accent: .purple, icon: "cloud.moon.fill", requiresVIP: true
     )
 
     static let calmingSleep = MindfulnessTrack(
-        id: "calming-sleep", title: "安定身心助眠", subtitle: "正念引导 · 舒缓身心",
+        id: "calming-sleep", title: SleepL10n.text("安定身心助眠"), subtitle: SleepL10n.text("正念引导 · 舒缓身心"),
         resourceName: "rachel安定身心助眠", resourceExtension: "mp3", subdirectory: "SoundResources/Mindfulness",
         colors: [Color(red: 0.15, green: 0.34, blue: 0.39), Color(red: 0.28, green: 0.52, blue: 0.55), Color(red: 0.11, green: 0.24, blue: 0.31)],
         accent: .cyan, icon: "heart.circle.fill", requiresVIP: true
     )
 
     static let fatigueRelief = MindfulnessTrack(
-        id: "fatigue-relief", title: "缓解疲倦", subtitle: "正念引导 · 恢复能量",
+        id: "fatigue-relief", title: SleepL10n.text("缓解疲倦"), subtitle: SleepL10n.text("正念引导 · 恢复能量"),
         resourceName: "caroline缓解疲倦给身心一次温柔的休息", resourceExtension: "mp3", subdirectory: "SoundResources/Mindfulness",
         colors: [Color(red: 0.25, green: 0.38, blue: 0.26), Color(red: 0.45, green: 0.59, blue: 0.35), Color(red: 0.17, green: 0.29, blue: 0.22)],
         accent: .mint, icon: "leaf.fill", requiresVIP: true
     )
 
     static let quickSleep = MindfulnessTrack(
-        id: "quick-sleep", title: "快速入睡", subtitle: "正念引导 · 沉入梦乡",
+        id: "quick-sleep", title: SleepL10n.text("快速入睡"), subtitle: SleepL10n.text("正念引导 · 沉入梦乡"),
         resourceName: "suyue快速入睡｜让意识慢慢沉入夜晚", resourceExtension: "mp3", subdirectory: "SoundResources/Mindfulness",
         colors: [Color(red: 0.19, green: 0.24, blue: 0.47), Color(red: 0.32, green: 0.39, blue: 0.64), Color(red: 0.13, green: 0.17, blue: 0.34)],
         accent: .blue, icon: "zzz", requiresVIP: true
     )
 
     static let examSleep = MindfulnessTrack(
-        id: "exam-sleep", title: "考前失眠解放", subtitle: "正念引导 · 缓解紧张",
+        id: "exam-sleep", title: SleepL10n.text("考前失眠解放"), subtitle: SleepL10n.text("正念引导 · 缓解紧张"),
         resourceName: "nan考前失眠解放｜放下焦虑，安心入眠", resourceExtension: "mp3", subdirectory: "SoundResources/Mindfulness",
         colors: [Color(red: 0.42, green: 0.24, blue: 0.36), Color(red: 0.62, green: 0.39, blue: 0.51), Color(red: 0.29, green: 0.17, blue: 0.31)],
         accent: .pink, icon: "book.closed.fill", requiresVIP: true
@@ -230,13 +230,14 @@ struct MindfulnessPlayerView: View {
         HStack {
             Button { dismiss() } label: {
                 Image(systemName: "chevron.left")
+                    .flipsForRightToLeftLayoutDirection(true)
                     .font(.system(size: 19, weight: .semibold))
                     .frame(width: 44, height: 44)
                     .background(.white.opacity(0.13))
                     .clipShape(Circle())
             }
             Spacer()
-            Text(track.title).font(.headline.weight(.semibold))
+            Text(verbatim: SleepL10n.text(track.title)).font(.headline.weight(.semibold))
             Spacer()
             Color.clear.frame(width: 44, height: 44)
         }
@@ -271,8 +272,8 @@ struct MindfulnessPlayerView: View {
                 Image(systemName: track.icon)
                     .font(.system(size: 54, weight: .light))
                 VStack(spacing: 5) {
-                    Text(player.isPlaying ? "跟随声音" : "片刻暂停")
-                    Text(player.isPlaying ? "回到当下" : "保持觉察")
+                    Text(SleepL10n.text(player.isPlaying ? SleepL10n.text("跟随声音") : SleepL10n.text("片刻暂停")))
+                    Text(SleepL10n.text(player.isPlaying ? SleepL10n.text("回到当下") : SleepL10n.text("保持觉察")))
                 }
                 .font(.caption.weight(.medium))
                 .multilineTextAlignment(.center)
@@ -304,8 +305,8 @@ struct MindfulnessPlayerView: View {
         VStack(spacing: 20) {
             HStack(spacing: 16) {
                 VStack(alignment: .leading, spacing: 7) {
-                    Text(track.title).font(.title3.weight(.semibold))
-                    Text(player.duration > 0 ? "\(track.subtitle) · \(timeText(player.duration))" : track.subtitle)
+                    Text(verbatim: SleepL10n.text(track.title)).font(.title3.weight(.semibold))
+                    Text(SleepL10n.text(player.duration > 0 ? "\(track.subtitle) · \(timeText(player.duration))" : track.subtitle))
                         .font(.subheadline)
                         .foregroundStyle(.white.opacity(0.62))
                 }
@@ -320,7 +321,7 @@ struct MindfulnessPlayerView: View {
                         .shadow(color: .black.opacity(0.16), radius: 14, y: 7)
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel(player.isPlaying ? "暂停" : "播放")
+                .accessibilityLabel(player.isPlaying ? SleepL10n.text("暂停") : SleepL10n.text("播放"))
             }
 
             VStack(spacing: 8) {
@@ -339,9 +340,9 @@ struct MindfulnessPlayerView: View {
                 )
                 .tint(.white)
                 HStack {
-                    Text(timeText(isSeeking ? seekValue : player.currentTime))
+                    Text(SleepL10n.text(timeText(isSeeking ? seekValue : player.currentTime)))
                     Spacer()
-                    Text("-" + timeText(max(player.duration - (isSeeking ? seekValue : player.currentTime), 0)))
+                    Text(SleepL10n.text("-" + timeText(max(player.duration - (isSeeking ? seekValue : player.currentTime), 0))))
                 }
                 .font(.caption.monospacedDigit())
                 .foregroundStyle(.white.opacity(0.58))
@@ -349,7 +350,7 @@ struct MindfulnessPlayerView: View {
 
             HStack(spacing: 10) {
                 actionButton(
-                    title: isFavorite ? "已收藏" : "收藏",
+                    title: isFavorite ? SleepL10n.text("已收藏") : SleepL10n.text("收藏"),
                     icon: isFavorite ? "heart.fill" : "heart",
                     isActive: isFavorite
                 ) {
@@ -358,27 +359,27 @@ struct MindfulnessPlayerView: View {
                 }
                 Menu {
                     ForEach([5, 10, 15, 30], id: \.self) { minutes in
-                        Button("\(minutes) 分钟后停止") { player.setSleepTimer(minutes: minutes) }
+                        Button(SleepL10n.format("{0} 分钟后停止", [String(describing: minutes)])) { player.setSleepTimer(minutes: minutes) }
                     }
                     if player.sleepTimerText != nil {
                         Divider()
-                        Button("取消定时", role: .destructive) { player.cancelSleepTimer() }
+                        Button(SleepL10n.text("取消定时"), role: .destructive) { player.cancelSleepTimer() }
                     }
                 } label: {
                     actionLabel(
-                        title: player.sleepTimerText ?? "定时",
+                        title: player.sleepTimerText ?? SleepL10n.text("定时"),
                         icon: player.sleepTimerText == nil ? "timer" : "timer.circle.fill",
                         isActive: player.sleepTimerText != nil
                     )
                 }
-                actionButton(title: "上一个", icon: "backward.end.fill", action: playPreviousTrack)
+                actionButton(title: SleepL10n.text("上一个"), icon: "backward.end.fill", action: playPreviousTrack)
                     .disabled(previousTrackIndex == nil)
-                actionButton(title: "下一个", icon: "forward.end.fill", action: playNextTrack)
+                actionButton(title: SleepL10n.text("下一个"), icon: "forward.end.fill", action: playNextTrack)
                     .disabled(switchTask != nil)
             }
 
             if let error = switchMessage ?? player.errorMessage {
-                Text(error)
+                Text(verbatim: SleepL10n.text(error))
                     .font(.caption)
                     .foregroundStyle(Color(red: 1, green: 0.78, blue: 0.72))
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -418,7 +419,7 @@ struct MindfulnessPlayerView: View {
                     $0.trackID != startingTrack.id && canPlay($0.requiresVIP == true)
                 }
                 guard let index = (0..<(local.count + remote.count)).randomElement() else {
-                    switchMessage = "暂无其他可播放的冥想"
+                    switchMessage = SleepL10n.text("暂无其他可播放的冥想")
                     return
                 }
                 let nextTrack: MindfulnessTrack
@@ -436,7 +437,7 @@ struct MindfulnessPlayerView: View {
                 }
             } catch {
                 guard !Task.isCancelled else { return }
-                switchMessage = "这段冥想暂时无法下载，请重试"
+                switchMessage = SleepL10n.text("这段冥想暂时无法下载，请重试")
             }
         }
     }
@@ -458,7 +459,7 @@ struct MindfulnessPlayerView: View {
     private func actionLabel(title: String, icon: String, isActive: Bool) -> some View {
         VStack(spacing: 7) {
             Image(systemName: icon).font(.system(size: 19, weight: .semibold))
-            Text(title)
+            Text(verbatim: SleepL10n.text(title))
                 .font(.system(size: 10, weight: .medium))
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
@@ -500,7 +501,7 @@ final class MindfulnessAudioPlayer: NSObject, ObservableObject, AVAudioPlayerDel
     @discardableResult
     func prepareAndPlay(track: MindfulnessTrack, preservingSleepTimer: Bool = false) -> Bool {
         guard !track.requiresVIP || SleepMembershipSession.shared.isVIPActive else {
-            errorMessage = "这段冥想仅限会员播放"
+            errorMessage = SleepL10n.text("这段冥想仅限会员播放")
             return false
         }
         if currentTrack?.id == track.id, audioPlayer != nil { play(); return isPlaying }
@@ -508,7 +509,7 @@ final class MindfulnessAudioPlayer: NSObject, ObservableObject, AVAudioPlayerDel
             forResource: track.resourceName, withExtension: track.resourceExtension,
             subdirectory: track.subdirectory
         ) else {
-            errorMessage = "未找到\(track.title)音频资源"
+            errorMessage = SleepL10n.format("未找到{0}音频资源", [String(describing: track.title)])
             return false
         }
         do {
@@ -531,7 +532,7 @@ final class MindfulnessAudioPlayer: NSObject, ObservableObject, AVAudioPlayerDel
             AppReviewPrompt.recordPlayback(id: "mindfulness:\(track.id)")
             return true
         } catch {
-            errorMessage = "音频加载失败，请重新进入页面"
+            errorMessage = SleepL10n.text("音频加载失败，请重新进入页面")
             return false
         }
     }
